@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.8.0 - 2026-05-18
+
+## [2.8.0](https://github.com/wenisch-tech/Kairos/compare/v2.7.6...v2.8.0) (2026-05-18)
+
+
+### Features
+
+* Introduces socks and HTTP Proxy support ([ff83c41](https://github.com/wenisch-tech/Kairos/commit/ff83c418ecb64b4e62fb85960795f552a566eb3a)), closes [#60](https://github.com/wenisch-tech/Kairos/issues/60) [#56](https://github.com/wenisch-tech/Kairos/issues/56)
+
+
+
+Docker image: ghcr.io/wenisch-tech/kairos:2.8.0
+
+
 ## v2.7.6 - 2026-05-12
 
 ### [2.7.6](https://github.com/wenisch-tech/Kairos/compare/v2.7.5...v2.7.6) (2026-05-12)
