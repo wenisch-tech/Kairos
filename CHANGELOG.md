@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.8.1 - 2026-05-20
+
+### [2.8.1](https://github.com/wenisch-tech/Kairos/compare/v2.8.0...v2.8.1) (2026-05-20)
+
+
+### Build Systems
+
+* **deps:** bump actions/download-artifact from 4 to 8 ([#61](https://github.com/wenisch-tech/Kairos/issues/61)) ([4a0f2f3](https://github.com/wenisch-tech/Kairos/commit/4a0f2f3df07033c95b020068af6c668d24d50a5c))
+
+
+
+Docker image: ghcr.io/wenisch-tech/kairos:2.8.1
+
+
 ## v2.8.0 - 2026-05-18
 
 ## [2.8.0](https://github.com/wenisch-tech/Kairos/compare/v2.7.6...v2.8.0) (2026-05-18)
