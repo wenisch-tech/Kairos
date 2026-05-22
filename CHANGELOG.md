@@ -1,5 +1,22 @@
 # Changelog
 
+## v2.8.2 - 2026-05-22
+
+### [2.8.2](https://github.com/wenisch-tech/Kairos/compare/v2.8.1...v2.8.2) (2026-05-22)
+
+
+### Build Systems
+
+* **deps:** bump actions/deploy-pages from 4 to 5 ([#59](https://github.com/wenisch-tech/Kairos/issues/59)) ([d8937f1](https://github.com/wenisch-tech/Kairos/commit/d8937f19d3345bde2eb0c52dc674a3943f078dab))
+* **deps:** bump actions/upload-artifact from 4 to 7 ([ad47ff0](https://github.com/wenisch-tech/Kairos/commit/ad47ff0ca6dcdee63da95a5470d862cba721b72e))
+* **deps:** bump dependabot/fetch-metadata from 2 to 3 ([ae0943c](https://github.com/wenisch-tech/Kairos/commit/ae0943c5e5f668948c8f2eb5c515cd362304bdaa))
+* **deps:** bump marocchino/sticky-pull-request-comment from 2 to 3 ([064be27](https://github.com/wenisch-tech/Kairos/commit/064be27fceba041907ed3fd237b29f2e26ffcb7d))
+
+
+
+Docker image: ghcr.io/wenisch-tech/kairos:2.8.2
+
+
 ## v2.8.1 - 2026-05-20
 
 ### [2.8.1](https://github.com/wenisch-tech/Kairos/compare/v2.8.0...v2.8.1) (2026-05-20)
