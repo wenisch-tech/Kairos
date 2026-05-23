@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.util.UriUtils;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +40,7 @@ import tech.wenisch.kairos.entity.DiscoveryServiceAuth;
 import tech.wenisch.kairos.entity.DiscoveryServiceType;
 import tech.wenisch.kairos.entity.EmbedPolicy;
 import tech.wenisch.kairos.entity.MonitoredResource;
+import tech.wenisch.kairos.entity.Outage;
 import tech.wenisch.kairos.entity.ResourceDiscovery;
 import tech.wenisch.kairos.entity.ResourceGroup;
 import tech.wenisch.kairos.entity.ResourceGroupVisibility;
@@ -57,6 +59,7 @@ import tech.wenisch.kairos.service.CheckAuditService;
 import tech.wenisch.kairos.service.CheckExecutorService;
 import tech.wenisch.kairos.service.CustomHeaderService;
 import tech.wenisch.kairos.service.EmbedSettingsService;
+import tech.wenisch.kairos.service.OutageService;
 import tech.wenisch.kairos.service.ProxySettingsService;
 import tech.wenisch.kairos.service.ResourceDiscoveryManagementService;
 import tech.wenisch.kairos.service.ResourceExchangeService;
@@ -86,6 +89,7 @@ public class AdminController {
     private final ProxySettingsService proxySettingsService;
     private final ResourceDiscoveryManagementService resourceDiscoveryManagementService;
     private final CheckAuditService checkAuditService;
+    private final OutageService outageService;
 
     @GetMapping
     public String admin() {
@@ -342,6 +346,65 @@ public class AdminController {
         corsAllowedOriginRepository.deleteById(id);
         redirectAttributes.addFlashAttribute("successMessage", "CORS origin removed.");
         return "redirect:/admin/settings";
+    }
+
+    @GetMapping("/outages")
+    public String outages(@RequestParam(defaultValue = "all") String status,
+                          @RequestParam(defaultValue = "") String q,
+                          Model model) {
+        String normalizedStatus = normalizeOutageStatus(status);
+        String normalizedQuery = q == null ? "" : q.trim();
+
+        List<Outage> outages = outageService.findAll().stream()
+                .filter(outage -> outageMatchesStatus(outage, normalizedStatus))
+                .filter(outage -> outageMatchesQuery(outage, normalizedQuery))
+                .limit(500)
+                .toList();
+
+        model.addAttribute("outages", outages);
+        model.addAttribute("selectedStatus", normalizedStatus);
+        model.addAttribute("searchQuery", normalizedQuery);
+        return "admin/outages";
+    }
+
+    @PostMapping("/outages/delete/{id}")
+    public String deleteOutage(@PathVariable Long id,
+                               @RequestParam(defaultValue = "all") String status,
+                               @RequestParam(defaultValue = "") String q,
+                               RedirectAttributes redirectAttributes) {
+        Outage outage = outageService.findById(id).orElse(null);
+        if (outage == null) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Outage not found.");
+            return buildOutagesRedirect(status, q);
+        }
+
+        outageService.deleteById(id);
+        redirectAttributes.addFlashAttribute("successMessage", "Outage deleted successfully.");
+        return buildOutagesRedirect(status, q);
+    }
+
+    @PostMapping("/outages/delete-selected")
+    public String deleteSelectedOutages(@RequestParam(name = "outageIds", required = false) List<Long> outageIds,
+                                        @RequestParam(defaultValue = "all") String status,
+                                        @RequestParam(defaultValue = "") String q,
+                                        RedirectAttributes redirectAttributes) {
+        if (outageIds == null || outageIds.isEmpty()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Select at least one outage to delete.");
+            return buildOutagesRedirect(status, q);
+        }
+
+        int deleted = outageService.deleteByIds(outageIds);
+        redirectAttributes.addFlashAttribute("successMessage", "Deleted " + deleted + " outage(s).");
+        return buildOutagesRedirect(status, q);
+    }
+
+    @PostMapping("/outages/delete-resolved")
+    public String deleteResolvedOutages(@RequestParam(defaultValue = "all") String status,
+                                        @RequestParam(defaultValue = "") String q,
+                                        RedirectAttributes redirectAttributes) {
+        long deleted = outageService.deleteResolved();
+        redirectAttributes.addFlashAttribute("successMessage", "Deleted " + deleted + " resolved outage(s).");
+        return buildOutagesRedirect(status, q);
     }
 
     @GetMapping("/resources")
@@ -949,6 +1012,46 @@ public class AdminController {
             }
         }
         return groups;
+    }
+
+    private String normalizeOutageStatus(String status) {
+        if (status == null) {
+            return "all";
+        }
+
+        return switch (status.toLowerCase()) {
+            case "active", "resolved", "all" -> status.toLowerCase();
+            default -> "all";
+        };
+    }
+
+    private boolean outageMatchesStatus(Outage outage, String status) {
+        if ("active".equals(status)) {
+            return outage.isActive();
+        }
+        if ("resolved".equals(status)) {
+            return !outage.isActive();
+        }
+        return true;
+    }
+
+    private boolean outageMatchesQuery(Outage outage, String query) {
+        if (query == null || query.isBlank()) {
+            return true;
+        }
+
+        String haystack = String.valueOf(outage.getId());
+        if (outage.getResource() != null && outage.getResource().getName() != null) {
+            haystack = haystack + " " + outage.getResource().getName();
+        }
+        return haystack.toLowerCase().contains(query.toLowerCase());
+    }
+
+    private String buildOutagesRedirect(String status, String query) {
+        String normalizedStatus = normalizeOutageStatus(status);
+        String normalizedQuery = query == null ? "" : query.trim();
+        String encodedQuery = UriUtils.encodeQueryParam(normalizedQuery, StandardCharsets.UTF_8);
+        return "redirect:/admin/outages?status=" + normalizedStatus + "&q=" + encodedQuery;
     }
 
     private List<AdminResourceGroupViewModel> buildAdminResourceGroups(List<MonitoredResource> resources,

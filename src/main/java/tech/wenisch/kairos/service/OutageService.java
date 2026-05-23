@@ -1,10 +1,20 @@
 package tech.wenisch.kairos.service;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import tech.wenisch.kairos.entity.CheckResult;
 import tech.wenisch.kairos.entity.CheckStatus;
 import tech.wenisch.kairos.entity.MonitoredResource;
@@ -14,14 +24,6 @@ import tech.wenisch.kairos.entity.ResourceTypeConfig;
 import tech.wenisch.kairos.repository.CheckResultRepository;
 import tech.wenisch.kairos.repository.OutageRepository;
 import tech.wenisch.kairos.repository.ResourceTypeConfigRepository;
-
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -130,6 +132,30 @@ public class OutageService {
 
     public List<Outage> findAll() {
         return outageRepository.findAllByOrderByStartDateDesc();
+    }
+
+    public Optional<Outage> findById(Long id) {
+        return outageRepository.findById(id);
+    }
+
+    public void deleteById(Long id) {
+        outageRepository.deleteById(id);
+    }
+
+    @Transactional
+    public int deleteByIds(Collection<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return 0;
+        }
+
+        List<Long> distinctIds = ids.stream().distinct().toList();
+        outageRepository.deleteAllById(distinctIds);
+        return distinctIds.size();
+    }
+
+    @Transactional
+    public long deleteResolved() {
+        return outageRepository.deleteByActiveFalse();
     }
 
     public List<Outage> findAllForApi() {
