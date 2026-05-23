@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.9.0 - 2026-05-23
+
+## [2.9.0](https://github.com/wenisch-tech/Kairos/compare/v2.8.2...v2.9.0) (2026-05-23)
+
+
+### Features
+
+* Allow manual deletion of outages ([8b27e64](https://github.com/wenisch-tech/Kairos/commit/8b27e640e221196cbdad91a9f72c8096679e3f30))
+
+
+
+Docker image: ghcr.io/wenisch-tech/kairos:2.9.0
+
+
 ## v2.8.2 - 2026-05-22
 
 ### [2.8.2](https://github.com/wenisch-tech/Kairos/compare/v2.8.1...v2.8.2) (2026-05-22)
