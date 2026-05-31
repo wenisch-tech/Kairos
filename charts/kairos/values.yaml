@@ -2,7 +2,7 @@ replicaCount: 1
 image:
   registry: ghcr.io
   repository: wenisch-tech/kairos
-  tag: 2.9.1
+  tag: 2.9.1@sha256:1520ab73ddfff01d511e22e6d5c3ebbcb53d03f26e1b3c0ac0618a3c07038fd8
   pullPolicy: IfNotPresent
 imagePullSecrets: []
 nameOverride: ""
