@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.9.5 - 2026-05-31
+
+### [2.9.5](https://github.com/wenisch-tech/Kairos/compare/v2.9.4...v2.9.5) (2026-05-31)
+
+
+### Bug Fixes
+
+* **deps:** update non-major dependencies ([91fa8e9](https://github.com/wenisch-tech/Kairos/commit/91fa8e93d9f2cb89dcede7858ea43592431ad57c))
+
+
+
+Docker image: ghcr.io/wenisch-tech/kairos:2.9.5
+
+
 ## v2.9.4 - 2026-05-31
 
 ### [2.9.4](https://github.com/wenisch-tech/Kairos/compare/v2.9.3...v2.9.4) (2026-05-31)
