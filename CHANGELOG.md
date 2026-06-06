@@ -1,5 +1,14 @@
 # Changelog
 
+## v2.9.6 - 2026-06-06
+
+### [2.9.6](https://github.com/wenisch-tech/Kairos/compare/v2.9.5...v2.9.6) (2026-06-06)
+
+
+
+Docker image: ghcr.io/wenisch-tech/kairos:2.9.6
+
+
 ## v2.9.5 - 2026-05-31
 
 ### [2.9.5](https://github.com/wenisch-tech/Kairos/compare/v2.9.4...v2.9.5) (2026-05-31)
