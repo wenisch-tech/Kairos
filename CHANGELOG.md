@@ -1,5 +1,25 @@
 # Changelog
 
+## v2.12.0 - 2026-06-07
+
+## [2.12.0](https://github.com/wenisch-tech/Kairos/compare/v2.11.0...v2.12.0) (2026-06-07)
+
+
+### Features
+
+* implementation of native build and additional fixes to thymeleaf to support native reflections ([0686b8d](https://github.com/wenisch-tech/Kairos/commit/0686b8df10c6df986fca0a3088a981986e292e4b))
+
+
+### Bug Fixes
+
+* fixed problem checks not run during PR ([d2ecc02](https://github.com/wenisch-tech/Kairos/commit/d2ecc02184b204102310187b7a7173db46d4f676))
+* updated ci relating invalid tags ([cfbf0eb](https://github.com/wenisch-tech/Kairos/commit/cfbf0eb7dba4681f1e5798e7ed06271d17fc933a))
+
+
+
+Docker image: ghcr.io/wenisch-tech/kairos:2.12.0
+
+
 ## v2.11.0 - 2026-06-07
 
 ## [2.11.0](https://github.com/wenisch-tech/Kairos/compare/v2.10.0...v2.11.0) (2026-06-07)
