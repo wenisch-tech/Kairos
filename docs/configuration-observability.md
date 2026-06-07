@@ -64,10 +64,30 @@ metrics:
     scrapeTimeout: 10s
 ```
 
+## Grafana Dashboard
+
+A ready-to-import Grafana dashboard is available at:
+
+```text
+docs/assets/kairos-grafana-dashboard.json
+```
+
+Import it in Grafana through **Dashboards -> New -> Import**, upload the JSON file, and select the Prometheus datasource that scrapes Kairos.
+
+The dashboard includes:
+
+- Resource availability, available/down/unknown totals, and current status mix
+- Resource status timeline and most volatile resources over the selected range
+- Resource type breakdown for HTTP, Docker, TCP, and any future resource types
+- Prometheus scrape health and scrape duration
+- Spring Boot/Micrometer runtime panels for process uptime, HTTP traffic, JVM memory, CPU, threads, and GC pause pressure
+
+The dashboard uses the `kairos_resource_status` metric for resource health and standard Spring Boot actuator metrics for runtime panels. Kairos latency samples are stored in the application database and exposed through the Kairos API, but they are not currently exported as Prometheus time series, so the dashboard does not include latency panels yet.
+
 ## Key Metric
 
 ```text
-kairos_resource_status{resource_name="<name>",resource_type="<HTTP|DOCKER>"}
+kairos_resource_status{resource_name="<name>",resource_type="<HTTP|DOCKER|TCP>"}
 ```
 
 | Value | Meaning |
