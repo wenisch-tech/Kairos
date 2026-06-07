@@ -104,7 +104,6 @@ jobs:
     needs:
       - versioning
       - test
-    continue-on-error: true
     permissions:
       contents: read
       packages: write
