@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.12.1 - 2026-06-07
+
+### [2.12.1](https://github.com/wenisch-tech/Kairos/compare/v2.12.0...v2.12.1) (2026-06-07)
+
+
+### Bug Fixes
+
+* Added FlywayMigration Config to support migrations with native image ([d627944](https://github.com/wenisch-tech/Kairos/commit/d62794422c643c4be012f4f4c333c01b7ea6395f))
+
+
+
+Docker image: ghcr.io/wenisch-tech/kairos:2.12.1
+
+
 ## v2.12.0 - 2026-06-07
 
 ## [2.12.0](https://github.com/wenisch-tech/Kairos/compare/v2.11.0...v2.12.0) (2026-06-07)
