@@ -104,6 +104,41 @@ bash scripts/check-container-endpoints.sh kairos-native-local:test 18081 native-
 
 If the changed work touches templates beyond the public dashboard, start the native container and verify the concrete page paths you changed as well.
 
+## Flyway And Persistence Guidance
+
+Another native-specific issue showed up only when starting against an existing persisted database, which is the normal Helm/PVC case.
+
+The failure mode was:
+
+- the native image opened the H2 database successfully under `/app/data`
+- Flyway then failed validation because Java-based migrations already recorded in `flyway_schema_history` were not being discovered from native classpath scanning
+- startup aborted even though the same database worked in the JVM image
+
+In Kairos, several migrations are implemented as Java migrations under `src/main/java/db/migration`. Those must not rely on native classpath scanning alone.
+
+To keep future migrations native-safe:
+
+1. If you add a new Java Flyway migration, also register it in [FlywayMigrationConfig.java](c:/Git/wenisch.tech/kairos/src/main/java/tech/wenisch/kairos/config/FlywayMigrationConfig.java:1).
+2. Treat migration changes as persisted-state changes, not only first-boot changes.
+   A native image that works against an empty database can still fail against an existing PVC with prior migration history.
+3. Validate both cases after Flyway changes:
+   - clean database startup
+   - startup against a database first initialized by the JVM image or a previous release
+
+Recommended validation flow after migration changes:
+
+```bash
+mvn -B -DskipTests package
+docker build -f Dockerfile-native -t kairos-native-local:test .
+```
+
+Then verify:
+
+1. Native startup on a clean database.
+2. Native startup against an existing H2 database directory populated by the JVM application.
+
+For Helm deployments this matters because the PVC preserves `flyway_schema_history`, so native rollout must remain compatible with migration metadata produced by earlier JVM releases.
+
 ## Runtime Validation Areas
 
 Validate these areas before treating the native image as production-ready:
