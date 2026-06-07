@@ -9,6 +9,9 @@ on:
       image:
         required: true
         type: string
+      is_pull_request:
+        required: true
+        type: boolean
 
 jobs:
   docker_native:
@@ -132,7 +135,7 @@ jobs:
           path: trivy-native-distroless-report.txt
 
       - name: Add native Trivy report to PR
-        if: always() && github.event_name == 'pull_request'
+        if: always() && inputs.is_pull_request
         continue-on-error: true
         uses: actions/github-script@v7
         with:
@@ -161,7 +164,7 @@ jobs:
             });
 
       - name: Add native endpoint check to PR
-        if: always() && github.event_name == 'pull_request'
+        if: always() && inputs.is_pull_request
         continue-on-error: true
         uses: actions/github-script@v7
         with:
