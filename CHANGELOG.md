@@ -1,5 +1,25 @@
 # Changelog
 
+## v2.11.0 - 2026-06-07
+
+## [2.11.0](https://github.com/wenisch-tech/Kairos/compare/v2.10.0...v2.11.0) (2026-06-07)
+
+
+### Features
+
+* added default grafana dashboard ([88f44ac](https://github.com/wenisch-tech/Kairos/commit/88f44ac6316c9560ba902bbe1713226687cae91b))
+* extended provided kairos metrics with latency and outages metrics and updated dashboard and docs accordingly ([74e5440](https://github.com/wenisch-tech/Kairos/commit/74e5440b1f302701c09d4a7a46239a774654581d))
+
+
+### Bug Fixes
+
+* fixed problem generated prometheus metrics showing NaN after garbage collection ([08e620a](https://github.com/wenisch-tech/Kairos/commit/08e620a7aae872b6b87ddfec1169a6dcf293d60f))
+
+
+
+Docker image: ghcr.io/wenisch-tech/kairos:2.11.0
+
+
 ## v2.10.0 - 2026-06-07
 
 ## [2.10.0](https://github.com/wenisch-tech/Kairos/compare/v2.9.6...v2.10.0) (2026-06-07)
