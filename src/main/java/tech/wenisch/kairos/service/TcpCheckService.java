@@ -29,6 +29,7 @@ public class TcpCheckService {
     private final ResourceStatusStreamService resourceStatusStreamService;
     private final OutageService outageService;
     private final ProxySettingsService proxySettingsService;
+    private final MetricsService metricsService;
 
     public InstantCheckExecutionResult probe(String target, boolean skipTls, boolean useStoredAuth) {
         long checkStartedNanos = System.nanoTime();
@@ -75,6 +76,7 @@ public class TcpCheckService {
                     .latencyMs(elapsedMillis(checkStartedNanos))
                     .build();
             CheckResult saved = checkResultRepository.save(result);
+            metricsService.recordCheckResult(saved);
             outageService.evaluate(resource);
             resourceStatusStreamService.publishResourceUpdate(resource);
             return saved;
@@ -89,6 +91,7 @@ public class TcpCheckService {
                     .latencyMs(elapsedMillis(checkStartedNanos))
                     .build();
             CheckResult saved = checkResultRepository.save(result);
+            metricsService.recordCheckResult(saved);
             outageService.evaluate(resource);
             resourceStatusStreamService.publishResourceUpdate(resource);
             return saved;

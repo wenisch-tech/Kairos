@@ -37,6 +37,7 @@ class OutageServiceTest {
     @Mock private CheckResultRepository checkResultRepository;
     @Mock private ResourceTypeConfigRepository resourceTypeConfigRepository;
     @Mock private NotificationDispatchService notificationDispatchService;
+    @Mock private MetricsService metricsService;
 
     private OutageService outageService;
 
@@ -44,7 +45,7 @@ class OutageServiceTest {
 
     @BeforeEach
     void setUp() {
-        outageService = new OutageService(outageRepository, checkResultRepository, resourceTypeConfigRepository, notificationDispatchService);
+        outageService = new OutageService(outageRepository, checkResultRepository, resourceTypeConfigRepository, notificationDispatchService, metricsService);
         resource = MonitoredResource.builder()
                 .id(1L).name("TestService").resourceType(ResourceType.HTTP).active(true).build();
     }
@@ -80,6 +81,7 @@ class OutageServiceTest {
         verify(outageRepository).save(captor.capture());
         assertThat(captor.getValue().isActive()).isTrue();
         assertThat(captor.getValue().getStartDate()).isEqualTo(t1);
+        verify(metricsService).recordOutageStarted(captor.getValue());
     }
 
     @Test
@@ -139,6 +141,7 @@ class OutageServiceTest {
         verify(outageRepository).save(captor.capture());
         assertThat(captor.getValue().isActive()).isFalse();
         assertThat(captor.getValue().getEndDate()).isEqualTo(t2);
+        verify(metricsService).recordOutageResolved(captor.getValue());
     }
 
     @Test

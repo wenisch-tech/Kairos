@@ -51,6 +51,9 @@ class ResourceServiceTest {
     @Mock
     private ResourceTypeConfigRepository resourceTypeConfigRepository;
 
+    @Mock
+    private MetricsService metricsService;
+
     private ResourceService resourceService;
 
     @BeforeEach
@@ -60,7 +63,8 @@ class ResourceServiceTest {
                 checkResultRepository,
                 outageRepository,
                 resourceGroupRepository,
-                resourceTypeConfigRepository);
+                resourceTypeConfigRepository,
+                metricsService);
     }
 
     @Test
@@ -81,6 +85,7 @@ class ResourceServiceTest {
         MonitoredResource saved = resourceService.save(input);
 
         assertThat(saved.getCreatedAt()).isNotNull();
+        verify(metricsService).registerOrUpdateResource(saved);
     }
 
     @Test
@@ -92,6 +97,7 @@ class ResourceServiceTest {
         MonitoredResource saved = resourceService.save(input);
 
         assertThat(saved.getCreatedAt()).isEqualTo(existing);
+        verify(metricsService).registerOrUpdateResource(saved);
     }
 
     @Test
@@ -113,6 +119,7 @@ class ResourceServiceTest {
         verify(outageRepository).deleteAll(List.of(outage));
         verify(checkResultRepository).delete(resultOne);
         verify(checkResultRepository).delete(resultTwo);
+        verify(metricsService).unregisterResource(resource);
         verify(resourceRepository).delete(resource);
     }
 
@@ -156,6 +163,7 @@ class ResourceServiceTest {
         assertThat(savedClosedOutage.isActive()).isFalse();
         assertThat(savedClosedOutage.getEndDate()).isNotNull();
 
+        verify(metricsService).unregisterResource(resource);
         verify(resourceRepository).delete(resource);
         }
 

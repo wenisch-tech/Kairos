@@ -29,6 +29,7 @@ public interface MonitoredResourceRepository extends JpaRepository<MonitoredReso
             """)
     List<MonitoredResource> findAllForAdmin();
 
+    List<MonitoredResource> findByActiveTrue();
     List<MonitoredResource> findByResourceTypeAndActiveTrue(ResourceType resourceType);
     List<MonitoredResource> findByResourceType(ResourceType resourceType);
     List<MonitoredResource> findByGroups_Id(Long groupId);

@@ -51,6 +51,7 @@ public class HttpCheckService {
     private final ResourceStatusStreamService resourceStatusStreamService;
     private final OutageService outageService;
     private final ProxySettingsService proxySettingsService;
+    private final MetricsService metricsService;
 
     public InstantCheckExecutionResult probe(String target, boolean skipTls, boolean useStoredAuth) {
         String url = target == null ? "" : target.trim();
@@ -152,6 +153,7 @@ public class HttpCheckService {
                         .build();
             }
             CheckResult saved = checkResultRepository.save(result);
+            metricsService.recordCheckResult(saved);
             outageService.evaluate(resource);
             resourceStatusStreamService.publishResourceUpdate(resource);
             return saved;
@@ -171,6 +173,7 @@ public class HttpCheckService {
                     .tlsHandshakeMs(phaseLatency.tlsHandshakeMs())
                     .build();
             CheckResult saved = checkResultRepository.save(result);
+            metricsService.recordCheckResult(saved);
             outageService.evaluate(resource);
             resourceStatusStreamService.publishResourceUpdate(resource);
             return saved;

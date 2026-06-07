@@ -42,6 +42,7 @@ public class ResourceService {
     private final OutageRepository outageRepository;
     private final ResourceGroupRepository resourceGroupRepository;
     private final ResourceTypeConfigRepository resourceTypeConfigRepository;
+    private final MetricsService metricsService;
 
     public List<MonitoredResource> findAllActive() {
         return sortResources(resourceRepository.findAllActiveForLanding());
@@ -65,7 +66,9 @@ public class ResourceService {
         if (resource.getCreatedAt() == null) {
             resource.setCreatedAt(LocalDateTime.now());
         }
-        return resourceRepository.save(resource);
+        MonitoredResource saved = resourceRepository.save(resource);
+        metricsService.registerOrUpdateResource(saved);
+        return saved;
     }
 
     @Transactional
@@ -76,6 +79,7 @@ public class ResourceService {
             deleteOrNullifyOutages(resource, deleteOutages);
             checkResultRepository.findByResourceOrderByCheckedAtDesc(resource)
                     .forEach(checkResultRepository::delete);
+            metricsService.unregisterResource(resource);
             resourceRepository.delete(resource);
         });
     }

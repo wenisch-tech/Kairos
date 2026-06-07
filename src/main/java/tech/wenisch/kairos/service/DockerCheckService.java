@@ -59,6 +59,7 @@ public class DockerCheckService {
     private final ResourceStatusStreamService resourceStatusStreamService;
     private final OutageService outageService;
     private final ProxySettingsService proxySettingsService;
+    private final MetricsService metricsService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public InstantCheckExecutionResult probe(String target, boolean skipTls, boolean useStoredAuth) {
@@ -146,6 +147,7 @@ public class DockerCheckService {
                     .latencyMs(elapsedMillis(checkStartedNanos))
                     .build();
             CheckResult saved = checkResultRepository.save(result);
+            metricsService.recordCheckResult(saved);
             outageService.evaluate(resource);
             resourceStatusStreamService.publishResourceUpdate(resource);
             return saved;
@@ -161,6 +163,7 @@ public class DockerCheckService {
                     .latencyMs(elapsedMillis(checkStartedNanos))
                     .build();
             CheckResult saved = checkResultRepository.save(result);
+            metricsService.recordCheckResult(saved);
             outageService.evaluate(resource);
             resourceStatusStreamService.publishResourceUpdate(resource);
             return saved;

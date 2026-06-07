@@ -34,6 +34,7 @@ public class OutageService {
     private final CheckResultRepository checkResultRepository;
     private final ResourceTypeConfigRepository resourceTypeConfigRepository;
     private final NotificationDispatchService notificationDispatchService;
+    private final MetricsService metricsService;
 
     /**
      * Evaluates whether an outage should be opened or closed for the given resource,
@@ -71,6 +72,7 @@ public class OutageService {
                         .active(true)
                         .build();
                 outageRepository.save(outage);
+                metricsService.recordOutageStarted(outage);
                 log.info("Outage opened for resource '{}' (id={}) starting at {}",
                         resource.getName(), resource.getId(), startDate);
                 try {
@@ -94,6 +96,7 @@ public class OutageService {
                 outage.setEndDate(endDate);
                 outage.setActive(false);
                 outageRepository.save(outage);
+                metricsService.recordOutageResolved(outage);
                 log.info("Outage closed for resource '{}' (id={}) ending at {}",
                         resource.getName(), resource.getId(), endDate);
                 try {
