@@ -173,6 +173,35 @@ helm install kairos . -n kairos --create-namespace \
 | `livenessProbe.enabled` | `true` | Enable liveness probe |
 | `readinessProbe.enabled` | `true` | Enable readiness probe |
 
+#### Metrics Scraping
+
+The chart adds Prometheus scrape annotations to the `Service` by default:
+
+- `prometheus.io/scrape: "true"`
+- `prometheus.io/path: /actuator/prometheus`
+- `prometheus.io/port: "8080"`
+
+That is enough for Prometheus setups that discover annotated services.
+
+If you use Prometheus Operator / `kube-prometheus-stack`, enable the optional `ServiceMonitor`:
+
+```bash
+helm install kairos . -n kairos \
+  --set metrics.serviceMonitor.enabled=true
+```
+
+Useful values:
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `metrics.path` | `/actuator/prometheus` | Scrape path |
+| `metrics.serviceAnnotations.enabled` | `true` | Add `prometheus.io/*` annotations to the `Service` |
+| `metrics.podAnnotations.enabled` | `false` | Add `prometheus.io/*` annotations to the pod template |
+| `metrics.serviceMonitor.enabled` | `false` | Create a `ServiceMonitor` resource |
+| `metrics.serviceMonitor.namespace` | `""` | Namespace for the `ServiceMonitor` resource |
+| `metrics.serviceMonitor.interval` | `30s` | Prometheus scrape interval |
+| `metrics.serviceMonitor.scrapeTimeout` | `10s` | Prometheus scrape timeout |
+
 ### Sensitive Data (Secrets)
 
 Use the `secrets` section in `values.yaml` or pass sensitive values via `--set`:

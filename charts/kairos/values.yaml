@@ -7,6 +7,7 @@ image:
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
+podAnnotations: {}
 podSecurityContext:
   runAsNonRoot: true
   runAsUser: 65532
@@ -23,6 +24,21 @@ service:
   type: ClusterIP
   port: 8080
   targetPort: 8080
+  annotations: {}
+metrics:
+  path: /actuator/prometheus
+  serviceAnnotations:
+    enabled: true
+  podAnnotations:
+    enabled: false
+  serviceMonitor:
+    enabled: false
+    namespace: ""
+    interval: 30s
+    scrapeTimeout: 10s
+    labels: {}
+    annotations: {}
+    honorLabels: false
 ingress:
   enabled: false
   className: ""

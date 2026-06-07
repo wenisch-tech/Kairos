@@ -2,13 +2,26 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ include "kairos.fullname" . }}
+  {{- $serviceAnnotations := dict }}
+  {{- if .Values.metrics.serviceAnnotations.enabled }}
+  {{- $_ := set $serviceAnnotations "prometheus.io/scrape" "true" }}
+  {{- $_ := set $serviceAnnotations "prometheus.io/path" .Values.metrics.path }}
+  {{- $_ := set $serviceAnnotations "prometheus.io/port" (printf "%v" .Values.service.port) }}
+  {{- end }}
+  {{- range $key, $value := .Values.service.annotations }}
+  {{- $_ := set $serviceAnnotations $key (printf "%v" $value) }}
+  {{- end }}
   labels:
     {{- include "kairos.labels" . | nindent 4 }}
+  {{- if $serviceAnnotations }}
+  annotations:
+    {{- toYaml $serviceAnnotations | nindent 4 }}
+  {{- end }}
 spec:
   type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.service.port }}
-      targetPort: http
+      targetPort: {{ .Values.service.targetPort }}
       protocol: TCP
       name: http
   selector:

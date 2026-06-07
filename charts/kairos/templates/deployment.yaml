@@ -12,12 +12,18 @@ spec:
     matchLabels:
       {{- include "kairos.selectorLabels" . | nindent 6 }}
   template:
+    {{- $podAnnotations := dict "checksum/config" (include (print $.Template.BasePath "/configmap.yaml") . | sha256sum) }}
+    {{- if .Values.metrics.podAnnotations.enabled }}
+    {{- $_ := set $podAnnotations "prometheus.io/scrape" "true" }}
+    {{- $_ := set $podAnnotations "prometheus.io/path" .Values.metrics.path }}
+    {{- $_ := set $podAnnotations "prometheus.io/port" (printf "%v" .Values.service.port) }}
+    {{- end }}
+    {{- range $key, $value := .Values.podAnnotations }}
+    {{- $_ := set $podAnnotations $key (printf "%v" $value) }}
+    {{- end }}
     metadata:
       annotations:
-        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
-        {{- if .Values.podAnnotations }}
-        {{- toYaml .Values.podAnnotations | nindent 8 }}
-        {{- end }}
+        {{- toYaml $podAnnotations | nindent 8 }}
       labels:
         {{- include "kairos.selectorLabels" . | nindent 8 }}
     spec:
@@ -39,15 +45,15 @@ spec:
               protocol: TCP
           {{- if .Values.startupProbe.enabled }}
           startupProbe:
-            {{- toYaml .Values.startupProbe | nindent 12 }}
+            {{- toYaml (omit .Values.startupProbe "enabled") | nindent 12 }}
           {{- end }}
           {{- if .Values.livenessProbe.enabled }}
           livenessProbe:
-            {{- toYaml .Values.livenessProbe | nindent 12 }}
+            {{- toYaml (omit .Values.livenessProbe "enabled") | nindent 12 }}
           {{- end }}
           {{- if .Values.readinessProbe.enabled }}
           readinessProbe:
-            {{- toYaml .Values.readinessProbe | nindent 12 }}
+            {{- toYaml (omit .Values.readinessProbe "enabled") | nindent 12 }}
           {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
