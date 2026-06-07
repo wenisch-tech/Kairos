@@ -1,5 +1,20 @@
 # Changelog
 
+## v2.12.2 - 2026-06-07
+
+### [2.12.2](https://github.com/wenisch-tech/Kairos/compare/v2.12.1...v2.12.2) (2026-06-07)
+
+
+### Bug Fixes
+
+* fixed lazy load problem with mertricservice in native image ([283176c](https://github.com/wenisch-tech/Kairos/commit/283176c181391643c132643e2b3b87a7c1bbea25))
+* re-ordered grafana panels for better overview ([17ccb29](https://github.com/wenisch-tech/Kairos/commit/17ccb29a4cab4bda4434ed7bd9cb5f9ee0e4c251))
+
+
+
+Docker image: ghcr.io/wenisch-tech/kairos:2.12.2
+
+
 ## v2.12.1 - 2026-06-07
 
 ### [2.12.1](https://github.com/wenisch-tech/Kairos/compare/v2.12.0...v2.12.1) (2026-06-07)
