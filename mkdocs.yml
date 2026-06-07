@@ -49,6 +49,7 @@ nav:
   - Operations:
       - REST API: api.md
       - MCP Server: mcp-server.md
+      - GraalVM Native Image Evaluation: native-image-evaluation.md
       - Instant Check: instant-check.md
       - Docker Pullability: docker-pullability.md
       - TCP Port Checks: tcp-checks.md

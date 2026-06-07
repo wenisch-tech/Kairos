@@ -239,6 +239,11 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <image>
+                        <env>
+                            <BP_NATIVE_IMAGE_BUILD_ARGUMENTS>--initialize-at-run-time=sun.security.util.Password$ConsoleHolder</BP_NATIVE_IMAGE_BUILD_ARGUMENTS>
+                        </env>
+                    </image>
                     <excludes>
                         <exclude>
                             <groupId>org.projectlombok</groupId>
@@ -246,6 +251,10 @@
                         </exclude>
                     </excludes>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.graalvm.buildtools</groupId>
+                <artifactId>native-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
