@@ -138,9 +138,6 @@
                 }
             }
         },
-        "nameOverride": {
-            "type": "string"
-        },
         "metrics": {
             "type": "object",
             "properties": {
@@ -191,6 +188,9 @@
                 }
             }
         },
+        "nameOverride": {
+            "type": "string"
+        },
         "nodeSelector": {
             "type": "object"
         },
@@ -214,6 +214,9 @@
                 }
             }
         },
+        "podAnnotations": {
+            "type": "object"
+        },
         "podSecurityContext": {
             "type": "object",
             "properties": {
@@ -227,9 +230,6 @@
                     "type": "integer"
                 }
             }
-        },
-        "podAnnotations": {
-            "type": "object"
         },
         "readinessProbe": {
             "type": "object",

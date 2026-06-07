@@ -1,5 +1,24 @@
 # Changelog
 
+## v2.10.0 - 2026-06-07
+
+## [2.10.0](https://github.com/wenisch-tech/Kairos/compare/v2.9.6...v2.10.0) (2026-06-07)
+
+
+### Features
+
+* add support for prometheus scrape config out of the box ([eefe490](https://github.com/wenisch-tech/Kairos/commit/eefe4905e37907dd89093aefff80f1f330ba64aa))
+
+
+### Documentation
+
+* inital commit native image build evaluation ([e767db1](https://github.com/wenisch-tech/Kairos/commit/e767db166f7ef3a1d6130568c20be38ab1a4fb21))
+
+
+
+Docker image: ghcr.io/wenisch-tech/kairos:2.10.0
+
+
 ## v2.9.6 - 2026-06-06
 
 ### [2.9.6](https://github.com/wenisch-tech/Kairos/compare/v2.9.5...v2.9.6) (2026-06-06)
