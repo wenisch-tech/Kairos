@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.24@sha256:87999aa3d42bdc6bea60565083ee17e86d1f3339802f543c0d03998580f9cb89
-FROM maven:3.9.9-eclipse-temurin-17 AS maven-bin
+FROM maven:3.9.16-eclipse-temurin-17 AS maven-bin
 
 FROM ghcr.io/graalvm/native-image-community:17 AS native-builder
 
