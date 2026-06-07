@@ -39,14 +39,14 @@
 
         <div class="col-md-10 py-4 px-4">
             <h2 class="h4 mb-1"><i class="bi bi-journal-check me-2"></i>Check History</h2>
-            <p class="text-muted small mb-4">In-memory log of the most recent checks. Not persisted — resets on restart. Shows up to 200 entries.</p>
+            <p class="text-muted small mb-4">In-memory log of the most recent checks. Not persisted â€” resets on restart. Shows up to 200 entries.</p>
 
             <div class="card">
                 <div class="card-body p-0">
-                    <div th:if="${#lists.isEmpty(entries)}" class="p-4 text-muted text-center">
+                    <div th:if="${#lists.size(entries) == 0}" class="p-4 text-muted text-center">
                         No checks recorded yet. Checks will appear here once the scheduler runs or a manual / instant check is performed.
                     </div>
-                    <div th:if="${not #lists.isEmpty(entries)}">
+                    <div th:if="${#lists.size(entries) > 0}">
                         <table class="table table-sm table-hover mb-0 align-middle" style="font-size:.875rem">
                             <thead class="table-dark">
                                 <tr>
@@ -72,9 +72,9 @@
                                         <span th:if="${entry.kind() != 'Scheduled' and entry.kind() != 'Check Now' and entry.kind() != 'Instant Check'}"
                                               class="badge bg-dark" th:text="${entry.kind()}"></span>
                                     </td>
-                                    <td th:text="${entry.resourceName() != null ? entry.resourceName() : '—'}"></td>
+                                    <td th:text="${entry.resourceName() != null ? entry.resourceName() : 'â€”'}"></td>
                                     <td class="font-monospace small"
-                                        th:text="${entry.target() != null ? entry.target() : '—'}"></td>
+                                        th:text="${entry.target() != null ? entry.target() : 'â€”'}"></td>
                                     <td>
                                         <span th:if="${entry.result() == 'AVAILABLE'}" class="badge bg-success">Available</span>
                                         <span th:if="${entry.result() == 'NOT_AVAILABLE'}" class="badge bg-danger">Not Available</span>

@@ -1,0 +1,56 @@
+# syntax=docker/dockerfile:1.24@sha256:87999aa3d42bdc6bea60565083ee17e86d1f3339802f543c0d03998580f9cb89
+FROM maven:3.9.9-eclipse-temurin-17 AS maven-bin
+
+FROM ghcr.io/graalvm/native-image-community:17 AS native-builder
+
+WORKDIR /workspace
+
+COPY --from=maven-bin /usr/share/maven /usr/share/maven
+COPY --from=maven-bin /usr/bin/mvn /usr/bin/mvn
+
+ENV MAVEN_HOME=/usr/share/maven
+ENV PATH="${MAVEN_HOME}/bin:${PATH}"
+
+COPY pom.xml /workspace/pom.xml
+COPY src /workspace/src
+
+RUN --mount=type=cache,target=/root/.m2 mvn -Pnative -DskipTests package
+
+# Bundle zlib if the native executable links to it dynamically.
+RUN set -eux; \
+    zlib_path="$(ldd /workspace/target/kairos | sed -n 's/.*=> \(\/[^ ]*libz\.so\.1[^ ]*\).*/\1/p; s/^\(\/[^ ]*libz\.so\.1[^ ]*\).*/\1/p' | head -n 1)"; \
+    if [ -n "$zlib_path" ]; then cp -v "$(readlink -f "$zlib_path")" /workspace/target/libz.so.1; fi
+
+# Prepare writable storage for Kairos's default H2 database path.
+RUN mkdir -p /workspace/runtime-data/kairos && touch /workspace/runtime-data/.keep
+
+FROM gcr.io/distroless/base-debian12:nonroot
+
+WORKDIR /app
+
+ARG BUILD_DATE
+ARG BUILD_VERSION
+ARG BUILD_REVISION
+
+LABEL org.opencontainers.image.title="Kairos" \
+      org.opencontainers.image.description="Self-hosted uptime and availability monitoring application" \
+      org.opencontainers.image.url="https://github.com/wenisch-tech/Kairos" \
+      org.opencontainers.image.source="https://github.com/wenisch-tech/Kairos" \
+      org.opencontainers.image.documentation="https://github.com/wenisch-tech/Kairos/tree/main/docs" \
+      org.opencontainers.image.authors="JFWenisch" \
+      org.opencontainers.image.licenses="GPL-3.0" \
+      org.opencontainers.image.vendor="JFWenisch" \
+      org.opencontainers.image.version="${BUILD_VERSION}" \
+      org.opencontainers.image.revision="${BUILD_REVISION}" \
+      org.opencontainers.image.created="${BUILD_DATE}"
+
+COPY --from=native-builder --chown=65532:65532 /workspace/target/kairos /app/
+COPY --from=native-builder --chown=65532:65532 /workspace/target/lib*.so* /app/
+COPY --from=native-builder --chown=65532:65532 /workspace/runtime-data/ /app/data/
+
+ENV LD_LIBRARY_PATH=/app
+ENV SPRING_DATASOURCE_URL=jdbc:h2:file:./data/kairos;AUTO_SERVER=TRUE
+
+EXPOSE 8080
+
+ENTRYPOINT ["/app/kairos"]

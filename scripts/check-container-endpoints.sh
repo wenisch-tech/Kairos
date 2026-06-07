@@ -97,9 +97,22 @@ check_endpoint_latency() {
 results=()
 overall_fail=0
 
-results+=("$(check_endpoint_latency "/" 2000 || overall_fail=1)")
-results+=("$(check_endpoint_latency "/api/resources" 1500 || overall_fail=1)")
-results+=("$(check_endpoint_latency "/actuator/health" 1200 || overall_fail=1)")
+record_check_result() {
+  local endpoint="$1"
+  local threshold_ms="$2"
+  local row
+
+  if row=$(check_endpoint_latency "$endpoint" "$threshold_ms"); then
+    results+=("$row")
+  else
+    results+=("$row")
+    overall_fail=1
+  fi
+}
+
+record_check_result "/" 2000
+record_check_result "/api/resources" 1500
+record_check_result "/actuator/health" 1200
 
 {
   echo "# ${LABEL}"

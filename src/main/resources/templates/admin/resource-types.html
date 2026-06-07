@@ -87,7 +87,7 @@
                     <h6 class="mb-3"><i class="bi bi-shield-lock me-2"></i>Authentication Credentials</h6>
 
                     <!-- Existing auths table -->
-                    <div th:if="${!config.authentications.isEmpty()}" class="mb-3">
+                    <div th:if="${#lists.size(config.authentications) > 0}" class="mb-3">
                         <table class="table table-sm table-bordered align-middle">
                             <thead class="table-dark">
                                 <tr>
@@ -116,7 +116,7 @@
                             </tbody>
                         </table>
                     </div>
-                    <p th:if="${config.authentications.isEmpty()}" class="text-muted small">
+                    <p th:if="${#lists.size(config.authentications) == 0}" class="text-muted small">
                         No authentication credentials configured.
                     </p>
 

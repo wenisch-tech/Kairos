@@ -225,7 +225,7 @@
                 <div class="card-body">
                     <p class="text-muted small mb-3">Add origins (e.g. <code>https://example.com</code>) that are allowed to call the Kairos API from a browser. Requests from unlisted origins will be blocked by the browser's same-origin policy.</p>
 
-                    <div th:if="${not #lists.isEmpty(corsAllowedOrigins)}" class="mb-3">
+                    <div th:if="${#lists.size(corsAllowedOrigins) > 0}" class="mb-3">
                         <table class="table table-sm table-bordered align-middle">
                             <thead>
                                 <tr>
@@ -245,7 +245,7 @@
                             </tbody>
                         </table>
                     </div>
-                    <div th:if="${#lists.isEmpty(corsAllowedOrigins)}" class="alert alert-secondary mb-3">
+                    <div th:if="${#lists.size(corsAllowedOrigins) == 0}" class="alert alert-secondary mb-3">
                         No CORS origins configured. Cross-origin API calls from browsers will be blocked.
                     </div>
 

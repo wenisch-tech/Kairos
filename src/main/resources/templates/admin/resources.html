@@ -69,8 +69,8 @@
                     </button>
                 </div>
                 <div class="card-body p-0">
-                    <div th:if="${#lists.isEmpty(resourceGroups)}" class="p-3 text-muted">No groups configured.</div>
-                    <table class="table table-hover mb-0" th:unless="${#lists.isEmpty(resourceGroups)}">
+                    <div th:if="${#lists.size(resourceGroups) == 0}" class="p-3 text-muted">No groups configured.</div>
+                    <table class="table table-hover mb-0" th:unless="${#lists.size(resourceGroups) == 0}">
                         <thead>
                         <tr>
                             <th>Name</th>
@@ -119,9 +119,9 @@
                 </div>
             </div>
 
-            <div th:if="${#lists.isEmpty(resources)}" class="card p-3 text-muted">No resources configured.</div>
+            <div th:if="${#lists.size(resources) == 0}" class="card p-3 text-muted">No resources configured.</div>
 
-            <div class="vstack gap-3" th:unless="${#lists.isEmpty(resources)}">
+            <div class="vstack gap-3" th:unless="${#lists.size(resources) == 0}">
                 <div class="card" th:each="groupVm : ${adminResourceGroups}">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h3 class="h6 mb-0">
@@ -163,7 +163,7 @@
                         <div class="list-group list-group-flush resource-sort-list"
                              th:attr="data-group-id=${groupVm.ungrouped} ? 'ungrouped' : ${groupVm.groupId}">
                            <div class="list-group-item text-muted small empty-drop-hint"
-                               th:if="${#lists.isEmpty(groupVm.resources)}">
+                               th:if="${#lists.size(groupVm.resources) == 0}">
                               No resources in this group yet. Drag resources here to assign them.
                            </div>
                             <div class="list-group-item resource-sort-item"

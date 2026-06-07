@@ -56,13 +56,13 @@
 
             <div class="card">
                 <div class="card-body p-0">
-                    <div th:if="${#lists.isEmpty(announcements)}" class="p-3">
+                    <div th:if="${#lists.size(announcements) == 0}" class="p-3">
                         <p class="text-muted mb-3">No announcements configured.</p>
                         <a th:href="@{/admin/announcements/new}" class="btn btn-primary btn-sm">
                             <i class="bi bi-plus-circle me-1"></i>Create your first announcement
                         </a>
                     </div>
-                    <table class="table table-hover mb-0" th:unless="${#lists.isEmpty(announcements)}">
+                    <table class="table table-hover mb-0" th:unless="${#lists.size(announcements) == 0}">
                         <thead>
                         <tr>
                             <th>Type</th>

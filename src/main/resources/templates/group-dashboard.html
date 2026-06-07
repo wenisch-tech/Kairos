@@ -96,7 +96,7 @@
         </div>
     </div>
 
-    <div th:if="${#lists.isEmpty(groupResources)}" class="text-center py-5">
+    <div th:if="${#lists.size(groupResources) == 0}" class="text-center py-5">
         <i class="bi bi-emoji-smile display-1 text-muted"></i>
         <p class="text-muted mt-3">No resources found in this group.</p>
         <a th:href="@{/}" class="btn btn-outline-secondary">
@@ -104,7 +104,7 @@
         </a>
     </div>
 
-    <div class="card resource-panel mb-4" th:unless="${#lists.isEmpty(groupResources)}" data-view="timeline">
+    <div class="card resource-panel mb-4" th:unless="${#lists.size(groupResources) == 0}" data-view="timeline">
         <div class="card-body p-0">
             <div th:each="resource : ${groupResources}" class="resource-row p-3"
                  th:attr="data-resource-id=${resource.id},data-group-id=${group.id}">
@@ -145,7 +145,7 @@
                         </div>
                     </div>
                     <div class="col-md-2 text-end resource-score">
-                        <span class="fw-bold resource-uptime">—</span>
+                        <span class="fw-bold resource-uptime">â€”</span>
                         <br>
                         <small class="text-muted">availability</small>
                         <small class="text-muted d-block" data-role="resource-latency"></small>
@@ -155,7 +155,7 @@
         </div>
     </div>
 
-    <div class="row resource-cards-grid resource-cards-grid-ungrouped mb-4 g-4" th:unless="${#lists.isEmpty(groupResources)}" data-view="cards" style="display: none;">
+    <div class="row resource-cards-grid resource-cards-grid-ungrouped mb-4 g-4" th:unless="${#lists.size(groupResources) == 0}" data-view="cards" style="display: none;">
         <div th:each="resource : ${groupResources}" class="col-sm-6 col-lg-4 col-xl-3"
              th:attr="data-resource-id=${resource.id},data-group-id=${group.id}">
             <div class="card resource-card h-100 border-0 shadow-sm status-unknown"
@@ -185,7 +185,7 @@
                     </div>
                     <div class="mt-auto">
                         <div class="resource-score text-center py-2">
-                            <div class="fw-bold resource-uptime">—</div>
+                            <div class="fw-bold resource-uptime">â€”</div>
                             <small class="text-muted">availability</small>
                             <small class="text-muted d-block" data-role="resource-latency"></small>
                         </div>
