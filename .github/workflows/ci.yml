@@ -99,6 +99,23 @@ jobs:
       image: ${{ needs.versioning.outputs.image }}
     secrets: inherit
 
+  docker-native:
+    if: (github.event_name != 'push' || !contains(github.event.head_commit.message, '[skip ci]')) && (github.event_name == 'pull_request' || github.ref == 'refs/heads/main')
+    needs:
+      - versioning
+      - test
+    continue-on-error: true
+    permissions:
+      contents: read
+      packages: write
+      pull-requests: write
+      issues: write
+    uses: ./.github/workflows/_docker-native.yml
+    with:
+      version: ${{ needs.versioning.outputs.version }}
+      image: ${{ needs.versioning.outputs.image }}
+    secrets: inherit
+
   release:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main' && !contains(github.event.head_commit.message, '[skip ci]')
     needs:

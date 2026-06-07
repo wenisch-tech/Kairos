@@ -118,7 +118,7 @@
         </div>
     </div>
 
-    <div class="mb-4" th:if="${!#lists.isEmpty(announcements)}">
+    <div class="mb-4" th:if="${#lists.size(announcements) > 0}">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <h2 class="h5 mb-0"><i class="bi bi-megaphone me-2"></i>Announcements</h2>
             <a th:href="@{/announcements}" class="small">View all</a>
@@ -173,7 +173,7 @@
         </div>
     </div>
 
-    <div th:if="${#lists.isEmpty(ungroupedResources) and #lists.isEmpty(groupedResources)}" class="text-center py-5">
+    <div th:if="${#lists.size(ungroupedResources) == 0 and #lists.size(groupedResources) == 0}" class="text-center py-5">
         <i class="bi bi-emoji-smile display-1 text-muted"></i>
         <p class="text-muted mt-3">No resources being monitored yet.</p>
         <button type="button" class="btn btn-primary" th:if="${allowResourceSubmit}"
@@ -185,7 +185,7 @@
         </a>
     </div>
 
-    <div class="card resource-panel mb-4" th:unless="${#lists.isEmpty(ungroupedResources)}" data-view="timeline">
+    <div class="card resource-panel mb-4" th:unless="${#lists.size(ungroupedResources) == 0}" data-view="timeline">
         <div class="card-body p-0">
             <div th:each="resource : ${ungroupedResources}" class="resource-row p-3"
                  th:attr="data-resource-id=${resource.id},data-group-id='ungrouped'">
@@ -236,7 +236,7 @@
         </div>
     </div>
 
-    <div class="row resource-cards-grid resource-cards-grid-ungrouped mb-4 g-4" th:unless="${#lists.isEmpty(ungroupedResources)}" data-view="cards" style="display: none;">
+    <div class="row resource-cards-grid resource-cards-grid-ungrouped mb-4 g-4" th:unless="${#lists.size(ungroupedResources) == 0}" data-view="cards" style="display: none;">
         <div th:each="resource : ${ungroupedResources}" class="col-sm-6 col-lg-4 col-xl-3"
              th:attr="data-resource-id=${resource.id},data-group-id='ungrouped'">
               <div class="card resource-card h-100 border-0 shadow-sm status-unknown"
@@ -276,7 +276,7 @@
         </div>
     </div>
 
-    <div class="accordion grouped-resource-accordion" id="groupedResourceAccordion" th:unless="${#lists.isEmpty(groupedResources)}" data-view="timeline">
+    <div class="accordion grouped-resource-accordion" id="groupedResourceAccordion" th:unless="${#lists.size(groupedResources) == 0}" data-view="timeline">
         <div class="accordion-item mb-3" th:each="groupShell : ${groupedResources}"
              th:attr="data-group-id=${groupShell.group.id}">
             <h2 class="accordion-header" th:id="'group-heading-' + ${groupShell.group.id}">
@@ -354,7 +354,7 @@
         </div>
     </div>
 
-    <div th:unless="${#lists.isEmpty(groupedResources)}" data-view="cards" style="display: none;">
+    <div th:unless="${#lists.size(groupedResources) == 0}" data-view="cards" style="display: none;">
         <div th:each="groupShell : ${groupedResources}" class="mb-4 resource-cards-group" th:attr="data-group-id=${groupShell.group.id}">
             <h5 class="mb-3"><i class="bi bi-diagram-3 me-2" aria-hidden="true"></i><a th:href="@{/groups/{id}(id=${groupShell.group.id})}" class="group-open-link text-decoration-none" th:text="${groupShell.group.name}">Group Name</a><i class="bi bi-arrow-up-right-circle ms-2 text-muted" aria-hidden="true"></i></h5>
             <div class="row resource-cards-grid resource-cards-grid-grouped g-3">
@@ -400,7 +400,7 @@
     </div>
 
     <div id="groupedResourceHeaderList" class="group-header-only-list" data-view="groups" style="display: none;">
-        <div class="group-header-only-item mb-3" th:unless="${#lists.isEmpty(ungroupedResources)}" data-group-id="ungrouped">
+        <div class="group-header-only-item mb-3" th:unless="${#lists.size(ungroupedResources) == 0}" data-group-id="ungrouped">
             <div class="group-header-only-button">
                 <span class="group-header-content">
                     <span class="fw-semibold me-3">

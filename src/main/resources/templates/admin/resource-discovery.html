@@ -51,8 +51,8 @@
             <div class="card mb-4">
                 <div class="card-header"><strong>Configured Services</strong></div>
                 <div class="card-body p-0">
-                    <div th:if="${#lists.isEmpty(discoveryServices)}" class="p-3 text-muted">No discovery services configured.</div>
-                    <table class="table table-hover mb-0" th:unless="${#lists.isEmpty(discoveryServices)}">
+                    <div th:if="${#lists.size(discoveryServices) == 0}" class="p-3 text-muted">No discovery services configured.</div>
+                    <table class="table table-hover mb-0" th:unless="${#lists.size(discoveryServices) == 0}">
                         <thead>
                         <tr>
                             <th>Name</th>
@@ -155,7 +155,7 @@
                     <hr class="my-3">
                     <h6 class="mb-3"><i class="bi bi-shield-lock me-2"></i>Authentication Credentials</h6>
 
-                    <div th:if="${!config.authentications.isEmpty()}" class="mb-3">
+                    <div th:if="${#lists.size(config.authentications) > 0}" class="mb-3">
                         <table class="table table-sm table-bordered align-middle">
                             <thead class="table-dark">
                             <tr>
@@ -183,7 +183,7 @@
                             </tbody>
                         </table>
                     </div>
-                    <p th:if="${config.authentications.isEmpty()}" class="text-muted small">No authentication credentials configured.</p>
+                    <p th:if="${#lists.size(config.authentications) == 0}" class="text-muted small">No authentication credentials configured.</p>
 
                     <form th:action="@{'/admin/resource-discovery/' + ${config.id} + '/auth/add'}" method="post" class="row g-2">
                         <div class="col-md-3">

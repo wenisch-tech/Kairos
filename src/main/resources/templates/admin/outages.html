@@ -90,9 +90,9 @@
                     </form>
                 </div>
                 <div class="card-body p-0">
-                    <div th:if="${#lists.isEmpty(outages)}" class="p-3 text-muted">No outages match the selected filters.</div>
+                    <div th:if="${#lists.size(outages) == 0}" class="p-3 text-muted">No outages match the selected filters.</div>
 
-                    <form th:unless="${#lists.isEmpty(outages)}" method="post" th:action="@{/admin/outages/delete-selected}"
+                    <form th:unless="${#lists.size(outages) == 0}" method="post" th:action="@{/admin/outages/delete-selected}"
                           onsubmit="return confirm('Delete selected outages? This cannot be undone.');">
                         <input type="hidden" name="status" th:value="${selectedStatus}">
                         <input type="hidden" name="q" th:value="${searchQuery}">

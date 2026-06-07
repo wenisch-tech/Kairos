@@ -55,7 +55,7 @@
                     <p class="text-muted mb-0 detail-subline">
                         <code th:if="${showResourceUrl}" th:text="${vm.resource.target}">target</code>
                     </p>
-                    <div th:if="${!#lists.isEmpty(vm.resource.groups)}" class="d-flex flex-wrap align-items-center gap-2 mt-2">
+                    <div th:if="${#lists.size(vm.resource.groups) > 0}" class="d-flex flex-wrap align-items-center gap-2 mt-2">
                         <small class="text-muted d-inline-flex align-items-center gap-1">Is part of:</small>
                         <span class="detail-group-item" th:each="group : ${vm.resource.groups}"
                               th:with="summary=${groupStatusSummaries[group.id]}">
@@ -250,10 +250,10 @@
             </form>
         </div>
         <div class="card-body p-0">
-            <div th:if="${#lists.isEmpty(resourceOutages)}" class="p-3 text-muted">
+            <div th:if="${#lists.size(resourceOutages) == 0}" class="p-3 text-muted">
                 No outages found for this resource and filter selection.
             </div>
-            <table class="table table-sm mb-0 detail-history-table" th:unless="${#lists.isEmpty(resourceOutages)}">
+            <table class="table table-sm mb-0 detail-history-table" th:unless="${#lists.size(resourceOutages) == 0}">
                 <thead>
                     <tr>
                         <th>Start</th>
@@ -358,10 +358,10 @@
             </form>
         </div>
         <div class="card-body p-0">
-            <div th:if="${#lists.isEmpty(recentHistory)}" class="p-3 text-muted">
+            <div th:if="${#lists.size(recentHistory) == 0}" class="p-3 text-muted">
                 No check history available yet.
             </div>
-            <table class="table table-sm mb-0 detail-history-table" th:unless="${#lists.isEmpty(recentHistory)}">
+            <table class="table table-sm mb-0 detail-history-table" th:unless="${#lists.size(recentHistory) == 0}">
                 <thead>
                     <tr>
                         <th>Time</th>

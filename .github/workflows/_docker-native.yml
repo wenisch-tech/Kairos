@@ -1,0 +1,204 @@
+name: Docker Native
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        required: true
+        type: string
+      image:
+        required: true
+        type: string
+
+jobs:
+  docker_native:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      pull-requests: write
+      issues: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Generate build metadata
+        id: build_meta
+        run: echo "date=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build native Docker image (linux/amd64, local)
+        id: docker_native_build
+        continue-on-error: true
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: ./Dockerfile-native
+          push: false
+          load: true
+          platforms: linux/amd64
+          tags: ${{ inputs.image }}:native-distroless-${{ inputs.version }}
+          build-args: |
+            BUILD_DATE=${{ steps.build_meta.outputs.date }}
+            BUILD_VERSION=${{ inputs.version }}
+            BUILD_REVISION=${{ github.sha }}
+
+      - name: Make container check script executable
+        run: chmod +x scripts/check-container-endpoints.sh
+
+      - name: Validate native container endpoints
+        if: steps.docker_native_build.outcome == 'success'
+        shell: bash
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          image="${{ inputs.image }}:native-distroless-${{ inputs.version }}"
+          ./scripts/check-container-endpoints.sh "$image" 18081 native-container-endpoint-check.md "Native Container Endpoint Check"
+
+      - name: Create fallback native endpoint report
+        if: always() && hashFiles('native-container-endpoint-check.md') == ''
+        shell: bash
+        run: |
+          {
+            echo "# Native Container Endpoint Check"
+            echo
+            echo "Status: FAILED"
+            echo
+            echo "Reason: No endpoint report was produced."
+            echo
+            echo "Build step outcome: ${{ steps.docker_native_build.outcome }}"
+            echo "Native CI remains experimental and non-blocking."
+          } > native-container-endpoint-check.md
+
+      - name: Upload native container endpoint check report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-container-endpoint-check-${{ github.run_id }}
+          path: native-container-endpoint-check.md
+
+      - name: Set up Trivy
+        uses: aquasecurity/setup-trivy@v0.2.6
+
+      - name: Run Trivy scan (native-distroless)
+        if: steps.docker_native_build.outcome == 'success'
+        shell: bash
+        continue-on-error: true
+        run: |
+          set -e
+          image="${{ inputs.image }}:native-distroless-${{ inputs.version }}"
+          status=1
+
+          for attempt in 1 2 3; do
+            trivy image \
+              --format table \
+              --output trivy-native-distroless-report.txt \
+              --scanners vuln \
+              --vuln-type os,library \
+              --severity CRITICAL,HIGH,MEDIUM \
+              "$image"
+            status=$?
+            if [ "$status" -eq 0 ]; then
+              break
+            fi
+            sleep 10
+          done
+
+          if [ ! -s trivy-native-distroless-report.txt ]; then
+            {
+              echo "Trivy scan could not complete after retries."
+              echo "Image: $image"
+              echo "Exit status: $status"
+            } > trivy-native-distroless-report.txt
+          fi
+
+      - name: Create fallback native Trivy report
+        if: always() && hashFiles('trivy-native-distroless-report.txt') == ''
+        shell: bash
+        run: |
+          {
+            echo "Native-distroless Trivy scan did not run because image build was not successful."
+            echo "Build step outcome: ${{ steps.docker_native_build.outcome }}"
+          } > trivy-native-distroless-report.txt
+
+      - name: Upload native Trivy report artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-native-distroless-report-${{ github.run_id }}
+          path: trivy-native-distroless-report.txt
+
+      - name: Add native Trivy report to PR
+        if: always() && github.event_name == 'pull_request'
+        continue-on-error: true
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let report = fs.readFileSync('trivy-native-distroless-report.txt', 'utf8');
+            const maxLen = 60000;
+            if (report.length > maxLen) {
+              report = report.slice(0, maxLen) + '\n... output truncated ...';
+            }
+            const body = [
+              '## Trivy vulnerability report (native-distroless)',
+              '',
+              `Image: ${{ inputs.image }}:native-distroless-${{ inputs.version }}`,
+              '',
+              '```text',
+              report,
+              '```'
+            ].join('\n');
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body
+            });
+
+      - name: Add native endpoint check to PR
+        if: always() && github.event_name == 'pull_request'
+        continue-on-error: true
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const body = fs.readFileSync('native-container-endpoint-check.md', 'utf8');
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body
+            });
+
+      - name: Log in to GitHub Container Registry
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push native Docker tags to GHCR
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.docker_native_build.outcome == 'success'
+        shell: bash
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          image="${{ inputs.image }}"
+          version="${{ inputs.version }}"
+          short_sha="${GITHUB_SHA::7}"
+
+          docker tag "$image:native-distroless-$version" "$image:native-distroless-latest"
+          docker tag "$image:native-distroless-$version" "$image:native-distroless-main"
+          docker tag "$image:native-distroless-$version" "$image:native-distroless-sha-$short_sha"
+
+          docker push "$image:native-distroless-$version"
+          docker push "$image:native-distroless-latest"
+          docker push "$image:native-distroless-main"
+          docker push "$image:native-distroless-sha-$short_sha"

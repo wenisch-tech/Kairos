@@ -56,8 +56,8 @@
             <div class="card">
                 <div class="card-header"><strong>Configured Policies</strong></div>
                 <div class="card-body p-0">
-                    <div th:if="${#lists.isEmpty(policies)}" class="p-3 text-muted">No notification policies configured.</div>
-                    <table class="table table-hover mb-0" th:unless="${#lists.isEmpty(policies)}">
+                    <div th:if="${#lists.size(policies) == 0}" class="p-3 text-muted">No notification policies configured.</div>
+                    <table class="table table-hover mb-0" th:unless="${#lists.size(policies) == 0}">
                         <thead>
                         <tr>
                             <th>Name</th>
