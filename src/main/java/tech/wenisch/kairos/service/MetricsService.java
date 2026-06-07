@@ -37,6 +37,9 @@ public class MetricsService {
                 .tag("resource_name", resource.getName())
                 .tag("resource_type", resource.getResourceType().name())
                 .description("Resource status: 1=available, 0=not_available, -1=unknown")
+                // Micrometer gauges keep only a weak reference by default. These resource entities
+                // are otherwise not retained after registration, which causes Prometheus to see NaN.
+                .strongReference(true)
                 .register(meterRegistry);
     }
 
