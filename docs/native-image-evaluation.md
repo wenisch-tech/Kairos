@@ -139,6 +139,42 @@ Then verify:
 
 For Helm deployments this matters because the PVC preserves `flyway_schema_history`, so native rollout must remain compatible with migration metadata produced by earlier JVM releases.
 
+## JPA Lazy-Loading Guidance
+
+Another native-specific startup failure came from Hibernate lazy loading, not from SQL or schema compatibility.
+
+The failure mode was:
+
+- Kairos started bootstrapping normally against the persisted H2 database
+- `MetricsService` loaded the latest `CheckResult` for each resource during startup
+- the startup path then touched the lazy `CheckResult.resource` association
+- Hibernate tried to generate a runtime proxy and native startup aborted with `Generation of HibernateProxy instances at runtime is not allowed when the configured BytecodeProvider is 'none'`
+
+In practice this means native-safe code must not assume that startup-time service logic can freely traverse lazy JPA relations the way the JVM build often tolerates.
+
+To keep future persistence-related work native-safe:
+
+1. Avoid dereferencing lazy associations in startup hooks such as `@PostConstruct`, application-ready listeners, bootstrap caches, and metric initialization.
+2. When startup code already has the owning entity or identifier, pass that state through explicitly instead of re-reading it from a lazily loaded relation later.
+   The fix for this regression was to initialize latest-check gauges from the already-known `MonitoredResource` state and avoid calling `result.getResource()` in the startup path.
+3. If startup logic truly needs related data, load it explicitly with a query shape that is native-safe.
+   Prefer repository methods with fetch joins or projections over incidental lazy traversal.
+4. Treat service-layer refactors around metrics, caches, dashboard bootstrapping, and initial synchronization as native-impacting even if they do not change templates or migrations.
+
+Recommended validation flow after JPA/service bootstrap changes:
+
+```bash
+mvn -B -Dtest=MetricsServiceTest test
+docker build -f Dockerfile-native -t kairos-native-local:test .
+```
+
+Then verify both:
+
+1. clean native startup
+2. native startup against an existing `/app/data` database directory or Helm PVC-style persisted data
+
+The second case matters because startup bootstrap code often only touches historical entities when real prior data exists.
+
 ## Runtime Validation Areas
 
 Validate these areas before treating the native image as production-ready:

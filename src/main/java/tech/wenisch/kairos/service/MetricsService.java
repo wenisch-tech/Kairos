@@ -55,8 +55,9 @@ public class MetricsService {
         List<MonitoredResource> resources = resourceRepository.findByActiveTrue();
         for (MonitoredResource resource : resources) {
             registerOrUpdateResource(resource);
+            ResourceMetricState state = resourceStates.get(resource.getId());
             checkResultRepository.findTopByResourceOrderByCheckedAtDesc(resource)
-                    .ifPresent(this::updateLatestCheckGauges);
+                    .ifPresent(result -> updateLatestCheckGauges(state, result));
         }
 
         refreshOutageState();
@@ -209,6 +210,10 @@ public class MetricsService {
             return;
         }
         ResourceMetricState state = resourceStates.get(result.getResource().getId());
+        updateLatestCheckGauges(state, result);
+    }
+
+    private void updateLatestCheckGauges(ResourceMetricState state, CheckResult result) {
         if (state == null) {
             return;
         }

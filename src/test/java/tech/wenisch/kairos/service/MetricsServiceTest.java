@@ -67,6 +67,29 @@ class MetricsServiceTest {
     }
 
     @Test
+    void registerMetricsInitializesLatestCheckWithoutDereferencingCheckResultResource() {
+        MonitoredResource resource = resource("Website", ResourceType.HTTP);
+        CheckResult latest = CheckResult.builder()
+                .status(CheckStatus.AVAILABLE)
+                .checkedAt(LocalDateTime.now())
+                .latencyMs(120L)
+                .dnsResolutionMs(10L)
+                .connectMs(20L)
+                .tlsHandshakeMs(30L)
+                .build();
+
+        when(resourceRepository.findByActiveTrue()).thenReturn(List.of(resource));
+        when(checkResultRepository.findTopByResourceOrderByCheckedAtDesc(resource)).thenReturn(Optional.of(latest));
+        when(outageRepository.findAllActiveWithResource()).thenReturn(List.of());
+
+        metricsService.registerMetrics();
+
+        assertThat(resourceGauge(resource).value()).isEqualTo(1.0);
+        assertThat(gauge("kairos_resource_last_check_latency_seconds", resource, "phase", "total").value())
+                .isEqualTo(0.12);
+    }
+
+    @Test
     void registerResourceMetricKeepsStrongReferenceForGaugeStateObject() {
         MonitoredResource resource = resource("Kairos Dockerimage", ResourceType.DOCKER);
 
