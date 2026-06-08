@@ -129,7 +129,7 @@
                  th:classappend="${announcement.kind.name() == 'INFORMATION'} ? ' announcement-information' : (${announcement.kind.name() == 'WARNING'} ? ' announcement-warning' : ' announcement-problem')">
                 <div class="announcement-content" th:utext="${announcement.content}"></div>
                 <small class="text-muted d-block mt-2">
-                    by <span th:text="${announcement.createdBy != null && !announcement.createdBy.isBlank()} ? ${announcement.createdBy} : 'Unknown'">Unknown</span>
+                    by <span th:text="${announcement.createdBy != null && !#strings.isEmpty(announcement.createdBy)} ? ${announcement.createdBy} : 'Unknown'">Unknown</span>
                     Â·
                     <span th:text="${announcement.createdAt != null} ? ${#temporals.format(announcement.createdAt, 'yyyy-MM-dd HH:mm')} : '-'">-</span>
                 </small>

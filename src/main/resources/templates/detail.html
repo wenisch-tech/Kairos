@@ -71,7 +71,7 @@
                             </a>
                         </span>
                     </div>
-                    <div class="detail-summary mt-3" th:if="${detailSummaryText != null && !detailSummaryText.isBlank()}">
+                    <div class="detail-summary mt-3" th:if="${detailSummaryText != null && !#strings.isEmpty(detailSummaryText)}">
                         <p class="mb-0" th:text="${detailSummaryText}">Resource summary text</p>
                     </div>
                 </div>

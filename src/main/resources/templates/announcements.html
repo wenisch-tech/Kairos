@@ -39,7 +39,7 @@
                           th:text="${announcement.active} ? 'ACTIVE' : 'INACTIVE'">ACTIVE</span>
                 </div>
                 <small class="text-muted">
-                    by <span th:text="${announcement.createdBy != null && !announcement.createdBy.isBlank()} ? ${announcement.createdBy} : 'Unknown'">Unknown</span>
+                    by <span th:text="${announcement.createdBy != null && !#strings.isEmpty(announcement.createdBy)} ? ${announcement.createdBy} : 'Unknown'">Unknown</span>
                     Â·
                     <span th:text="${announcement.createdAt != null} ? ${#temporals.format(announcement.createdAt, 'yyyy-MM-dd HH:mm')} : '-'">-</span>
                 </small>
