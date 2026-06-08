@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.12.4 - 2026-06-08
+
+### [2.12.4](https://github.com/wenisch-tech/Kairos/compare/v2.12.3...v2.12.4) (2026-06-08)
+
+
+### Bug Fixes
+
+* avoid string isBlank in native templates ([07e1d91](https://github.com/wenisch-tech/Kairos/commit/07e1d91ab8b5aeed6a5d362e95491f69dff755b2))
+
+
+
+Docker image: ghcr.io/wenisch-tech/kairos:2.12.4
+
+
 ## v2.12.3 - 2026-06-08
 
 ### [2.12.3](https://github.com/wenisch-tech/Kairos/compare/v2.12.2...v2.12.3) (2026-06-08)
