@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.12.3 - 2026-06-08
+
+### [2.12.3](https://github.com/wenisch-tech/Kairos/compare/v2.12.2...v2.12.3) (2026-06-08)
+
+
+### Bug Fixes
+
+* enable hibernate enhancement for native builds ([599a6b2](https://github.com/wenisch-tech/Kairos/commit/599a6b250e30995723da7bb511f8ff1824df9506))
+
+
+
+Docker image: ghcr.io/wenisch-tech/kairos:2.12.3
+
+
 ## v2.12.2 - 2026-06-07
 
 ### [2.12.2](https://github.com/wenisch-tech/Kairos/compare/v2.12.1...v2.12.2) (2026-06-07)
