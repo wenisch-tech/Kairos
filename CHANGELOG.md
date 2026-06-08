@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.12.6 - 2026-06-08
+
+### [2.12.6](https://github.com/wenisch-tech/Kairos/compare/v2.12.5...v2.12.6) (2026-06-08)
+
+
+### Bug Fixes
+
+* harden thymeleaf templates for native ([b1a46f2](https://github.com/wenisch-tech/Kairos/commit/b1a46f2ca97705ccbd8e9f963d005c407dbf7450))
+
+
+
+Docker image: ghcr.io/wenisch-tech/kairos:2.12.6
+
+
 ## v2.12.5 - 2026-06-08
 
 ### [2.12.5](https://github.com/wenisch-tech/Kairos/compare/v2.12.4...v2.12.5) (2026-06-08)
