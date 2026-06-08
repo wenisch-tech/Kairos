@@ -5,6 +5,7 @@ import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportRuntimeHints;
+import tech.wenisch.kairos.dto.DashboardGroupShell;
 import org.thymeleaf.expression.Lists;
 import org.thymeleaf.expression.Numbers;
 import org.thymeleaf.expression.Strings;
@@ -22,6 +23,7 @@ public class NativeRuntimeHintsConfig {
             registerExpressionHelper(hints, Numbers.class);
             registerExpressionHelper(hints, Strings.class);
             registerExpressionHelper(hints, Temporals.class);
+            registerTemplateModel(hints, DashboardGroupShell.class);
         }
 
         private void registerExpressionHelper(RuntimeHints hints, Class<?> type) {
@@ -29,6 +31,14 @@ public class NativeRuntimeHintsConfig {
                 type,
                 MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS,
                 MemberCategory.INVOKE_PUBLIC_METHODS
+            );
+        }
+
+        private void registerTemplateModel(RuntimeHints hints, Class<?> type) {
+            hints.reflection().registerType(
+                type,
+                MemberCategory.INVOKE_PUBLIC_METHODS,
+                MemberCategory.DECLARED_FIELDS
             );
         }
     }
