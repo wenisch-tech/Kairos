@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.12.5 - 2026-06-08
+
+### [2.12.5](https://github.com/wenisch-tech/Kairos/compare/v2.12.4...v2.12.5) (2026-06-08)
+
+
+### Bug Fixes
+
+* register dashboard group shell for native templates ([f74b498](https://github.com/wenisch-tech/Kairos/commit/f74b49876926b02c79ae37b0aaa880bc97c218e9))
+
+
+
+Docker image: ghcr.io/wenisch-tech/kairos:2.12.5
+
+
 ## v2.12.4 - 2026-06-08
 
 ### [2.12.4](https://github.com/wenisch-tech/Kairos/compare/v2.12.3...v2.12.4) (2026-06-08)
