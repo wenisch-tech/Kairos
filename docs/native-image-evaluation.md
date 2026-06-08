@@ -83,17 +83,33 @@ Two concrete failure modes showed up:
 
 - direct SpEL method calls on model objects such as `someList.isEmpty()` triggered missing reflection registration in the native image
 - Thymeleaf expression-object helpers such as `#lists`, `#strings`, `#numbers`, and `#temporals` also need to be available for reflective invocation in native mode
+- model object properties used only by server-rendered templates are not guaranteed to be discovered by Spring AOT
+- private view helper records and Spring Data `PageImpl` pagination objects also need explicit template reflection hints when templates access their properties
 
 To keep future UI work native-safe:
 
 1. Prefer standard Thymeleaf expression objects over ad hoc Java method calls inside templates.
    Example: prefer `#lists.isEmpty(items)` over `items.isEmpty()`.
-2. Keep every Thymeleaf expression helper used by templates registered in [NativeRuntimeHintsConfig.java](c:/Git/wenisch.tech/kairos/src/main/java/tech/wenisch/kairos/config/NativeRuntimeHintsConfig.java:1).
+   Also prefer `#strings.contains(value, 'needle')` and `#lists.contains(values, item)` over calling `value.contains(...)` or `values.contains(...)` directly.
+2. Prefer property-style expressions for records and enums.
+   Example: prefer `entry.kind` and `resource.resourceType.name` over `entry.kind()` and `resource.resourceType.name()`.
+3. Keep every Thymeleaf expression helper used by templates registered in [NativeRuntimeHintsConfig.java](c:/Git/wenisch.tech/kairos/src/main/java/tech/wenisch/kairos/config/NativeRuntimeHintsConfig.java:1).
    If a future template introduces helpers such as `#maps`, `#sets`, or similar, extend the runtime hints class in the same change.
-3. Treat template changes as native-impacting changes.
+4. Keep server-rendered model types registered in [NativeRuntimeHintsConfig.java](c:/Git/wenisch.tech/kairos/src/main/java/tech/wenisch/kairos/config/NativeRuntimeHintsConfig.java:1).
+   This includes DTOs, JPA entities, enums, view-only helper records, and third-party model objects such as `PageImpl` when templates access their properties.
+5. Treat template changes as native-impacting changes.
    Any new page, fragment, or significant `th:*` expression change should be validated with the native Docker build, not only with JVM tests.
-4. Re-run endpoint checks after UI changes and manually exercise the affected pages in the native container.
+6. Re-run endpoint checks after UI changes and manually exercise the affected pages in the native container.
    The minimum smoke check is `/`, `/api/resources`, and `/actuator/health`; for UI-heavy work, also open the changed pages directly.
+
+Concrete findings from native rollout testing:
+
+- the public dashboard failed on `DashboardGroupShell` property access until the DTO was registered for template reflection
+- the resource detail page uses `ResourceViewModel`, `TimelineBlockDTO`, `CheckResult`, `Outage`, `PageImpl`, and private `HomeController` summary records
+- admin pages use many entity-backed models directly, including announcements, users, API keys, resources, groups, discovery config, notification providers, notification policies, proxy settings, and custom header settings
+- the admin sidebar used direct `String.contains(...)`; this was replaced with `#strings.contains(...)`
+- resource group multi-select templates used projected-list `.contains(...)`; this was replaced with `#lists.contains(...)`
+- admin check history uses `CheckAuditEntry`; record accessors should be used as properties and the record must stay registered for reflection
 
 Recommended workflow after Thymeleaf-related changes:
 

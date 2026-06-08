@@ -29,11 +29,11 @@
     <div th:unless="${#lists.size(announcements) == 0}" class="vstack gap-3">
         <div th:each="announcement : ${announcements}"
              class="announcement-card p-3 rounded border"
-             th:classappend="${announcement.kind.name() == 'INFORMATION'} ? ' announcement-information' : (${announcement.kind.name() == 'WARNING'} ? ' announcement-warning' : ' announcement-problem')">
+             th:classappend="${announcement.kind.name == 'INFORMATION'} ? ' announcement-information' : (${announcement.kind.name == 'WARNING'} ? ' announcement-warning' : ' announcement-problem')">
             <div class="d-flex justify-content-between align-items-start mb-2 gap-3">
                 <div>
                     <span class="badge"
-                          th:classappend="${announcement.kind.name() == 'INFORMATION'} ? ' bg-info text-dark' : (${announcement.kind.name() == 'WARNING'} ? ' bg-warning text-dark' : ' bg-danger')"
+                          th:classappend="${announcement.kind.name == 'INFORMATION'} ? ' bg-info text-dark' : (${announcement.kind.name == 'WARNING'} ? ' bg-warning text-dark' : ' bg-danger')"
                           th:text="${announcement.kind}">INFORMATION</span>
                     <span class="badge ms-2" th:classappend="${announcement.active} ? ' bg-success' : ' bg-secondary'"
                           th:text="${announcement.active} ? 'ACTIVE' : 'INACTIVE'">ACTIVE</span>

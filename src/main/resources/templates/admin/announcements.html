@@ -78,7 +78,7 @@
                         <tr th:each="announcement : ${announcements}">
                             <td>
                                 <span class="badge"
-                                      th:classappend="${announcement.kind.name() == 'INFORMATION'} ? ' bg-info text-dark' : (${announcement.kind.name() == 'WARNING'} ? ' bg-warning text-dark' : ' bg-danger')"
+                                      th:classappend="${announcement.kind.name == 'INFORMATION'} ? ' bg-info text-dark' : (${announcement.kind.name == 'WARNING'} ? ' bg-warning text-dark' : ' bg-danger')"
                                       th:text="${announcement.kind}">INFORMATION</span>
                             </td>
                             <td>

@@ -80,8 +80,8 @@
                                 <span th:if="${!policy.notifyOnOutageStarted and !policy.notifyOnOutageEnded}" class="text-muted fst-italic">none</span>
                             </td>
                             <td>
-                                <span th:if="${policy.scopeType.name() == 'ALL'}" class="badge text-bg-secondary">All Resources</span>
-                                <span th:if="${policy.scopeType.name() == 'SCOPED'}" class="badge text-bg-warning text-dark">Scoped</span>
+                                <span th:if="${policy.scopeType.name == 'ALL'}" class="badge text-bg-secondary">All Resources</span>
+                                <span th:if="${policy.scopeType.name == 'SCOPED'}" class="badge text-bg-warning text-dark">Scoped</span>
                             </td>
                             <td>
                                 <a class="btn btn-outline-secondary btn-sm" th:href="@{/admin/notification-policies/edit/{id}(id=${policy.id})}">

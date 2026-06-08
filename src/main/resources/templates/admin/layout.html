@@ -15,81 +15,81 @@
 <div th:fragment="adminSidebar" class="d-flex flex-column">
     <h6 class="text-uppercase text-muted fw-bold mb-3 px-2">Admin Panel</h6>
     <a th:href="@{/admin/settings}"
-       th:classappend="${currentRequestUri != null and currentRequestUri.contains('/settings')} ? 'active' : ''"
+       th:classappend="${currentRequestUri != null and #strings.contains(currentRequestUri, '/settings')} ? 'active' : ''"
        class="nav-link px-2 py-2 rounded mb-1">
         <i class="bi bi-sliders me-2"></i>General Settings
     </a>
 
     <a th:href="@{/admin/announcements}"
-       th:classappend="${currentRequestUri != null and currentRequestUri.contains('/announcements')} ? 'active' : ''"
+       th:classappend="${currentRequestUri != null and #strings.contains(currentRequestUri, '/announcements')} ? 'active' : ''"
        class="nav-link px-2 py-2 rounded mb-1">
         <i class="bi bi-megaphone me-2"></i>Announcements
     </a>
     <a th:href="@{/admin/resources}"
-       th:classappend="${currentRequestUri != null and currentRequestUri.contains('/admin/resources')} ? 'active' : ''"
+       th:classappend="${currentRequestUri != null and #strings.contains(currentRequestUri, '/admin/resources')} ? 'active' : ''"
        class="nav-link px-2 py-2 rounded mb-1">
         <i class="bi bi-hdd-network me-2"></i>Manage Resources
     </a>
     <a th:href="@{/admin/outages}"
-       th:classappend="${currentRequestUri != null and currentRequestUri.contains('/admin/outages')} ? 'active' : ''"
+       th:classappend="${currentRequestUri != null and #strings.contains(currentRequestUri, '/admin/outages')} ? 'active' : ''"
        class="nav-link px-2 py-2 rounded mb-1">
         <i class="bi bi-exclamation-octagon me-2"></i>Outages
     </a>
     <a th:href="@{/admin/resource-types}"
-       th:classappend="${currentRequestUri != null and currentRequestUri.contains('/resource-types')} ? 'active' : ''"
+       th:classappend="${currentRequestUri != null and #strings.contains(currentRequestUri, '/resource-types')} ? 'active' : ''"
        class="nav-link px-2 py-2 rounded mb-1">
         <i class="bi bi-grid-3x3-gap me-2"></i>Resource Types
     </a>
     <a th:href="@{/admin/resource-discovery}"
-       th:classappend="${currentRequestUri != null and currentRequestUri.contains('/resource-discovery')} ? 'active' : ''"
+       th:classappend="${currentRequestUri != null and #strings.contains(currentRequestUri, '/resource-discovery')} ? 'active' : ''"
        class="nav-link px-2 py-2 rounded mb-1">
         <i class="bi bi-search me-2"></i>Resource Discovery
     </a>
         <a th:href="@{/admin/proxy-config}"
-       th:classappend="${currentRequestUri != null and currentRequestUri.contains('/proxy-config')} ? 'active' : ''"
+       th:classappend="${currentRequestUri != null and #strings.contains(currentRequestUri, '/proxy-config')} ? 'active' : ''"
        class="nav-link px-2 py-2 rounded mb-1">
         <i class="bi bi-globe2 me-2"></i>Proxy Configuration
     </a>
     <hr class="border-secondary my-2">
 
     <a th:href="@{/admin/notification-providers}"
-       th:classappend="${currentRequestUri != null and currentRequestUri.contains('/notification-provider')} ? 'active' : ''"
+       th:classappend="${currentRequestUri != null and #strings.contains(currentRequestUri, '/notification-provider')} ? 'active' : ''"
        class="nav-link px-2 py-2 rounded mb-1">
         <i class="bi bi-bell me-2"></i>Notification Providers
     </a>
     <a th:href="@{/admin/notification-policies}"
-       th:classappend="${currentRequestUri != null and currentRequestUri.contains('/notification-polic')} ? 'active' : ''"
+       th:classappend="${currentRequestUri != null and #strings.contains(currentRequestUri, '/notification-polic')} ? 'active' : ''"
        class="nav-link px-2 py-2 rounded mb-1">
         <i class="bi bi-bell-fill me-2"></i>Notification Policies
     </a>
     <hr class="border-secondary my-2">
         <a th:href="@{/admin/check-history}"
-       th:classappend="${currentRequestUri != null and currentRequestUri.contains('/check-history')} ? 'active' : ''"
+       th:classappend="${currentRequestUri != null and #strings.contains(currentRequestUri, '/check-history')} ? 'active' : ''"
        class="nav-link px-2 py-2 rounded mb-1">
         <i class="bi bi-journal-check me-2"></i>Check History
     </a>
      <hr class="border-secondary my-2">
 
     <a th:href="@{/admin/users}"
-       th:classappend="${currentRequestUri != null and currentRequestUri.contains('/users')} ? 'active' : ''"
+       th:classappend="${currentRequestUri != null and #strings.contains(currentRequestUri, '/users')} ? 'active' : ''"
        class="nav-link px-2 py-2 rounded mb-1">
         <i class="bi bi-people me-2"></i>Users
     </a>
     <a th:href="@{/admin/api-keys}"
-       th:classappend="${currentRequestUri != null and currentRequestUri.contains('/api-keys')} ? 'active' : ''"
+       th:classappend="${currentRequestUri != null and #strings.contains(currentRequestUri, '/api-keys')} ? 'active' : ''"
        class="nav-link px-2 py-2 rounded mb-1">
         <i class="bi bi-key me-2"></i>API Keys
     </a>
 
     <hr class="border-secondary my-2">
     <a th:href="@{/admin/custom-headers}"
-       th:classappend="${currentRequestUri != null and currentRequestUri.contains('/custom-headers')} ? 'active' : ''"
+       th:classappend="${currentRequestUri != null and #strings.contains(currentRequestUri, '/custom-headers')} ? 'active' : ''"
        class="nav-link px-2 py-2 rounded mb-1">
         <i class="bi bi-code-square me-2"></i>Custom Headers
     </a>
 
     <a th:href="@{/admin/embed}"
-       th:classappend="${currentRequestUri != null and currentRequestUri.contains('/admin/embed')} ? 'active' : ''"
+       th:classappend="${currentRequestUri != null and #strings.contains(currentRequestUri, '/admin/embed')} ? 'active' : ''"
        class="nav-link px-2 py-2 rounded mb-1">
         <i class="bi bi-badge-ad me-2"></i>Embed Widget
     </a>
@@ -99,7 +99,7 @@
         <i class="bi bi-braces me-2"></i>API Docs
     </a>
     <a th:href="@{/admin/about}"
-       th:classappend="${currentRequestUri != null and currentRequestUri.contains('/admin/about')} ? 'active' : ''"
+       th:classappend="${currentRequestUri != null and #strings.contains(currentRequestUri, '/admin/about')} ? 'active' : ''"
        class="nav-link px-2 py-2 rounded mb-1">
         <i class="bi bi-info-circle me-2"></i>About
     </a>

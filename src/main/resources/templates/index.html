@@ -126,7 +126,7 @@
         <div class="vstack gap-2">
             <div th:each="announcement : ${announcements}"
                  class="announcement-card p-3 rounded border"
-                 th:classappend="${announcement.kind.name() == 'INFORMATION'} ? ' announcement-information' : (${announcement.kind.name() == 'WARNING'} ? ' announcement-warning' : ' announcement-problem')">
+                 th:classappend="${announcement.kind.name == 'INFORMATION'} ? ' announcement-information' : (${announcement.kind.name == 'WARNING'} ? ' announcement-warning' : ' announcement-problem')">
                 <div class="announcement-content" th:utext="${announcement.content}"></div>
                 <small class="text-muted d-block mt-2">
                     by <span th:text="${announcement.createdBy != null && !#strings.isEmpty(announcement.createdBy)} ? ${announcement.createdBy} : 'Unknown'">Unknown</span>
@@ -200,7 +200,7 @@
                                 <div class="resource-subline">
                                     <small class="resource-type d-inline-flex align-items-center gap-1">
                                         <i class="bi" aria-hidden="true"
-                                           th:classappend="${resource.resourceType.name() == 'HTTP'} ? ' bi-globe2' : (${resource.resourceType.name() == 'DOCKER'} ? ' bi-box-seam' : (${resource.resourceType.name() == 'TCP'} ? ' bi-hdd-network' : ' bi-boxes'))"></i>
+                                           th:classappend="${resource.resourceType.name == 'HTTP'} ? ' bi-globe2' : (${resource.resourceType.name == 'DOCKER'} ? ' bi-box-seam' : (${resource.resourceType.name == 'TCP'} ? ' bi-hdd-network' : ' bi-boxes'))"></i>
                                         <span th:text="${resource.resourceType}">TYPE</span>
                                     </small>
                                      <small th:if="${showResourceUrl}" class="text-muted ms-2 text-truncate d-inline-block" style="max-width:150px;"
@@ -246,7 +246,7 @@
                         <div class="resource-title-line">
                             <small class="resource-type d-inline-flex align-items-center gap-1">
                                 <i class="bi" aria-hidden="true"
-                                   th:classappend="${resource.resourceType.name() == 'HTTP'} ? ' bi-globe2' : (${resource.resourceType.name() == 'DOCKER'} ? ' bi-box-seam' : (${resource.resourceType.name() == 'TCP'} ? ' bi-hdd-network' : ' bi-boxes'))"></i>
+                                   th:classappend="${resource.resourceType.name == 'HTTP'} ? ' bi-globe2' : (${resource.resourceType.name == 'DOCKER'} ? ' bi-box-seam' : (${resource.resourceType.name == 'TCP'} ? ' bi-hdd-network' : ' bi-boxes'))"></i>
                                 <span th:text="${resource.resourceType}">TYPE</span>
                             </small>
                         </div>
@@ -316,7 +316,7 @@
                                         <div class="resource-subline">
                                             <small class="resource-type d-inline-flex align-items-center gap-1">
                                                 <i class="bi" aria-hidden="true"
-                                                   th:classappend="${resource.resourceType.name() == 'HTTP'} ? ' bi-globe2' : (${resource.resourceType.name() == 'DOCKER'} ? ' bi-box-seam' : (${resource.resourceType.name() == 'TCP'} ? ' bi-hdd-network' : ' bi-boxes'))"></i>
+                                                   th:classappend="${resource.resourceType.name == 'HTTP'} ? ' bi-globe2' : (${resource.resourceType.name == 'DOCKER'} ? ' bi-box-seam' : (${resource.resourceType.name == 'TCP'} ? ' bi-hdd-network' : ' bi-boxes'))"></i>
                                                 <span th:text="${resource.resourceType}">TYPE</span>
                                             </small>
                                               <small th:if="${showResourceUrl}" class="text-muted ms-2 text-truncate d-inline-block" style="max-width:150px;"
@@ -367,7 +367,7 @@
                                 <div class="resource-title-line">
                                     <small class="resource-type d-inline-flex align-items-center gap-1">
                                         <i class="bi" aria-hidden="true"
-                                           th:classappend="${resource.resourceType.name() == 'HTTP'} ? ' bi-globe2' : (${resource.resourceType.name() == 'DOCKER'} ? ' bi-box-seam' : (${resource.resourceType.name() == 'TCP'} ? ' bi-hdd-network' : ' bi-boxes'))"></i>
+                                           th:classappend="${resource.resourceType.name == 'HTTP'} ? ' bi-globe2' : (${resource.resourceType.name == 'DOCKER'} ? ' bi-box-seam' : (${resource.resourceType.name == 'TCP'} ? ' bi-hdd-network' : ' bi-boxes'))"></i>
                                         <span th:text="${resource.resourceType}">TYPE</span>
                                     </small>
                                 </div>

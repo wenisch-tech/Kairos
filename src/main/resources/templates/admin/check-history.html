@@ -61,27 +61,27 @@
                             <tbody>
                                 <tr th:each="entry : ${entries}">
                                     <td class="ps-3 text-muted text-nowrap"
-                                        th:text="${#temporals.format(entry.timestamp(), 'yyyy-MM-dd HH:mm:ss')}"></td>
+                                        th:text="${#temporals.format(entry.timestamp, 'yyyy-MM-dd HH:mm:ss')}"></td>
                                     <td>
-                                        <span th:if="${entry.kind() == 'Scheduled'}"
+                                        <span th:if="${entry.kind == 'Scheduled'}"
                                               class="badge bg-secondary">Scheduled</span>
-                                        <span th:if="${entry.kind() == 'Check Now'}"
+                                        <span th:if="${entry.kind == 'Check Now'}"
                                               class="badge bg-primary">Check Now</span>
-                                        <span th:if="${entry.kind() == 'Instant Check'}"
+                                        <span th:if="${entry.kind == 'Instant Check'}"
                                               class="badge bg-info text-dark">Instant Check</span>
-                                        <span th:if="${entry.kind() != 'Scheduled' and entry.kind() != 'Check Now' and entry.kind() != 'Instant Check'}"
-                                              class="badge bg-dark" th:text="${entry.kind()}"></span>
+                                        <span th:if="${entry.kind != 'Scheduled' and entry.kind != 'Check Now' and entry.kind != 'Instant Check'}"
+                                              class="badge bg-dark" th:text="${entry.kind}"></span>
                                     </td>
-                                    <td th:text="${entry.resourceName() != null ? entry.resourceName() : 'â€”'}"></td>
+                                    <td th:text="${entry.resourceName != null ? entry.resourceName : 'â€”'}"></td>
                                     <td class="font-monospace small"
-                                        th:text="${entry.target() != null ? entry.target() : 'â€”'}"></td>
+                                        th:text="${entry.target != null ? entry.target : 'â€”'}"></td>
                                     <td>
-                                        <span th:if="${entry.result() == 'AVAILABLE'}" class="badge bg-success">Available</span>
-                                        <span th:if="${entry.result() == 'NOT_AVAILABLE'}" class="badge bg-danger">Not Available</span>
-                                        <span th:if="${entry.result() != 'AVAILABLE' and entry.result() != 'NOT_AVAILABLE'}"
-                                              class="badge bg-secondary" th:text="${entry.result()}"></span>
+                                        <span th:if="${entry.result == 'AVAILABLE'}" class="badge bg-success">Available</span>
+                                        <span th:if="${entry.result == 'NOT_AVAILABLE'}" class="badge bg-danger">Not Available</span>
+                                        <span th:if="${entry.result != 'AVAILABLE' and entry.result != 'NOT_AVAILABLE'}"
+                                              class="badge bg-secondary" th:text="${entry.result}"></span>
                                     </td>
-                                    <td th:text="${entry.triggeredBy()}"></td>
+                                    <td th:text="${entry.triggeredBy}"></td>
                                 </tr>
                             </tbody>
                         </table>

@@ -90,13 +90,13 @@
                                 <div class="form-check form-check-inline">
                                     <input class="form-check-input" type="radio" name="scopeType" id="scopeAll"
                                            value="ALL" onchange="updateScopePanel()"
-                                           th:checked="${policy.scopeType == null or policy.scopeType.name() == 'ALL'}">
+                                           th:checked="${policy.scopeType == null or policy.scopeType.name == 'ALL'}">
                                     <label class="form-check-label" for="scopeAll">All Resources</label>
                                 </div>
                                 <div class="form-check form-check-inline">
                                     <input class="form-check-input" type="radio" name="scopeType" id="scopeScoped"
                                            value="SCOPED" onchange="updateScopePanel()"
-                                           th:checked="${policy.scopeType != null and policy.scopeType.name() == 'SCOPED'}">
+                                           th:checked="${policy.scopeType != null and policy.scopeType.name == 'SCOPED'}">
                                     <label class="form-check-label" for="scopeScoped">Scoped (specific groups/resources)</label>
                                 </div>
                             </div>

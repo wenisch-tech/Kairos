@@ -70,11 +70,11 @@
                             <tr th:each="user : ${users}">
                                 <td th:text="${user.email}">email</td>
                                 <td>
-                                    <span th:class="'badge ' + (${user.role.name() == 'ADMIN'} ? 'bg-warning text-dark' : 'bg-primary')"
+                                    <span th:class="'badge ' + (${user.role.name == 'ADMIN'} ? 'bg-warning text-dark' : 'bg-primary')"
                                           th:text="${user.role}">ROLE</span>
                                 </td>
                                 <td>
-                                    <span th:class="'badge ' + (${user.provider.name() == 'OIDC'} ? 'bg-info text-dark' : 'bg-secondary')"
+                                    <span th:class="'badge ' + (${user.provider.name == 'OIDC'} ? 'bg-info text-dark' : 'bg-secondary')"
                                           th:text="${user.provider}">PROVIDER</span>
                                 </td>
                                 <td th:text="${user.lastLoginAt != null} ? ${#temporals.format(user.lastLoginAt, 'yyyy-MM-dd HH:mm')} : 'Never'">date</td>

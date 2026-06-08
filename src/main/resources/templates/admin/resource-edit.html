@@ -74,7 +74,7 @@
                             <select class="form-select" name="groupIds" multiple size="5">
                                 <option th:each="group : ${resourceGroups}"
                                         th:value="${group.id}"
-                                        th:selected="${resource.groups != null and resource.groups.![id].contains(group.id)}"
+                                        th:selected="${resource.groups != null and #lists.contains(resource.groups.![id], group.id)}"
                                         th:text="${group.name}">Group</option>
                             </select>
                             <div class="form-text">Hold Ctrl/⌘ to select multiple groups. Deselect all to leave ungrouped.</div>

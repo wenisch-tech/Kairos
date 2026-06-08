@@ -186,7 +186,7 @@
                                                 th:attr="form=${formId}" size="3">
                                             <option th:each="group : ${resourceGroups}"
                                                     th:value="${group.id}"
-                                                    th:selected="${resource.groups != null and resource.groups.![id].contains(group.id)}"
+                                                    th:selected="${resource.groups != null and #lists.contains(resource.groups.![id], group.id)}"
                                                     th:text="${group.name}">Group</option>
                                         </select>
                                         <div class="form-text small">Hold Ctrl/⌘ to select multiple</div>
@@ -343,7 +343,7 @@
                             <option th:each="visibility : ${groupVisibilityOptions}"
                                     th:value="${visibility}"
                                     th:text="${visibility}"
-                                    th:selected="${visibility.name() == 'PUBLIC'}">PUBLIC</option>
+                                    th:selected="${visibility.name == 'PUBLIC'}">PUBLIC</option>
                         </select>
                         <div class="form-text">PUBLIC shows for everyone, AUTHENTICATED shows only to signed-in users, HIDDEN hides this group from dashboard and public API views.</div>
                     </div>
