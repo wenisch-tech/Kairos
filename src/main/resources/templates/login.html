@@ -48,6 +48,15 @@
                         </div>
                     </form>
 
+                    <th:block th:if="${oidcLoginEnabled}">
+                        <hr class="my-4">
+                        <div class="d-grid">
+                            <a th:href="@{/oauth2/authorization/oidc}" class="btn btn-outline-secondary">
+                                Login with OIDC
+                            </a>
+                        </div>
+                    </th:block>
+
                     <div class="text-center mt-3">
                         <a th:href="@{/}" class="text-muted small">Back to Dashboard</a>
                     </div>

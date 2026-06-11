@@ -211,6 +211,7 @@ public class SecurityConfig {
 
             http.oauth2Login(oauth2 -> oauth2
                     .clientRegistrationRepository(clientRegistrationRepository)
+                    .loginPage("/login")
                     .successHandler((request, response, authentication) -> {
                         String email = resolveOidcEmail(authentication);
                         if (email.isBlank()) {

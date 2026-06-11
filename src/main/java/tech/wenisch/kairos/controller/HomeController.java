@@ -14,6 +14,7 @@ import java.util.stream.IntStream;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -64,6 +65,18 @@ public class HomeController {
     private final EmbedSettingsService embedSettingsService;
     private final ResourceGroupService resourceGroupService;
     private final InstantCheckService instantCheckService;
+
+    @Value("${OIDC_ENABLED:false}")
+    private boolean oidcEnabled;
+
+    @Value("${OIDC_CLIENT_ID:}")
+    private String oidcClientId;
+
+    @Value("${OIDC_CLIENT_SECRET:}")
+    private String oidcClientSecret;
+
+    @Value("${OIDC_ISSUER_URI:}")
+    private String oidcIssuerUri;
 
     @GetMapping("/")
     public String index(Authentication authentication, Model model) {
@@ -451,8 +464,16 @@ public class HomeController {
     }
 
     @GetMapping("/login")
-    public String login() {
+    public String login(Model model) {
+        model.addAttribute("oidcLoginEnabled", isOidcLoginEnabled());
         return "login";
+    }
+
+    private boolean isOidcLoginEnabled() {
+        return oidcEnabled
+                && !oidcClientId.isBlank()
+                && !oidcClientSecret.isBlank()
+                && !oidcIssuerUri.isBlank();
     }
 
     private int normalizePageSize(int size) {
