@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.12.8 - 2026-06-11
+
+### [2.12.8](https://github.com/wenisch-tech/Kairos/compare/v2.12.7...v2.12.8) (2026-06-11)
+
+
+### Bug Fixes
+
+* updated chart to support OIDC_SECRET to be deployed either as env or secret ([c130302](https://github.com/wenisch-tech/Kairos/commit/c1303022f28af43046b2be59c8160a1cd1bdbe17))
+
+
+
+Docker image: ghcr.io/wenisch-tech/kairos:2.12.8
+
+
 ## v2.12.7 - 2026-06-10
 
 ### [2.12.7](https://github.com/wenisch-tech/Kairos/compare/v2.12.6...v2.12.7) (2026-06-10)
