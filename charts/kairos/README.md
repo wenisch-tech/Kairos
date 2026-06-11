@@ -101,6 +101,16 @@ helm install kairos . -n kairos --create-namespace \
   --set secrets.OIDC_CLIENT_SECRET="your-secret"
 ```
 
+You can also pass the OIDC client secret directly via `env` when you do not want Helm to create a Kubernetes `Secret` for it:
+
+```bash
+helm install kairos . -n kairos --create-namespace \
+  --set env.OIDC_ENABLED="true" \
+  --set env.OIDC_ISSUER_URI="https://keycloak.example.com/realms/myrealm" \
+  --set env.OIDC_CLIENT_ID="kairos" \
+  --set env.OIDC_CLIENT_SECRET="your-secret"
+```
+
 #### Enable Ingress
 
 ```bash
@@ -164,7 +174,7 @@ helm install kairos . -n kairos --create-namespace \
 | `OIDC_ENABLED` | `false` | Enable OIDC authentication |
 | `OIDC_ISSUER_URI` | *(empty)* | OIDC provider issuer URI (e.g. Keycloak realm) |
 | `OIDC_CLIENT_ID` | *(empty)* | OIDC client ID |
-| `OIDC_CLIENT_SECRET` | *(empty)* | OIDC client secret (**use secrets**) |
+| `OIDC_CLIENT_SECRET` | *(empty)* | OIDC client secret (can be set directly, but `secrets` is preferred) |
 
 #### Health Probes
 
@@ -213,6 +223,8 @@ helm install kairos . -n kairos \
 ```
 
 Secrets are stored in a Kubernetes `Secret` resource and mounted as environment variables in the pod.
+
+If you set the same key in both `env` and `secrets`, the `secrets` value takes precedence and the plain `env` entry is omitted from the rendered Deployment.
 
 ### Pod Security Context
 

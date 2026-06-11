@@ -86,6 +86,8 @@ env:
 # LOGGING_LEVEL_ROOT: "INFO"
 
 # Secrets for sensitive data
+# If a key is set in both `env` and `secrets`, the Secret-backed value wins.
+# You can still set sensitive values directly via `env` when you explicitly want that.
 secrets: {}
 # SPRING_DATASOURCE_PASSWORD: "your-password"
 

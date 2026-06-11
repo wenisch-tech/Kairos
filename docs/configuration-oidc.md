@@ -29,6 +29,8 @@ sequenceDiagram
 | `OIDC_CLIENT_SECRET` | Yes | Client secret registered with your identity provider |
 | `OIDC_ISSUER_URI` | Yes | OIDC issuer base URI |
 
+When deploying with the Helm chart, `OIDC_CLIENT_SECRET` can be provided either through `env.OIDC_CLIENT_SECRET` or through `secrets.OIDC_CLIENT_SECRET`. The `secrets` variant is preferred. If both are set, the Secret-backed value takes precedence.
+
 ## Keycloak Example
 
 ```bash

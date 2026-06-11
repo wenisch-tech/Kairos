@@ -4,96 +4,99 @@ metadata:
   name: {{ include "kairos.fullname" . }}
   labels:
     {{- include "kairos.labels" . | nindent 4 }}
+{{- $root := . }}
 spec:
-  {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.replicaCount }}
+  {{- if not $root.Values.autoscaling.enabled }}
+  replicas: {{ $root.Values.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "kairos.selectorLabels" . | nindent 6 }}
+      {{- include "kairos.selectorLabels" $root | nindent 6 }}
   template:
-    {{- $podAnnotations := dict "checksum/config" (include (print $.Template.BasePath "/configmap.yaml") . | sha256sum) }}
-    {{- if .Values.metrics.podAnnotations.enabled }}
+    {{- $podAnnotations := dict "checksum/config" (include (print $root.Template.BasePath "/configmap.yaml") $root | sha256sum) }}
+    {{- if $root.Values.metrics.podAnnotations.enabled }}
     {{- $_ := set $podAnnotations "prometheus.io/scrape" "true" }}
-    {{- $_ := set $podAnnotations "prometheus.io/path" .Values.metrics.path }}
-    {{- $_ := set $podAnnotations "prometheus.io/port" (printf "%v" .Values.service.port) }}
+    {{- $_ := set $podAnnotations "prometheus.io/path" $root.Values.metrics.path }}
+    {{- $_ := set $podAnnotations "prometheus.io/port" (printf "%v" $root.Values.service.port) }}
     {{- end }}
-    {{- range $key, $value := .Values.podAnnotations }}
+    {{- range $key, $value := $root.Values.podAnnotations }}
     {{- $_ := set $podAnnotations $key (printf "%v" $value) }}
     {{- end }}
     metadata:
       annotations:
         {{- toYaml $podAnnotations | nindent 8 }}
       labels:
-        {{- include "kairos.selectorLabels" . | nindent 8 }}
+        {{- include "kairos.selectorLabels" $root | nindent 8 }}
     spec:
-      {{- with .Values.imagePullSecrets }}
+      {{- with $root.Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       securityContext:
-        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+        {{- toYaml $root.Values.podSecurityContext | nindent 8 }}
       containers:
-        - name: {{ .Chart.Name }}
+        - name: {{ $root.Chart.Name }}
           securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+            {{- toYaml $root.Values.securityContext | nindent 12 }}
+          image: "{{ $root.Values.image.registry }}/{{ $root.Values.image.repository }}:{{ $root.Values.image.tag | default $root.Chart.AppVersion }}"
+          imagePullPolicy: {{ $root.Values.image.pullPolicy }}
           ports:
             - name: http
               containerPort: 8080
               protocol: TCP
-          {{- if .Values.startupProbe.enabled }}
+          {{- if $root.Values.startupProbe.enabled }}
           startupProbe:
-            {{- toYaml (omit .Values.startupProbe "enabled") | nindent 12 }}
+            {{- toYaml (omit $root.Values.startupProbe "enabled") | nindent 12 }}
           {{- end }}
-          {{- if .Values.livenessProbe.enabled }}
+          {{- if $root.Values.livenessProbe.enabled }}
           livenessProbe:
-            {{- toYaml (omit .Values.livenessProbe "enabled") | nindent 12 }}
+            {{- toYaml (omit $root.Values.livenessProbe "enabled") | nindent 12 }}
           {{- end }}
-          {{- if .Values.readinessProbe.enabled }}
+          {{- if $root.Values.readinessProbe.enabled }}
           readinessProbe:
-            {{- toYaml (omit .Values.readinessProbe "enabled") | nindent 12 }}
+            {{- toYaml (omit $root.Values.readinessProbe "enabled") | nindent 12 }}
           {{- end }}
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+            {{- toYaml $root.Values.resources | nindent 12 }}
           env:
-            {{- range $key, $value := .Values.env }}
-            {{- if $value }}
+            {{- range $key, $value := $root.Values.env }}
+            {{- if and $value (not (index $root.Values.secrets $key)) }}
             - name: {{ $key }}
               value: {{ $value | quote }}
             {{- end }}
             {{- end }}
-            {{- range $key, $secret := .Values.secrets }}
+            {{- range $key, $secret := $root.Values.secrets }}
+            {{- if $secret }}
             - name: {{ $key }}
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "kairos.fullname" . }}
+                  name: {{ include "kairos.fullname" $root }}
                   key: {{ $key }}
+            {{- end }}
             {{- end }}
           envFrom:
             - configMapRef:
-                name: {{ include "kairos.fullname" . }}
-          {{- if .Values.persistence.enabled }}
+                name: {{ include "kairos.fullname" $root }}
+          {{- if $root.Values.persistence.enabled }}
           volumeMounts:
             - name: data
-              mountPath: {{ .Values.persistence.mountPath }}
+              mountPath: {{ $root.Values.persistence.mountPath }}
           {{- end }}
-      {{- if .Values.persistence.enabled }}
+      {{- if $root.Values.persistence.enabled }}
       volumes:
         - name: data
           persistentVolumeClaim:
-            claimName: {{ include "kairos.fullname" . }}
+            claimName: {{ include "kairos.fullname" $root }}
       {{- end }}
-      {{- with .Values.nodeSelector }}
+      {{- with $root.Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.affinity }}
+      {{- with $root.Values.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.tolerations }}
+      {{- with $root.Values.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
