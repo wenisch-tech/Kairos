@@ -22,10 +22,10 @@
                 "OIDC_CLIENT_ID": {
                     "type": "string"
                 },
-                "OIDC_CREATEUSERS": {
+                "OIDC_CLIENT_SECRET": {
                     "type": "string"
                 },
-                "OIDC_CLIENT_SECRET": {
+                "OIDC_CREATEUSERS": {
                     "type": "string"
                 },
                 "OIDC_ENABLED": {

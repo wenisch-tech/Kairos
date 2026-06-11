@@ -1,5 +1,24 @@
 # Changelog
 
+## v2.13.0 - 2026-06-11
+
+## [2.13.0](https://github.com/wenisch-tech/Kairos/compare/v2.12.8...v2.13.0) (2026-06-11)
+
+
+### Features
+
+* added support for user creation via OIDC or optional disabling of this feature ([0dec9ff](https://github.com/wenisch-tech/Kairos/commit/0dec9ffd7768d42397ff557c8bb74ae296dfa5d1))
+
+
+### Bug Fixes
+
+* OAUTH Login is still using normal login page ([93d38b3](https://github.com/wenisch-tech/Kairos/commit/93d38b303fa2c621c74a543d859cf34b3e78f69d))
+
+
+
+Docker image: ghcr.io/wenisch-tech/kairos:2.13.0
+
+
 ## v2.12.8 - 2026-06-11
 
 ### [2.12.8](https://github.com/wenisch-tech/Kairos/compare/v2.12.7...v2.12.8) (2026-06-11)
