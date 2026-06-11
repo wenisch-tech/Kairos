@@ -26,11 +26,15 @@ import org.springframework.security.oauth2.client.registration.InMemoryClientReg
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.XorCsrfTokenRequestAttributeHandler;
 
@@ -53,6 +57,9 @@ public class SecurityConfig {
 
     @Value("${OIDC_ISSUER_URI:}")
     private String oidcIssuerUri;
+
+    @Value("${OIDC_CREATEUSERS:true}")
+    private boolean oidcCreateUsers;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -204,10 +211,18 @@ public class SecurityConfig {
 
             http.oauth2Login(oauth2 -> oauth2
                     .clientRegistrationRepository(clientRegistrationRepository)
-                    .defaultSuccessUrl("/")
                     .successHandler((request, response, authentication) -> {
-                        String email = authentication.getName();
-                        userService.createOidcUser(email);
+                        String email = resolveOidcEmail(authentication);
+                        if (email.isBlank()) {
+                            log.warn("OIDC login rejected because the provider response did not contain an email-like identifier");
+                            rejectOidcLogin(request, response, authentication);
+                            return;
+                        }
+                        if (userService.syncOidcUser(email, oidcCreateUsers).isEmpty()) {
+                            log.info("OIDC login rejected for unknown user {} because OIDC_CREATEUSERS is disabled", email);
+                            rejectOidcLogin(request, response, authentication);
+                            return;
+                        }
                         response.sendRedirect("/");
                     })
             );
@@ -228,5 +243,42 @@ public class SecurityConfig {
         return authentication != null
                 && authentication.isAuthenticated()
                 && !(authentication instanceof AnonymousAuthenticationToken);
+    }
+
+    private String resolveOidcEmail(org.springframework.security.core.Authentication authentication) {
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof OidcUser oidcUser) {
+            return firstEmailLike(oidcUser.getEmail(), oidcUser.getPreferredUsername(), authentication.getName());
+        }
+        if (principal instanceof OAuth2User oauth2User) {
+            return firstEmailLike(stringValue(oauth2User.getAttribute("email")),
+                    stringValue(oauth2User.getAttribute("preferred_username")),
+                    authentication.getName());
+        }
+        return firstEmailLike(authentication.getName());
+    }
+
+    private void rejectOidcLogin(jakarta.servlet.http.HttpServletRequest request,
+                                 jakarta.servlet.http.HttpServletResponse response,
+                                 org.springframework.security.core.Authentication authentication) throws java.io.IOException {
+        new SecurityContextLogoutHandler().logout(request, response, authentication);
+        SecurityContextHolder.clearContext();
+        response.sendRedirect("/login?error");
+    }
+
+    private String firstEmailLike(String... candidates) {
+        for (String candidate : candidates) {
+            if (candidate != null && !candidate.isBlank()) {
+                String normalized = candidate.trim();
+                if (normalized.contains("@")) {
+                    return normalized;
+                }
+            }
+        }
+        return "";
+    }
+
+    private String stringValue(Object value) {
+        return value instanceof String string ? string : "";
     }
 }

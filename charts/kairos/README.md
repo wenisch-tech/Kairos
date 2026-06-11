@@ -96,6 +96,7 @@ helm install kairos . -n kairos --create-namespace \
 ```bash
 helm install kairos . -n kairos --create-namespace \
   --set env.OIDC_ENABLED="true" \
+  --set env.OIDC_CREATEUSERS="true" \
   --set env.OIDC_ISSUER_URI="https://keycloak.example.com/realms/myrealm" \
   --set env.OIDC_CLIENT_ID="kairos" \
   --set secrets.OIDC_CLIENT_SECRET="your-secret"
@@ -106,6 +107,7 @@ You can also pass the OIDC client secret directly via `env` when you do not want
 ```bash
 helm install kairos . -n kairos --create-namespace \
   --set env.OIDC_ENABLED="true" \
+  --set env.OIDC_CREATEUSERS="true" \
   --set env.OIDC_ISSUER_URI="https://keycloak.example.com/realms/myrealm" \
   --set env.OIDC_CLIENT_ID="kairos" \
   --set env.OIDC_CLIENT_SECRET="your-secret"
@@ -172,6 +174,7 @@ helm install kairos . -n kairos --create-namespace \
 | Env Variable | Default | Description |
 |--------------|---------|-------------|
 | `OIDC_ENABLED` | `false` | Enable OIDC authentication |
+| `OIDC_CREATEUSERS` | `true` | Auto-create Kairos users on first successful OIDC login |
 | `OIDC_ISSUER_URI` | *(empty)* | OIDC provider issuer URI (e.g. Keycloak realm) |
 | `OIDC_CLIENT_ID` | *(empty)* | OIDC client ID |
 | `OIDC_CLIENT_SECRET` | *(empty)* | OIDC client secret (can be set directly, but `secrets` is preferred) |

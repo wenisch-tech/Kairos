@@ -132,6 +132,32 @@ class UserServiceTest {
         assertThat(result.getLastLoginAt()).isNotNull();
     }
 
+    @Test
+    void syncOidcUserReturnsEmptyWhenUserMissingAndAutoProvisioningDisabled() {
+        when(userRepository.findByEmail("oidc@example.com")).thenReturn(Optional.empty());
+
+        Optional<AppUser> result = userService.syncOidcUser("oidc@example.com", false);
+
+        assertThat(result).isEmpty();
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void syncOidcUserUpdatesExistingUserWhenAutoProvisioningDisabled() {
+        AppUser existing = AppUser.builder()
+                .email("oidc@example.com")
+                .provider(AuthProvider.OIDC)
+                .role(UserRole.USER)
+                .build();
+        when(userRepository.findByEmail("oidc@example.com")).thenReturn(Optional.of(existing));
+        when(userRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        Optional<AppUser> result = userService.syncOidcUser("oidc@example.com", false);
+
+        assertThat(result).contains(existing);
+        assertThat(existing.getLastLoginAt()).isNotNull();
+    }
+
     // ── updateLastLogin ─────────────────────────────────────────────────────
 
     @Test

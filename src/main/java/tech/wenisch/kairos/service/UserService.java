@@ -60,21 +60,31 @@ public class UserService implements UserDetailsService {
     }
 
     public AppUser createOidcUser(String email) {
+        return syncOidcUser(email, true)
+                .orElseThrow(() -> new IllegalStateException("OIDC user creation unexpectedly returned empty"));
+    }
+
+    @Transactional
+    public Optional<AppUser> syncOidcUser(String email, boolean createUsers) {
         Optional<AppUser> existing = userRepository.findByEmail(email);
         if (existing.isPresent()) {
             AppUser user = existing.get();
             user.setLastLoginAt(LocalDateTime.now());
-            return userRepository.save(user);
+            return Optional.of(userRepository.save(user));
         }
+        if (!createUsers) {
+            return Optional.empty();
+        }
+        LocalDateTime now = LocalDateTime.now();
         AppUser user = AppUser.builder()
                 .email(email)
                 .passwordHash("")
                 .role(UserRole.USER)
                 .provider(AuthProvider.OIDC)
-                .createdAt(LocalDateTime.now())
-                .lastLoginAt(LocalDateTime.now())
+                .createdAt(now)
+                .lastLoginAt(now)
                 .build();
-        return userRepository.save(user);
+        return Optional.of(userRepository.save(user));
     }
 
     public void deleteUser(Long id) {

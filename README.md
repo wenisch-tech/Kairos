@@ -151,6 +151,7 @@ Kairos is configured via standard Spring Boot `application.properties` or enviro
 | `spring.datasource.username` | `SPRING_DATASOURCE_USERNAME` | `sa` | Database username |
 | `spring.datasource.password` | `SPRING_DATASOURCE_PASSWORD` | *(empty)* | Database password |
 | `OIDC_ENABLED` | `OIDC_ENABLED` | `false` | Enable OIDC / OAuth2 login |
+| `OIDC_CREATEUSERS` | `OIDC_CREATEUSERS` | `true` | Auto-create Kairos users on first successful OIDC login |
 | `OIDC_CLIENT_ID` | `OIDC_CLIENT_ID` | *(empty)* | OIDC client ID |
 | `OIDC_CLIENT_SECRET` | `OIDC_CLIENT_SECRET` | *(empty)* | OIDC client secret (can be passed directly or via the Helm chart `secrets` map) |
 | `OIDC_ISSUER_URI` | `OIDC_ISSUER_URI` | *(empty)* | OIDC issuer URI (e.g. `https://keycloak.example.com/realms/myrealm`) |

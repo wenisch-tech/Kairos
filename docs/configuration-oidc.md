@@ -25,6 +25,7 @@ sequenceDiagram
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `OIDC_ENABLED` | Yes | Set to `true` to enable OIDC |
+| `OIDC_CREATEUSERS` | No | Set to `false` to allow only already existing Kairos users; defaults to `true` |
 | `OIDC_CLIENT_ID` | Yes | Client ID registered with your identity provider |
 | `OIDC_CLIENT_SECRET` | Yes | Client secret registered with your identity provider |
 | `OIDC_ISSUER_URI` | Yes | OIDC issuer base URI |
@@ -35,6 +36,7 @@ When deploying with the Helm chart, `OIDC_CLIENT_SECRET` can be provided either 
 
 ```bash
 OIDC_ENABLED=true
+OIDC_CREATEUSERS=true
 OIDC_CLIENT_ID=kairos
 OIDC_CLIENT_SECRET=<your-secret>
 OIDC_ISSUER_URI=https://keycloak.example.com/realms/myrealm
@@ -57,5 +59,6 @@ https://<your-kairos-host>/login/oauth2/code/oidc
 
 ## Role Mapping
 
-- OIDC users are auto-provisioned with `USER` role.
+- OIDC users are auto-provisioned with `USER` role by default.
+- Set `OIDC_CREATEUSERS=false` when you want OIDC login to be limited to users that already exist in Kairos.
 - Promote users to `ADMIN` in **Admin -> Users** when needed.
