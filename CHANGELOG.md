@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.14.0 - 2026-06-12
+
+## [2.14.0](https://github.com/wenisch-tech/Kairos/compare/v2.13.3...v2.14.0) (2026-06-12)
+
+
+### Features
+
+* allow updating of user permissions for existing users ([c320dde](https://github.com/wenisch-tech/Kairos/commit/c320dde9df3208e0bc17705f2b5b2de2de19eb82))
+
+
+
+Docker image: ghcr.io/wenisch-tech/kairos:2.14.0
+
+
 ## v2.13.3 - 2026-06-12
 
 ### [2.13.3](https://github.com/wenisch-tech/Kairos/compare/v2.13.2...v2.13.3) (2026-06-12)
