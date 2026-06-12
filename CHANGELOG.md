@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.13.2 - 2026-06-12
+
+### [2.13.2](https://github.com/wenisch-tech/Kairos/compare/v2.13.1...v2.13.2) (2026-06-12)
+
+
+### Bug Fixes
+
+* fixed cookie handling for oidc ([5f2a2f6](https://github.com/wenisch-tech/Kairos/commit/5f2a2f657002988275ea371a9fe65fc7aeaa037e))
+
+
+
+Docker image: ghcr.io/wenisch-tech/kairos:2.13.2
+
+
 ## v2.13.1 - 2026-06-12
 
 ### [2.13.1](https://github.com/wenisch-tech/Kairos/compare/v2.13.0...v2.13.1) (2026-06-12)
