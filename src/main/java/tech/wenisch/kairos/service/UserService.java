@@ -91,6 +91,14 @@ public class UserService implements UserDetailsService {
         userRepository.deleteById(id);
     }
 
+    @Transactional
+    public Optional<AppUser> updateRole(Long id, UserRole role) {
+        return userRepository.findById(id).map(user -> {
+            user.setRole(role);
+            return userRepository.save(user);
+        });
+    }
+
     public List<AppUser> findAll() {
         return userRepository.findAll();
     }

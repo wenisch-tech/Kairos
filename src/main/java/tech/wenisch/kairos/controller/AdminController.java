@@ -17,6 +17,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,6 +39,7 @@ import lombok.RequiredArgsConstructor;
 import tech.wenisch.kairos.dto.AdminResourceGroupViewModel;
 import tech.wenisch.kairos.entity.Announcement;
 import tech.wenisch.kairos.entity.AnnouncementKind;
+import tech.wenisch.kairos.entity.AppUser;
 import tech.wenisch.kairos.entity.AuthType;
 import tech.wenisch.kairos.entity.CorsAllowedOrigin;
 import tech.wenisch.kairos.entity.DiscoveryServiceAuth;
@@ -851,7 +857,31 @@ public class AdminController {
     @GetMapping("/users")
     public String users(Model model) {
         model.addAttribute("users", userService.findAll());
+        model.addAttribute("userRoles", UserRole.values());
         return "admin/users";
+    }
+
+    @PostMapping("/users/update-role/{id}")
+    public String updateUserRole(@PathVariable Long id,
+                                 @RequestParam UserRole role,
+                                 Authentication authentication,
+                                 RedirectAttributes redirectAttributes) {
+        AppUser updatedUser = userService.updateRole(id, role).orElse(null);
+        if (updatedUser == null) {
+            redirectAttributes.addFlashAttribute("errorMessage", "User not found.");
+            return "redirect:/admin/users";
+        }
+
+        refreshAuthenticationIfCurrentUser(authentication, updatedUser);
+        redirectAttributes.addFlashAttribute("successMessage",
+                "User role updated: " + updatedUser.getEmail() + " -> " + updatedUser.getRole());
+
+        if (authentication != null
+                && updatedUser.getEmail().equals(currentAuthenticatedEmail(authentication))
+                && updatedUser.getRole() != UserRole.ADMIN) {
+            return "redirect:/";
+        }
+        return "redirect:/admin/users";
     }
 
     @GetMapping("/api-keys")
@@ -1096,5 +1126,47 @@ public class AdminController {
         }
 
         return result;
+    }
+
+    private void refreshAuthenticationIfCurrentUser(Authentication authentication, AppUser updatedUser) {
+        if (authentication == null || !updatedUser.getEmail().equals(currentAuthenticatedEmail(authentication))) {
+            return;
+        }
+        UsernamePasswordAuthenticationToken refreshedAuthentication = new UsernamePasswordAuthenticationToken(
+                authentication.getPrincipal(),
+                authentication.getCredentials(),
+                List.of(new SimpleGrantedAuthority("ROLE_" + updatedUser.getRole().name()))
+        );
+        refreshedAuthentication.setDetails(authentication.getDetails());
+        SecurityContextHolder.getContext().setAuthentication(refreshedAuthentication);
+    }
+
+    private String currentAuthenticatedEmail(Authentication authentication) {
+        if (authentication == null) {
+            return "";
+        }
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof OidcUser oidcUser) {
+            return firstNonBlank(oidcUser.getEmail(), oidcUser.getPreferredUsername());
+        }
+        if (principal instanceof OAuth2User oauth2User) {
+            return firstNonBlank(stringValue(oauth2User.getAttribute("email")),
+                    stringValue(oauth2User.getAttribute("preferred_username")),
+                    authentication.getName());
+        }
+        return firstNonBlank(authentication.getName());
+    }
+
+    private String firstNonBlank(String... values) {
+        for (String value : values) {
+            if (value != null && !value.isBlank()) {
+                return value.trim();
+            }
+        }
+        return "";
+    }
+
+    private String stringValue(Object value) {
+        return value instanceof String string ? string : "";
     }
 }

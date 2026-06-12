@@ -70,8 +70,22 @@
                             <tr th:each="user : ${users}">
                                 <td th:text="${user.email}">email</td>
                                 <td>
-                                    <span th:class="'badge ' + (${user.role.name == 'ADMIN'} ? 'bg-warning text-dark' : 'bg-primary')"
-                                          th:text="${user.role}">ROLE</span>
+                                    <div class="d-flex flex-column gap-2">
+                                        <span th:class="'badge align-self-start ' + (${user.role.name == 'ADMIN'} ? 'bg-warning text-dark' : 'bg-primary')"
+                                              th:text="${user.role}">ROLE</span>
+                                        <form th:action="@{/admin/users/update-role/{id}(id=${user.id})}" method="post"
+                                              class="d-flex gap-2 align-items-center flex-wrap">
+                                            <select class="form-select form-select-sm" name="role" style="max-width: 160px;">
+                                                <option th:each="roleOption : ${userRoles}"
+                                                        th:value="${roleOption.name()}"
+                                                        th:text="${roleOption.name()}"
+                                                        th:selected="${user.role == roleOption}">ROLE</option>
+                                            </select>
+                                            <button type="submit" class="btn btn-outline-primary btn-sm">
+                                                <i class="bi bi-save me-1"></i>Save
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                                 <td>
                                     <span th:class="'badge ' + (${user.provider.name == 'OIDC'} ? 'bg-info text-dark' : 'bg-secondary')"

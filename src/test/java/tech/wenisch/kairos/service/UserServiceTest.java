@@ -191,6 +191,34 @@ class UserServiceTest {
     }
 
     @Test
+    void updateRoleUpdatesExistingUser() {
+        AppUser existing = AppUser.builder()
+                .id(5L)
+                .email("user@example.com")
+                .role(UserRole.USER)
+                .provider(AuthProvider.LOCAL)
+                .build();
+        when(userRepository.findById(5L)).thenReturn(Optional.of(existing));
+        when(userRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        Optional<AppUser> result = userService.updateRole(5L, UserRole.ADMIN);
+
+        assertThat(result).contains(existing);
+        assertThat(existing.getRole()).isEqualTo(UserRole.ADMIN);
+        verify(userRepository).save(existing);
+    }
+
+    @Test
+    void updateRoleReturnsEmptyForUnknownUser() {
+        when(userRepository.findById(404L)).thenReturn(Optional.empty());
+
+        Optional<AppUser> result = userService.updateRole(404L, UserRole.ADMIN);
+
+        assertThat(result).isEmpty();
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
     void findAllDelegatesToRepository() {
         AppUser user = AppUser.builder().email("a@b.com").build();
         when(userRepository.findAll()).thenReturn(List.of(user));
