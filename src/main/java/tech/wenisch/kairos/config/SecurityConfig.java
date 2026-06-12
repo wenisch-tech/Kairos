@@ -21,9 +21,12 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrations;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
@@ -38,6 +41,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.XorCsrfTokenRequestAttributeHandler;
 
+import java.security.SecureRandom;
+import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -204,10 +209,13 @@ public class SecurityConfig {
 
             InMemoryClientRegistrationRepository clientRegistrationRepository =
                     new InMemoryClientRegistrationRepository(registration);
+            OAuth2AuthorizationRequestResolver authorizationRequestResolver =
+                    oauth2AuthorizationRequestResolver(clientRegistrationRepository);
 
             http.oauth2Login(oauth2 -> oauth2
                     .clientRegistrationRepository(clientRegistrationRepository)
                     .authorizationEndpoint(authorization -> authorization
+                            .authorizationRequestResolver(authorizationRequestResolver)
                             .authorizationRequestRepository(new StateOAuth2AuthorizationRequestRepository()))
                     .loginPage("/login")
                     .failureHandler((request, response, exception) -> {
@@ -283,5 +291,19 @@ public class SecurityConfig {
 
     private String stringValue(Object value) {
         return value instanceof String string ? string : "";
+    }
+
+    private OAuth2AuthorizationRequestResolver oauth2AuthorizationRequestResolver(
+            ClientRegistrationRepository clientRegistrationRepository) {
+        DefaultOAuth2AuthorizationRequestResolver resolver =
+                new DefaultOAuth2AuthorizationRequestResolver(clientRegistrationRepository, "/oauth2/authorization");
+        resolver.setAuthorizationRequestCustomizer(builder -> builder.state(generateOauthState()));
+        return resolver;
+    }
+
+    private String generateOauthState() {
+        byte[] random = new byte[32];
+        new SecureRandom().nextBytes(random);
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(random);
     }
 }
