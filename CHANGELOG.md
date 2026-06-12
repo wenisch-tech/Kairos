@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.13.1 - 2026-06-12
+
+### [2.13.1](https://github.com/wenisch-tech/Kairos/compare/v2.13.0...v2.13.1) (2026-06-12)
+
+
+### Bug Fixes
+
+* added support for OIDC Autoconfiguration ([3532641](https://github.com/wenisch-tech/Kairos/commit/3532641f36789bf149e3718112db8cdc47729950))
+
+
+
+Docker image: ghcr.io/wenisch-tech/kairos:2.13.1
+
+
 ## v2.13.0 - 2026-06-11
 
 ## [2.13.0](https://github.com/wenisch-tech/Kairos/compare/v2.12.8...v2.13.0) (2026-06-11)
