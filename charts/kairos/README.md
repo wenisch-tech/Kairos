@@ -169,6 +169,13 @@ helm install kairos . -n kairos --create-namespace \
 | `SPRING_DATASOURCE_USERNAME` | `sa` | Database username |
 | `SPRING_DATASOURCE_PASSWORD` | *(empty)* | Database password (**use secrets**) |
 
+#### Environment Variables - Session Cookies
+
+| Env Variable | Default | Description |
+|--------------|---------|-------------|
+| `SERVER_SERVLET_SESSION_COOKIE_SAME_SITE` | `none` | Allows the session cookie to survive cross-site OIDC redirects |
+| `SERVER_SERVLET_SESSION_COOKIE_SECURE` | `true` | Sends the session cookie only over HTTPS |
+
 #### Environment Variables - OIDC / OAuth2
 
 | Env Variable | Default | Description |

@@ -73,6 +73,9 @@ env:
   SPRING_DATASOURCE_URL: ""
   SPRING_DATASOURCE_USERNAME: ""
   SPRING_DATASOURCE_PASSWORD: ""
+  # Session cookie configuration required for cross-site OIDC redirects
+  SERVER_SERVLET_SESSION_COOKIE_SAME_SITE: "none"
+  SERVER_SERVLET_SESSION_COOKIE_SECURE: "true"
   # OIDC / OAuth2 configuration
   OIDC_ENABLED: "false"
   OIDC_CREATEUSERS: "true"

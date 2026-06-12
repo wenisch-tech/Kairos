@@ -207,6 +207,8 @@ public class SecurityConfig {
 
             http.oauth2Login(oauth2 -> oauth2
                     .clientRegistrationRepository(clientRegistrationRepository)
+                    .authorizationEndpoint(authorization -> authorization
+                            .authorizationRequestRepository(new StateOAuth2AuthorizationRequestRepository()))
                     .loginPage("/login")
                     .failureHandler((request, response, exception) -> {
                         log.warn("OIDC login failed: {}", exception.getMessage());
