@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.13.3 - 2026-06-12
+
+### [2.13.3](https://github.com/wenisch-tech/Kairos/compare/v2.13.2...v2.13.3) (2026-06-12)
+
+
+### Bug Fixes
+
+* update handling of state parameter for oidc ([70db41c](https://github.com/wenisch-tech/Kairos/commit/70db41cf2a1ac6e815db02379f72477bb8bc372d))
+
+
+
+Docker image: ghcr.io/wenisch-tech/kairos:2.13.3
+
+
 ## v2.13.2 - 2026-06-12
 
 ### [2.13.2](https://github.com/wenisch-tech/Kairos/compare/v2.13.1...v2.13.2) (2026-06-12)
