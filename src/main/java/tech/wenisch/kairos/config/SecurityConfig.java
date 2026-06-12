@@ -22,8 +22,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.ClientRegistrations;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
@@ -190,19 +190,15 @@ public class SecurityConfig {
 
         if (oidcEnabled && !oidcClientId.isBlank() && !oidcClientSecret.isBlank() && !oidcIssuerUri.isBlank()) {
             log.info("OIDC authentication enabled");
-            ClientRegistration registration = ClientRegistration
-                    .withRegistrationId("oidc")
+            ClientRegistration registration = ClientRegistrations
+                    .fromIssuerLocation(oidcIssuerUri)
+                    .registrationId("oidc")
                     .clientId(oidcClientId)
                     .clientSecret(oidcClientSecret)
                     .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-                    .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                     .redirectUri("{baseUrl}/login/oauth2/code/{registrationId}")
                     .scope("openid", "profile", "email")
-                    .authorizationUri(oidcIssuerUri + "/protocol/openid-connect/auth")
-                    .tokenUri(oidcIssuerUri + "/protocol/openid-connect/token")
-                    .userInfoUri(oidcIssuerUri + "/protocol/openid-connect/userinfo")
                     .userNameAttributeName(IdTokenClaimNames.SUB)
-                    .jwkSetUri(oidcIssuerUri + "/protocol/openid-connect/certs")
                     .clientName("OIDC")
                     .build();
 
@@ -212,6 +208,10 @@ public class SecurityConfig {
             http.oauth2Login(oauth2 -> oauth2
                     .clientRegistrationRepository(clientRegistrationRepository)
                     .loginPage("/login")
+                    .failureHandler((request, response, exception) -> {
+                        log.warn("OIDC login failed: {}", exception.getMessage());
+                        response.sendRedirect("/login?oidcError");
+                    })
                     .successHandler((request, response, authentication) -> {
                         String email = resolveOidcEmail(authentication);
                         if (email.isBlank()) {
@@ -264,7 +264,7 @@ public class SecurityConfig {
                                  org.springframework.security.core.Authentication authentication) throws java.io.IOException {
         new SecurityContextLogoutHandler().logout(request, response, authentication);
         SecurityContextHolder.clearContext();
-        response.sendRedirect("/login?error");
+        response.sendRedirect("/login?oidcError");
     }
 
     private String firstEmailLike(String... candidates) {
