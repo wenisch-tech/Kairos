@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.15.0 - 2026-06-15
+
+## [2.15.0](https://github.com/wenisch-tech/Kairos/compare/v2.14.0...v2.15.0) (2026-06-15)
+
+
+### Features
+
+* added configuration that allows only scraping of annotated routes when using resourcediscovery ([80e1572](https://github.com/wenisch-tech/Kairos/commit/80e1572bfbbc48ce2b7854de4016b171cfb1ed83))
+
+
+
+Docker image: ghcr.io/wenisch-tech/kairos:2.15.0
+
+
 ## v2.14.0 - 2026-06-12
 
 ## [2.14.0](https://github.com/wenisch-tech/Kairos/compare/v2.13.3...v2.14.0) (2026-06-12)
