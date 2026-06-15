@@ -728,6 +728,7 @@ public class AdminController {
                                        @RequestParam(name = "skipTLS", defaultValue = "false") boolean skipTls,
                                        @RequestParam(name = "recursive", defaultValue = "false") boolean recursive,
                                        @RequestParam(name = "active", defaultValue = "false") boolean active,
+                                       @RequestParam(name = "onlyTaggedResources", defaultValue = "false") boolean onlyTaggedResources,
                                        RedirectAttributes redirectAttributes) {
         ResourceDiscovery discovery = ResourceDiscovery.builder()
                 .name(name)
@@ -736,6 +737,7 @@ public class AdminController {
                 .skipTls(skipTls)
                 .recursive(recursive)
                 .active(active)
+                .onlyTaggedResources(onlyTaggedResources)
                 .build();
         resourceDiscoveryManagementService.save(discovery);
         redirectAttributes.addFlashAttribute("successMessage", "Resource discovery service added: " + name);
@@ -766,6 +768,7 @@ public class AdminController {
                                           @RequestParam(name = "skipTLS", defaultValue = "false") boolean skipTls,
                                           @RequestParam(name = "recursive", defaultValue = "false") boolean recursive,
                                           @RequestParam(name = "active", defaultValue = "false") boolean active,
+                                          @RequestParam(name = "onlyTaggedResources", defaultValue = "false") boolean onlyTaggedResources,
                                           RedirectAttributes redirectAttributes) {
         resourceDiscoveryManagementService.findById(id).ifPresentOrElse(discovery -> {
             discovery.setName(name == null ? "" : name.trim());
@@ -774,6 +777,7 @@ public class AdminController {
             discovery.setSkipTls(skipTls);
             discovery.setRecursive(recursive);
             discovery.setActive(active);
+            discovery.setOnlyTaggedResources(onlyTaggedResources);
             resourceDiscoveryManagementService.save(discovery);
             redirectAttributes.addFlashAttribute("successMessage", "Discovery service updated: " + discovery.getName());
         }, () -> redirectAttributes.addFlashAttribute("errorMessage", "Discovery service not found."));

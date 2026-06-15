@@ -48,6 +48,7 @@ public class OpenshiftRouteSyncService {
 
     private static final String USER_AGENT = "Kairos-OpenshiftRouteSync/1.0";
     private static final String SERVICE_TYPE = "OPENSHIFT_ROUTE";
+    private static final String SCRAPE_ANNOTATION = "kairos.wenisch.tech/scrape";
 
     private final ResourceService resourceService;
     private final ResourceDiscoveryManagementService resourceDiscoveryManagementService;
@@ -260,6 +261,11 @@ public class OpenshiftRouteSyncService {
                 for (JsonNode item : items) {
                     RouteInfo route = parseRoute(item);
                     if (route != null && route.host != null && !route.host.isBlank()) {
+                        if (sourceResource.isOnlyTaggedResources() && !route.scrapeAnnotated()) {
+                            log.debug("Skipping route '{}' — only tagged resources enabled and annotation '{}' not present",
+                                    route.name(), SCRAPE_ANNOTATION);
+                            continue;
+                        }
                         routes.add(route);
                     }
                 }
@@ -283,12 +289,14 @@ public class OpenshiftRouteSyncService {
             if ("https".equals(scheme) && port == 80) {
                 port = 443;
             }
+            boolean scrapeAnnotated = "true".equals(
+                    routeItem.path("metadata").path("annotations").path(SCRAPE_ANNOTATION).asText(""));
 
             if (name == null || name.isBlank() || host == null || host.isBlank()) {
                 return null;
             }
 
-            return new RouteInfo(name, host, scheme, port);
+            return new RouteInfo(name, host, scheme, port, scrapeAnnotated);
         } catch (Exception ex) {
             log.debug("Failed to parse route: {}", ex.getMessage());
             return null;
@@ -424,5 +432,5 @@ public class OpenshiftRouteSyncService {
         }
     }
 
-    private record RouteInfo(String name, String host, String scheme, int port) {}
+    private record RouteInfo(String name, String host, String scheme, int port, boolean scrapeAnnotated) {}
 }

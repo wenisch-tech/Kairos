@@ -62,6 +62,13 @@
                                    th:checked="${discovery.recursive}">
                             <label class="form-check-label" for="recursive">Recursive discovery</label>
                         </div>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="onlyTaggedResources" name="onlyTaggedResources" value="true"
+                                   th:checked="${discovery.onlyTaggedResources}">
+                            <label class="form-check-label" for="onlyTaggedResources">Only scrape tagged resources
+                                <small class="text-muted d-block">When enabled, only OpenShift routes with annotation <code>kairos.wenisch.tech/scrape: "true"</code> are discovered.</small>
+                            </label>
+                        </div>
                         <div class="form-check mb-4">
                             <input class="form-check-input" type="checkbox" id="active" name="active" value="true"
                                    th:checked="${discovery.active}">

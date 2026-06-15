@@ -17,6 +17,7 @@ Settings are managed in **Admin -> Resource Types**.
 | Discovery Service Type | Default Sync Interval | Default Parallelism |
 |------------------------|-----------------------|---------------------|
 | DOCKER_REPOSITORY | 60 minutes | 1 thread |
+| OPENSHIFT_ROUTE | 60 minutes | 1 thread |
 
 Settings are managed in **Admin -> Resource Discovery**.
 
@@ -94,3 +95,34 @@ flowchart TD
 `DOCKER_REPOSITORY` sync runs do not create direct check entries.
 
 Instead, each run synchronizes discovered images into generated `DOCKER` resources in an auto-created group and removes resources that no longer exist in the upstream registry.
+
+## OPENSHIFT_ROUTE Discovery Behavior
+
+`OPENSHIFT_ROUTE` sync queries the OpenShift API to discover routes across all accessible projects and automatically creates, updates, or removes generated `HTTP` resources in Kairos.
+
+Each discovered route results in an `HTTP` resource named `{project}/{route}` grouped under `{discoveryServiceName}/{project}`.
+
+### Selective Scraping via Annotations
+
+By default, all discoverable routes are imported. You can restrict discovery to only routes that are explicitly opted in by enabling **Only scrape tagged resources** on the discovery service configuration.
+
+When this option is enabled, only routes carrying the annotation `kairos.wenisch.tech/scrape: "true"` are imported. Routes without this annotation are silently skipped.
+
+To tag a route for discovery:
+
+```bash
+oc annotate route <route-name> -n <namespace> kairos.wenisch.tech/scrape=true
+```
+
+To remove a route from discovery:
+
+```bash
+oc annotate route <route-name> -n <namespace> kairos.wenisch.tech/scrape-
+```
+
+> Routes that are removed from the tag set (or have the annotation removed) will be deleted from Kairos on the next discovery sync, following the same lifecycle as any other route that disappears from the cluster.
+
+| Option | Default | Behavior |
+|--------|---------|----------|
+| Only scrape tagged resources | disabled | All routes are imported |
+| Only scrape tagged resources | enabled | Only routes with `kairos.wenisch.tech/scrape: "true"` are imported |
