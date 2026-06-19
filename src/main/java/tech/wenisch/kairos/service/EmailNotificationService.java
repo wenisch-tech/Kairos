@@ -1,5 +1,6 @@
 package tech.wenisch.kairos.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -9,14 +10,14 @@ import tech.wenisch.kairos.entity.NotificationEvent;
 import tech.wenisch.kairos.entity.NotificationProvider;
 import tech.wenisch.kairos.entity.Outage;
 
-import java.time.format.DateTimeFormatter;
 import java.util.Properties;
 
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class EmailNotificationService {
 
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private final ApplicationTimeService applicationTimeService;
 
     public void sendOutageNotification(NotificationProvider provider, NotificationEvent event,
                                        Outage outage, MonitoredResource resource) {
@@ -77,9 +78,9 @@ public class EmailNotificationService {
         sb.append("Resource: ").append(resource.getName()).append("\n");
         sb.append("Type:     ").append(resource.getResourceType()).append("\n");
         sb.append("Target:   ").append(resource.getTarget()).append("\n");
-        sb.append("Started:  ").append(outage.getStartDate() != null ? outage.getStartDate().format(FORMATTER) : "-").append("\n");
+        sb.append("Started:  ").append(outage.getStartDate() != null ? applicationTimeService.format(outage.getStartDate(), "yyyy-MM-dd HH:mm:ss") : "-").append("\n");
         if (event == NotificationEvent.OUTAGE_ENDED && outage.getEndDate() != null) {
-            sb.append("Resolved: ").append(outage.getEndDate().format(FORMATTER)).append("\n");
+            sb.append("Resolved: ").append(applicationTimeService.format(outage.getEndDate(), "yyyy-MM-dd HH:mm:ss")).append("\n");
         }
         return sb.toString();
     }

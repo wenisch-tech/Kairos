@@ -18,12 +18,14 @@ import tech.wenisch.kairos.repository.MonitoredResourceRepository;
 import tech.wenisch.kairos.repository.OutageRepository;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -38,13 +40,20 @@ class MetricsServiceTest {
     @Mock
     private OutageRepository outageRepository;
 
+    @Mock
+    private ApplicationTimeService applicationTimeService;
+
     private SimpleMeterRegistry meterRegistry;
     private MetricsService metricsService;
 
     @BeforeEach
     void setUp() {
         meterRegistry = new SimpleMeterRegistry();
-        metricsService = new MetricsService(meterRegistry, resourceRepository, checkResultRepository, outageRepository);
+        lenient().when(applicationTimeService.toEpochSeconds(any(LocalDateTime.class)))
+                .thenAnswer(invocation -> ((LocalDateTime) invocation.getArgument(0)).atZone(ZoneId.systemDefault()).toEpochSecond());
+        lenient().when(applicationTimeService.nowEpochSeconds())
+                .thenReturn(LocalDateTime.now().atZone(ZoneId.systemDefault()).toEpochSecond());
+        metricsService = new MetricsService(meterRegistry, resourceRepository, checkResultRepository, outageRepository, applicationTimeService);
     }
 
     @Test

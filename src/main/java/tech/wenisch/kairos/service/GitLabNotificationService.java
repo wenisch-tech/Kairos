@@ -18,7 +18,6 @@ import tech.wenisch.kairos.entity.Outage;
 import tech.wenisch.kairos.entity.OutageNotificationRef;
 import tech.wenisch.kairos.repository.OutageNotificationRefRepository;
 
-import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -28,10 +27,9 @@ import java.util.Optional;
 @Slf4j
 public class GitLabNotificationService {
 
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
     private final OutageNotificationRefRepository outageNotificationRefRepository;
     private final ObjectMapper objectMapper;
+    private final ApplicationTimeService applicationTimeService;
 
     @Transactional
     public void sendOutageNotification(NotificationProvider provider, NotificationEvent event,
@@ -141,7 +139,7 @@ public class GitLabNotificationService {
                 "| **Resource** | " + resource.getName() + " |\n" +
                 "| **Type** | " + resource.getResourceType() + " |\n" +
                 "| **Target** | " + resource.getTarget() + " |\n" +
-                "| **Started** | " + (outage.getStartDate() != null ? outage.getStartDate().format(FORMATTER) : "—") + " |\n";
+                "| **Started** | " + (outage.getStartDate() != null ? applicationTimeService.format(outage.getStartDate(), "yyyy-MM-dd HH:mm:ss") : "—") + " |\n";
     }
 
     private String buildCloseDescription(MonitoredResource resource, Outage outage) {
@@ -151,8 +149,8 @@ public class GitLabNotificationService {
                 "| **Resource** | " + resource.getName() + " |\n" +
                 "| **Type** | " + resource.getResourceType() + " |\n" +
                 "| **Target** | " + resource.getTarget() + " |\n" +
-                "| **Started** | " + (outage.getStartDate() != null ? outage.getStartDate().format(FORMATTER) : "—") + " |\n" +
-                "| **Ended** | " + (outage.getEndDate() != null ? outage.getEndDate().format(FORMATTER) : "—") + " |\n";
+                "| **Started** | " + (outage.getStartDate() != null ? applicationTimeService.format(outage.getStartDate(), "yyyy-MM-dd HH:mm:ss") : "—") + " |\n" +
+                "| **Ended** | " + (outage.getEndDate() != null ? applicationTimeService.format(outage.getEndDate(), "yyyy-MM-dd HH:mm:ss") : "—") + " |\n";
     }
 
     private HttpHeaders buildHeaders(String token) {

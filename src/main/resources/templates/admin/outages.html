@@ -121,9 +121,9 @@
                                         <span th:if="${outage.active}" class="badge bg-danger">Active</span>
                                         <span th:unless="${outage.active}" class="badge bg-success">Resolved</span>
                                     </td>
-                                    <td th:text="${#temporals.format(outage.startDate, 'yyyy-MM-dd HH:mm:ss')}">-</td>
+                                    <td th:text="${@kairosTime.format(outage.startDate, 'yyyy-MM-dd HH:mm:ss')}">-</td>
                                     <td>
-                                        <span th:if="${outage.endDate != null}" th:text="${#temporals.format(outage.endDate, 'yyyy-MM-dd HH:mm:ss')}">-</span>
+                                        <span th:if="${outage.endDate != null}" th:text="${@kairosTime.format(outage.endDate, 'yyyy-MM-dd HH:mm:ss')}">-</span>
                                         <span th:unless="${outage.endDate != null}" class="text-muted fst-italic">ongoing</span>
                                     </td>
                                     <td class="text-center">

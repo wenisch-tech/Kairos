@@ -95,7 +95,7 @@
                         <tr th:each="apiKey : ${apiKeys}">
                             <td th:text="${apiKey.name}">Name</td>
                             <td th:text="${apiKey.createdBy}">creator</td>
-                            <td th:text="${apiKey.createdAt != null} ? ${#temporals.format(apiKey.createdAt, 'yyyy-MM-dd HH:mm')} : '-'">date</td>
+                            <td th:text="${apiKey.createdAt != null} ? ${@kairosTime.format(apiKey.createdAt, 'yyyy-MM-dd HH:mm')} : '-'">date</td>
                             <td><code th:text="${apiKey.keyId}">id</code></td>
                             <td>
                                 <form th:action="@{/admin/api-keys/delete/{id}(id=${apiKey.id})}" method="post" class="d-inline"

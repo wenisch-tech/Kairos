@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.Socket;
-import java.time.LocalDateTime;
 
 /**
  * Checks TCP reachability of a host:port target.
@@ -30,6 +29,7 @@ public class TcpCheckService {
     private final OutageService outageService;
     private final ProxySettingsService proxySettingsService;
     private final MetricsService metricsService;
+    private final ApplicationTimeService applicationTimeService;
 
     public InstantCheckExecutionResult probe(String target, boolean skipTls, boolean useStoredAuth) {
         long checkStartedNanos = System.nanoTime();
@@ -71,7 +71,7 @@ public class TcpCheckService {
             CheckResult result = CheckResult.builder()
                     .resource(resource)
                     .status(CheckStatus.AVAILABLE)
-                    .checkedAt(LocalDateTime.now())
+                    .checkedAt(applicationTimeService.now())
                     .message("TCP connection to " + target + " succeeded")
                     .latencyMs(elapsedMillis(checkStartedNanos))
                     .build();
@@ -85,7 +85,7 @@ public class TcpCheckService {
             CheckResult result = CheckResult.builder()
                     .resource(resource)
                     .status(CheckFailureClassifier.resolveStatus(e))
-                    .checkedAt(LocalDateTime.now())
+                    .checkedAt(applicationTimeService.now())
                     .message(e.getMessage())
                     .errorCode("CONNECTION_ERROR")
                     .latencyMs(elapsedMillis(checkStartedNanos))

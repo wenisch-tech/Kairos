@@ -12,11 +12,16 @@ public class CheckAuditService {
 
     private static final int MAX_ENTRIES = 200;
 
+    private final ApplicationTimeService applicationTimeService;
     private final Deque<CheckAuditEntry> entries = new ArrayDeque<>();
+
+    public CheckAuditService(ApplicationTimeService applicationTimeService) {
+        this.applicationTimeService = applicationTimeService;
+    }
 
     public synchronized void record(String kind, String resourceName, String target, String triggeredBy, String result) {
         entries.addFirst(new CheckAuditEntry(
-                LocalDateTime.now(),
+                applicationTimeService.now(),
                 kind,
                 resourceName,
                 target,

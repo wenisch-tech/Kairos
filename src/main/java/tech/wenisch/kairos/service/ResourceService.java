@@ -1,7 +1,6 @@
 package tech.wenisch.kairos.service;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -43,6 +42,7 @@ public class ResourceService {
     private final ResourceGroupRepository resourceGroupRepository;
     private final ResourceTypeConfigRepository resourceTypeConfigRepository;
     private final MetricsService metricsService;
+    private final ApplicationTimeService applicationTimeService;
 
     public List<MonitoredResource> findAllActive() {
         return sortResources(resourceRepository.findAllActiveForLanding());
@@ -64,7 +64,7 @@ public class ResourceService {
 
     public MonitoredResource save(MonitoredResource resource) {
         if (resource.getCreatedAt() == null) {
-            resource.setCreatedAt(LocalDateTime.now());
+            resource.setCreatedAt(applicationTimeService.now());
         }
         MonitoredResource saved = resourceRepository.save(resource);
         metricsService.registerOrUpdateResource(saved);
@@ -89,7 +89,7 @@ public class ResourceService {
         if (deleteOutages) {
             outageRepository.deleteAll(outages);
         } else {
-            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime now = applicationTimeService.now();
             outages.forEach(o -> {
                 if (o.isActive()) {
                     o.setActive(false);
@@ -137,7 +137,7 @@ public class ResourceService {
     }
 
     public double getUptimePercentage(MonitoredResource resource, int hours) {
-        LocalDateTime since = LocalDateTime.now().minusHours(hours);
+        LocalDateTime since = applicationTimeService.now().minusHours(hours);
         List<CheckResult> results = checkResultRepository
                 .findByResourceAndCheckedAtAfterOrderByCheckedAtAsc(resource, since);
         return computeUptimePercentage(results);
@@ -160,9 +160,6 @@ public class ResourceService {
     /** Number of color-coded blocks displayed in the 24-hour timeline visualization (one block ≈ 16 min). */
     private static final int TIMELINE_BUCKETS = 90;
 
-    private static final DateTimeFormatter LATENCY_SAMPLE_FORMATTER =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
     /** Maximum number of raw check results returned by the latency-samples endpoint. */
     private static final int LATENCY_SAMPLE_MAX = 500;
 
@@ -172,7 +169,7 @@ public class ResourceService {
      */
     public List<LatencySampleDTO> getLatencySamples(MonitoredResource resource, int hours) {
         int safeHours = Math.max(hours, 1);
-        LocalDateTime since = LocalDateTime.now().minusHours(safeHours);
+        LocalDateTime since = applicationTimeService.now().minusHours(safeHours);
         List<CheckResult> all = checkResultRepository
                 .findByResourceAndCheckedAtAfterOrderByCheckedAtAsc(resource, since);
         List<CheckResult> withLatency = all.stream()
@@ -194,7 +191,7 @@ public class ResourceService {
                         r.getDnsResolutionMs(),
                         r.getConnectMs(),
                         r.getTlsHandshakeMs(),
-                        r.getCheckedAt().format(LATENCY_SAMPLE_FORMATTER)))
+                        applicationTimeService.format(r.getCheckedAt(), "yyyy-MM-dd HH:mm:ss")))
                 .collect(Collectors.toList());
     }
 
@@ -210,7 +207,7 @@ public class ResourceService {
 
     public List<TimelineBlockDTO> getTimelineBlocks(MonitoredResource resource, int hours) {
         int safeHours = Math.max(hours, 1);
-        LocalDateTime start = LocalDateTime.now().minusHours(safeHours);
+        LocalDateTime start = applicationTimeService.now().minusHours(safeHours);
         List<CheckResult> results = checkResultRepository
                 .findByResourceAndCheckedAtAfterOrderByCheckedAtAsc(resource, start);
         return buildTimelineBlocks(results, start, safeHours);
@@ -224,7 +221,7 @@ public class ResourceService {
      */
     public TimelineData getTimelineData(MonitoredResource resource, int hours) {
         int safeHours = Math.max(hours, 1);
-        LocalDateTime start = LocalDateTime.now().minusHours(safeHours);
+        LocalDateTime start = applicationTimeService.now().minusHours(safeHours);
         List<CheckResult> results = checkResultRepository
                 .findByResourceAndCheckedAtAfterOrderByCheckedAtAsc(resource, start);
         return new TimelineData(

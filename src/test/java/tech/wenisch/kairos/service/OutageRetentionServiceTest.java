@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -26,11 +27,15 @@ class OutageRetentionServiceTest {
     @Mock
     private ResourceTypeConfigRepository resourceTypeConfigRepository;
 
+    @Mock
+    private ApplicationTimeService applicationTimeService;
+
     private OutageRetentionService outageRetentionService;
 
     @BeforeEach
     void setUp() {
-        outageRetentionService = new OutageRetentionService(outageRepository, resourceTypeConfigRepository);
+        lenient().when(applicationTimeService.now()).thenReturn(LocalDateTime.of(2026, 6, 19, 12, 0));
+        outageRetentionService = new OutageRetentionService(outageRepository, resourceTypeConfigRepository, applicationTimeService);
     }
 
     @Test

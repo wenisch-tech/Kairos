@@ -5,6 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="kairos-time-zone" th:content="${timeZoneId}">
     <link rel="icon" th:href="@{/img/kairos.png}" type="image/png">
     <title>Outages - Kairos</title>
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
@@ -127,10 +128,10 @@
                             <span th:if="${row.outage.active}" class="badge bg-danger">Active</span>
                             <span th:unless="${row.outage.active}" class="badge bg-success">Resolved</span>
                         </td>
-                        <td th:text="${#temporals.format(row.outage.startDate, 'yyyy-MM-dd HH:mm:ss')}">-</td>
+                        <td th:text="${@kairosTime.format(row.outage.startDate, 'yyyy-MM-dd HH:mm:ss')}">-</td>
                         <td>
                             <span th:if="${row.outage.endDate != null}"
-                                  th:text="${#temporals.format(row.outage.endDate, 'yyyy-MM-dd HH:mm:ss')}">-</span>
+                                  th:text="${@kairosTime.format(row.outage.endDate, 'yyyy-MM-dd HH:mm:ss')}">-</span>
                             <span th:unless="${row.outage.endDate != null}" class="text-muted fst-italic">ongoing</span>
                         </td>
                         <td>

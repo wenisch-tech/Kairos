@@ -30,7 +30,6 @@ import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
@@ -60,6 +59,7 @@ public class DockerCheckService {
     private final OutageService outageService;
     private final ProxySettingsService proxySettingsService;
     private final MetricsService metricsService;
+    private final ApplicationTimeService applicationTimeService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public InstantCheckExecutionResult probe(String target, boolean skipTls, boolean useStoredAuth) {
@@ -142,7 +142,7 @@ public class DockerCheckService {
             CheckResult result = CheckResult.builder()
                     .resource(resource)
                     .status(CheckStatus.AVAILABLE)
-                    .checkedAt(LocalDateTime.now())
+                    .checkedAt(applicationTimeService.now())
                     .message("Manifest and " + blobDigests.size() + " blobs downloadable")
                     .latencyMs(elapsedMillis(checkStartedNanos))
                     .build();
@@ -157,7 +157,7 @@ public class DockerCheckService {
             CheckResult result = CheckResult.builder()
                     .resource(resource)
                     .status(CheckFailureClassifier.resolveStatus(e))
-                    .checkedAt(LocalDateTime.now())
+                    .checkedAt(applicationTimeService.now())
                     .message(e.getMessage())
                     .errorCode("DOCKER_ERROR")
                     .latencyMs(elapsedMillis(checkStartedNanos))

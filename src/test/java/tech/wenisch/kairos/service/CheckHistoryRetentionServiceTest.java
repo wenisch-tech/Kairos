@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import org.mockito.Mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -22,12 +23,14 @@ class CheckHistoryRetentionServiceTest {
 
     @Mock private CheckResultRepository checkResultRepository;
     @Mock private ResourceTypeConfigRepository resourceTypeConfigRepository;
+    @Mock private ApplicationTimeService applicationTimeService;
 
     private CheckHistoryRetentionService service;
 
     @BeforeEach
     void setUp() {
-        service = new CheckHistoryRetentionService(checkResultRepository, resourceTypeConfigRepository);
+        lenient().when(applicationTimeService.now()).thenReturn(LocalDateTime.of(2026, 6, 19, 12, 0));
+        service = new CheckHistoryRetentionService(checkResultRepository, resourceTypeConfigRepository, applicationTimeService);
     }
 
     @Test

@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
@@ -30,6 +29,7 @@ import java.util.UUID;
 public class ApiKeyService {
 
     private final ApiKeyRepository apiKeyRepository;
+    private final ApplicationTimeService applicationTimeService;
 
     @Value("${kairos.api-keys.jwt-secret:change-me-super-long-random-secret-at-least-32-bytes}")
     private String jwtSecret;
@@ -51,7 +51,7 @@ public class ApiKeyService {
                 .name(name)
                 .createdBy(createdBy)
                 .tokenHash(sha256(token))
-                .createdAt(LocalDateTime.now())
+                .createdAt(applicationTimeService.now())
                 .build();
 
         ApiKey saved = apiKeyRepository.save(apiKey);

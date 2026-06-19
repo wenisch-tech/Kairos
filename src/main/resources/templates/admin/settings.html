@@ -5,6 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="kairos-time-zone" th:content="${timeZoneId}">
     <link rel="icon" th:href="@{/img/kairos.png}" type="image/png">
     <title>Settings - Kairos Admin</title>
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
@@ -102,6 +103,18 @@
                                    name="dashboardAutoGroupThreshold"
                                    th:value="${dashboardAutoGroupThreshold}">
                             <div class="form-text">Default: 10. If the dashboard has at least this many groups, the initial landing-page view defaults to Groups mode. Users can still switch modes and their preference is remembered.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="timeZone" class="form-label">Time zone</label>
+                            <select class="form-select"
+                                    id="timeZone"
+                                    name="timeZone">
+                                <option th:each="option : ${timeZoneOptions}"
+                                        th:value="${option.id}"
+                                        th:text="${option.label}"
+                                        th:selected="${option.id == configuredTimeZone}">GMT+01:00 - Berlin (Europe/Berlin)</option>
+                            </select>
+                            <div class="form-text">Used for check timestamps, outage windows, Prometheus timestamp metrics, and all displayed dates.</div>
                         </div>
                 </div>
             </div>

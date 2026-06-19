@@ -13,6 +13,7 @@ import org.mockito.ArgumentCaptor;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import org.mockito.Mock;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -38,6 +39,7 @@ class OutageServiceTest {
     @Mock private ResourceTypeConfigRepository resourceTypeConfigRepository;
     @Mock private NotificationDispatchService notificationDispatchService;
     @Mock private MetricsService metricsService;
+    @Mock private ApplicationTimeService applicationTimeService;
 
     private OutageService outageService;
 
@@ -45,7 +47,9 @@ class OutageServiceTest {
 
     @BeforeEach
     void setUp() {
-        outageService = new OutageService(outageRepository, checkResultRepository, resourceTypeConfigRepository, notificationDispatchService, metricsService);
+        lenient().when(applicationTimeService.formatIsoUtc(any(LocalDateTime.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0).toString() + "Z");
+        outageService = new OutageService(outageRepository, checkResultRepository, resourceTypeConfigRepository, notificationDispatchService, metricsService, applicationTimeService);
         resource = MonitoredResource.builder()
                 .id(1L).name("TestService").resourceType(ResourceType.HTTP).active(true).build();
     }

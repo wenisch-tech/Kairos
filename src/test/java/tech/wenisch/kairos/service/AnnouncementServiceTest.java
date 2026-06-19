@@ -24,11 +24,15 @@ class AnnouncementServiceTest {
     @Mock
     private AnnouncementRepository announcementRepository;
 
+    @Mock
+    private ApplicationTimeService applicationTimeService;
+
     private AnnouncementService announcementService;
 
     @BeforeEach
     void setUp() {
-        announcementService = new AnnouncementService(announcementRepository);
+        lenient().when(applicationTimeService.now()).thenReturn(LocalDateTime.of(2026, 6, 19, 12, 0));
+        announcementService = new AnnouncementService(announcementRepository, applicationTimeService);
     }
 
     private Announcement announcement(Long id, boolean active) {

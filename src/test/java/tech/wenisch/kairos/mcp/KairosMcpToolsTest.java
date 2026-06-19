@@ -27,6 +27,7 @@ import tech.wenisch.kairos.entity.Outage;
 import tech.wenisch.kairos.entity.ResourceType;
 import tech.wenisch.kairos.repository.CheckResultRepository;
 import tech.wenisch.kairos.service.AnnouncementService;
+import tech.wenisch.kairos.service.ApplicationTimeService;
 import tech.wenisch.kairos.service.CheckAuditEntry;
 import tech.wenisch.kairos.service.CheckAuditService;
 import tech.wenisch.kairos.service.CheckExecutorService;
@@ -44,13 +45,17 @@ class KairosMcpToolsTest {
     @Mock private CheckAuditService checkAuditService;
     @Mock private CheckExecutorService checkExecutorService;
     @Mock private InstantCheckService instantCheckService;
+    @Mock private ApplicationTimeService applicationTimeService;
 
     private KairosMcpTools tools;
 
     @BeforeEach
     void setUp() {
+        org.mockito.Mockito.lenient().when(applicationTimeService.now()).thenReturn(LocalDateTime.of(2026, 6, 19, 12, 0));
+        org.mockito.Mockito.lenient().when(applicationTimeService.formatIsoUtc(any(LocalDateTime.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0).toString() + "Z");
         tools = new KairosMcpTools(resourceService, checkResultRepository, announcementService,
-                outageService, checkAuditService, checkExecutorService, instantCheckService);
+                outageService, checkAuditService, checkExecutorService, instantCheckService, applicationTimeService);
     }
 
     // ── listResources ──────────────────────────────────────────────────────────
@@ -327,6 +332,7 @@ class KairosMcpToolsTest {
 
     @Test
     void createAnnouncementReturnsErrorForInvalidActiveUntil() {
+        when(applicationTimeService.parseDisplayDateTime("not-a-date")).thenThrow(new java.time.format.DateTimeParseException("Invalid", "not-a-date", 0));
         Map<String, Object> result = tools.createAnnouncement("WARNING", "content", "not-a-date");
         assertThat(result).containsKey("error");
     }
@@ -348,6 +354,7 @@ class KairosMcpToolsTest {
         Announcement saved = Announcement.builder()
                 .id(2L).kind(AnnouncementKind.PROBLEM).content("<p>Down</p>")
                 .active(true).activeUntil(LocalDateTime.of(2026, 6, 1, 8, 0)).createdAt(LocalDateTime.now()).build();
+        when(applicationTimeService.parseDisplayDateTime("2026-06-01T08:00:00")).thenReturn(LocalDateTime.of(2026, 6, 1, 8, 0));
         when(announcementService.save(any())).thenReturn(saved);
 
         Map<String, Object> result = tools.createAnnouncement("PROBLEM", "<p>Down</p>", "2026-06-01T08:00:00");

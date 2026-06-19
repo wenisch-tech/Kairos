@@ -5,6 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="kairos-time-zone" th:content="${timeZoneId}">
     <link rel="icon" th:href="@{/img/kairos.png}" type="image/png">
     <title th:text="${vm.resource.name} + ' - Kairos'">Resource - Kairos</title>
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
@@ -84,10 +85,10 @@
         <i class="bi bi-exclamation-triangle-fill fs-4 flex-shrink-0"></i>
         <div>
             <strong>Active Outage</strong> — This resource has been unavailable since
-            <strong th:text="${#temporals.format(activeOutage.startDate, 'yyyy-MM-dd HH:mm:ss')}">-</strong>
+            <strong th:text="${@kairosTime.format(activeOutage.startDate, 'yyyy-MM-dd HH:mm:ss')}">-</strong>
             <span class="ms-1">(duration:</span>
             <strong data-role="outage-since-counter"
-                    th:attr="data-outage-start=${#temporals.format(activeOutage.startDate, 'yyyy-MM-dd''T''HH:mm:ss')}"
+                    th:attr="data-outage-start=${@kairosTime.formatIsoUtc(activeOutage.startDate)}"
                     th:text="${activeOutageDuration}">0m</strong>
             <span>)</span>.
         </div>
@@ -157,7 +158,7 @@
                     <span th:each="block : ${vm.timelineBlocks}"
                           th:class="'timeline-block ' + ${block.status}"
                           th:attr="data-latency-ms=${block.latencyMs},data-dns-latency-ms=${block.dnsResolutionMs},data-connect-latency-ms=${block.connectMs},data-tls-latency-ms=${block.tlsHandshakeMs}"
-                          th:title="${block.status + ' · ' + #temporals.format(block.timestamp, 'yyyy-MM-dd HH:mm:ss')}"></span>
+                          th:title="${block.status + ' · ' + @kairosTime.format(block.timestamp, 'yyyy-MM-dd HH:mm:ss')}"></span>
                 </div>
                 <div class="timeline-labels d-flex justify-content-between align-items-center">
                     <small class="text-muted timeline-label-start" data-role="timeline-range-start" data-hours="24">--:--</small>
@@ -264,10 +265,10 @@
                 </thead>
                 <tbody>
                     <tr th:each="outage : ${resourceOutages}">
-                        <td th:text="${#temporals.format(outage.startDate, 'yyyy-MM-dd HH:mm:ss')}">-</td>
+                        <td th:text="${@kairosTime.format(outage.startDate, 'yyyy-MM-dd HH:mm:ss')}">-</td>
                         <td>
                             <span th:if="${outage.endDate != null}"
-                                  th:text="${#temporals.format(outage.endDate, 'yyyy-MM-dd HH:mm:ss')}">-</span>
+                                  th:text="${@kairosTime.format(outage.endDate, 'yyyy-MM-dd HH:mm:ss')}">-</span>
                             <span th:unless="${outage.endDate != null}" class="text-muted fst-italic">ongoing</span>
                         </td>
                         <td>
@@ -373,7 +374,7 @@
                 </thead>
                 <tbody>
                     <tr th:each="result : ${recentHistory}">
-                        <td th:text="${#temporals.format(result.checkedAt, 'yyyy-MM-dd HH:mm:ss')}">time</td>
+                        <td th:text="${@kairosTime.format(result.checkedAt, 'yyyy-MM-dd HH:mm:ss')}">time</td>
                         <td>
                             <span th:class="'badge ' + (${result.status.name == 'AVAILABLE'} ? 'bg-success' : (${result.status.name == 'NOT_AVAILABLE'} ? 'bg-danger' : 'bg-secondary'))"
                                   th:text="${result.status}">STATUS</span>

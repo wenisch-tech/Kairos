@@ -79,6 +79,10 @@ public class ResourceTypeConfig {
     private int dashboardAutoGroupThreshold = 10;
 
     @Builder.Default
+    @Column(length = 100)
+    private String timeZone = java.time.ZoneId.systemDefault().getId();
+
+    @Builder.Default
     private String embedPolicy = "ALLOW_ALL";
 
     @OneToMany(mappedBy = "resourceTypeConfig", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)

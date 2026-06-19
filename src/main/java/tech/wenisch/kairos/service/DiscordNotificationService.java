@@ -1,6 +1,7 @@
 package tech.wenisch.kairos.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -12,20 +13,20 @@ import tech.wenisch.kairos.entity.NotificationEvent;
 import tech.wenisch.kairos.entity.NotificationProvider;
 import tech.wenisch.kairos.entity.Outage;
 
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class DiscordNotificationService {
 
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final int COLOR_RED   = 16711680;
     private static final int COLOR_GREEN = 3066993;
 
+    private final ApplicationTimeService applicationTimeService;
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -75,9 +76,9 @@ public class DiscordNotificationService {
             fields.add(field("Resource", resource.getName(), true));
             fields.add(field("Type", resource.getResourceType() != null ? resource.getResourceType().name() : "-", true));
             fields.add(field("Target", resource.getTarget() != null ? resource.getTarget() : "-", false));
-            fields.add(field("Started", outage.getStartDate() != null ? outage.getStartDate().format(FORMATTER) : "-", true));
+            fields.add(field("Started", outage.getStartDate() != null ? applicationTimeService.format(outage.getStartDate(), "yyyy-MM-dd HH:mm:ss") : "-", true));
             if (!started && outage.getEndDate() != null) {
-                fields.add(field("Resolved", outage.getEndDate().format(FORMATTER), true));
+                fields.add(field("Resolved", applicationTimeService.format(outage.getEndDate(), "yyyy-MM-dd HH:mm:ss"), true));
             }
             embed.put("fields", fields);
 

@@ -37,6 +37,7 @@ public class ResourceDiscoveryManagementService {
     private final MonitoredResourceRepository resourceRepository;
     private final CheckResultRepository checkResultRepository;
     private final OutageRepository outageRepository;
+    private final ApplicationTimeService applicationTimeService;
 
     // ── CRUD ────────────────────────────────────────────────────────────────
 
@@ -51,7 +52,7 @@ public class ResourceDiscoveryManagementService {
     @Transactional
     public ResourceDiscovery save(ResourceDiscovery discovery) {
         if (discovery.getCreatedAt() == null) {
-            discovery.setCreatedAt(LocalDateTime.now());
+            discovery.setCreatedAt(applicationTimeService.now());
         }
         ResourceDiscovery existing = null;
         if (discovery.getId() != null) {

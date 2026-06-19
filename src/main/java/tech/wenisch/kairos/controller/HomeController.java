@@ -42,6 +42,7 @@ import tech.wenisch.kairos.entity.ResourceType;
 import tech.wenisch.kairos.entity.ResourceTypeConfig;
 import tech.wenisch.kairos.repository.ResourceTypeConfigRepository;
 import tech.wenisch.kairos.service.AnnouncementService;
+import tech.wenisch.kairos.service.ApplicationTimeService;
 import tech.wenisch.kairos.service.ApplicationVersionService;
 import tech.wenisch.kairos.service.CheckExecutorService;
 import tech.wenisch.kairos.service.EmbedSettingsService;
@@ -65,6 +66,7 @@ public class HomeController {
     private final EmbedSettingsService embedSettingsService;
     private final ResourceGroupService resourceGroupService;
     private final InstantCheckService instantCheckService;
+    private final ApplicationTimeService applicationTimeService;
 
     @Value("${OIDC_ENABLED:false}")
     private boolean oidcEnabled;
@@ -140,7 +142,7 @@ public class HomeController {
                           @RequestParam(defaultValue = "24h") String range,
                           Model model) {
         int rangeHours = parseRangeHours(range);
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = applicationTimeService.now();
         LocalDateTime rangeStart = now.minusHours(rangeHours);
 
         String normalizedStatus = normalizeOutageStatus(status);
@@ -367,7 +369,7 @@ public class HomeController {
             int sanitizedOutagePageNumber = Math.max(0, outagePageNumber);
             String normalizedOutageStatus = normalizeOutageStatus(outageStatus);
             int outageRangeHours = parseRangeHours(outageRange);
-            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime now = applicationTimeService.now();
             LocalDateTime outageRangeStart = now.minusHours(outageRangeHours);
 
             String currentStatus = resourceService.getCurrentStatus(resource);
@@ -440,7 +442,7 @@ public class HomeController {
             model.addAttribute("detailSummaryText", detailSummaryText);
             model.addAttribute("activeOutage", activeOutage.orElse(null));
             activeOutage.ifPresent(outage ->
-                    model.addAttribute("activeOutageDuration", formatDuration(outage.getStartDate(), LocalDateTime.now())));
+                    model.addAttribute("activeOutageDuration", formatDuration(outage.getStartDate(), applicationTimeService.now())));
             model.addAttribute("recentHistory", historyPage.getContent());
             model.addAttribute("historyPage", historyPage);
             model.addAttribute("historyStatus", statusFilter != null ? statusFilter.name() : "");
@@ -561,7 +563,7 @@ public class HomeController {
                     String labelPattern = rangeHours <= 24 ? "HH:mm" : "MM-dd HH:mm";
                     return new OutageGanttTick(
                             String.format(Locale.US, "%.2f%%", (index * 100.0) / 6.0),
-                            point.format(java.time.format.DateTimeFormatter.ofPattern(labelPattern))
+                            applicationTimeService.format(point, labelPattern)
                     );
                 })
                 .toList();
@@ -718,11 +720,10 @@ public class HomeController {
                                       List<CheckResult> fullHistory,
                           List<Outage> allOutages,
                                       Outage activeOutage) {
-        LocalDateTime now = LocalDateTime.now();
-        java.time.format.DateTimeFormatter summaryTimestampFormat = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        LocalDateTime now = applicationTimeService.now();
         String createdAtText = resource.getCreatedAt() == null
                 ? "an unknown date"
-            : resource.getCreatedAt().format(summaryTimestampFormat);
+            : applicationTimeService.format(resource.getCreatedAt(), "yyyy-MM-dd HH:mm");
         String ageText = resource.getCreatedAt() == null
                 ? "for an unknown duration"
                 : formatDuration(resource.getCreatedAt(), now);
@@ -783,7 +784,7 @@ public class HomeController {
                 .max()
                 .orElse(0L);
 
-        String lastCheckText = lastCheckAt == null ? "no completed checks yet" : lastCheckAt.format(summaryTimestampFormat);
+        String lastCheckText = lastCheckAt == null ? "no completed checks yet" : applicationTimeService.format(lastCheckAt, "yyyy-MM-dd HH:mm");
         String latestLatencyText = latestLatencyMs == null || latestLatencyMs < 0 ? "n/a" : latestLatencyMs + " ms";
 
         String statusText = switch (normalizeStatusLabel(currentStatus)) {
@@ -795,7 +796,7 @@ public class HomeController {
         String outageText = activeOutage == null
                 ? "No active outage is currently detected."
                 : "An active outage is ongoing since "
-                + activeOutage.getStartDate().format(summaryTimestampFormat)
+                + applicationTimeService.format(activeOutage.getStartDate(), "yyyy-MM-dd HH:mm")
                 + ".";
 
         return "This resource was added on " + createdAtText + " and has been monitored " + ageText + ". "

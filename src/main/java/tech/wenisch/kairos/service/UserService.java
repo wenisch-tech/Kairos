@@ -26,6 +26,7 @@ public class UserService implements UserDetailsService {
 
     private final AppUserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ApplicationTimeService applicationTimeService;
 
     @Override
     @Transactional(readOnly = true)
@@ -43,7 +44,7 @@ public class UserService implements UserDetailsService {
     @Transactional
     public void updateLastLogin(String email) {
         userRepository.findByEmail(email).ifPresent(user -> {
-            user.setLastLoginAt(LocalDateTime.now());
+            user.setLastLoginAt(applicationTimeService.now());
             userRepository.save(user);
         });
     }
@@ -54,7 +55,7 @@ public class UserService implements UserDetailsService {
                 .passwordHash(passwordEncoder.encode(password))
                 .role(role)
                 .provider(AuthProvider.LOCAL)
-                .createdAt(LocalDateTime.now())
+                .createdAt(applicationTimeService.now())
                 .build();
         return userRepository.save(user);
     }
@@ -69,13 +70,13 @@ public class UserService implements UserDetailsService {
         Optional<AppUser> existing = userRepository.findByEmail(email);
         if (existing.isPresent()) {
             AppUser user = existing.get();
-            user.setLastLoginAt(LocalDateTime.now());
+            user.setLastLoginAt(applicationTimeService.now());
             return Optional.of(userRepository.save(user));
         }
         if (!createUsers) {
             return Optional.empty();
         }
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = applicationTimeService.now();
         AppUser user = AppUser.builder()
                 .email(email)
                 .passwordHash("")

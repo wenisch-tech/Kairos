@@ -21,7 +21,6 @@ import tech.wenisch.kairos.repository.OutageRepository;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +42,7 @@ public class MetricsService {
     private final MonitoredResourceRepository resourceRepository;
     private final CheckResultRepository checkResultRepository;
     private final OutageRepository outageRepository;
+    private final ApplicationTimeService applicationTimeService;
 
     private final Map<Long, ResourceMetricState> resourceStates = new ConcurrentHashMap<>();
     private final AtomicLong activeOutages = new AtomicLong(0);
@@ -308,7 +308,7 @@ public class MetricsService {
         if (timestamp == null) {
             return 0L;
         }
-        return timestamp.atZone(ZoneId.systemDefault()).toEpochSecond();
+        return applicationTimeService.toEpochSeconds(timestamp);
     }
 
     private final class ResourceMetricState {
@@ -372,7 +372,7 @@ public class MetricsService {
             if (outageActive.get() == 0 || activeOutageStartSeconds.get() <= 0) {
                 return 0.0;
             }
-            return Math.max(0L, java.time.Instant.now().getEpochSecond() - activeOutageStartSeconds.get());
+            return Math.max(0L, applicationTimeService.nowEpochSeconds() - activeOutageStartSeconds.get());
         }
     }
 }

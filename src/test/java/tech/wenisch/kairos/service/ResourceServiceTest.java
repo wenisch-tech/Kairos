@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import org.mockito.Mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -54,17 +55,22 @@ class ResourceServiceTest {
     @Mock
     private MetricsService metricsService;
 
+    @Mock
+    private ApplicationTimeService applicationTimeService;
+
     private ResourceService resourceService;
 
     @BeforeEach
     void setUp() {
+        lenient().when(applicationTimeService.now()).thenReturn(LocalDateTime.of(2026, 6, 19, 12, 0));
         resourceService = new ResourceService(
                 resourceRepository,
                 checkResultRepository,
                 outageRepository,
                 resourceGroupRepository,
                 resourceTypeConfigRepository,
-                metricsService);
+                metricsService,
+                applicationTimeService);
     }
 
     @Test

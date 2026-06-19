@@ -29,6 +29,7 @@ public class ResourceExchangeService {
     private static final int EXCHANGE_SCHEMA_VERSION = 1;
 
     private final ResourceService resourceService;
+    private final ApplicationTimeService applicationTimeService;
 
     public String exportResourcesAsYaml() throws IOException {
         List<MonitoredResource> resources = resourceService.findAll();
@@ -36,7 +37,7 @@ public class ResourceExchangeService {
         Map<String, Object> root = new LinkedHashMap<>();
         root.put("format", "kairos-resources");
         root.put("schemaVersion", EXCHANGE_SCHEMA_VERSION);
-        root.put("exportedAt", LocalDateTime.now());
+        root.put("exportedAt", applicationTimeService.now());
         root.put("resourceCount", resources.size());
         root.put("resources", resources.stream().map(this::toResourceNode).collect(Collectors.toList()));
 

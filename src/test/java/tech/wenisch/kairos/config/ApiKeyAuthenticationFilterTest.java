@@ -24,6 +24,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.util.ReflectionTestUtils;
 import tech.wenisch.kairos.entity.ApiKey;
 import tech.wenisch.kairos.repository.ApiKeyRepository;
+import tech.wenisch.kairos.service.ApplicationTimeService;
 import tech.wenisch.kairos.service.ApiKeyService;
 
 @ExtendWith(MockitoExtension.class)
@@ -32,11 +33,15 @@ class ApiKeyAuthenticationFilterTest {
     @Mock
     private ApiKeyRepository apiKeyRepository;
 
+    @Mock
+    private ApplicationTimeService applicationTimeService;
+
     private ApiKeyService apiKeyService;
 
     @BeforeEach
     void setUp() {
-        apiKeyService = new ApiKeyService(apiKeyRepository);
+        org.mockito.Mockito.lenient().when(applicationTimeService.now()).thenReturn(java.time.LocalDateTime.of(2026, 6, 19, 12, 0));
+        apiKeyService = new ApiKeyService(apiKeyRepository, applicationTimeService);
         ReflectionTestUtils.setField(apiKeyService, "jwtSecret", "test-secret-that-is-long-enough-for-hs256-signing");
     }
 

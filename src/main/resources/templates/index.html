@@ -5,6 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="kairos-time-zone" th:content="${timeZoneId}">
     <link rel="icon" th:href="@{/img/kairos.png}" type="image/png">
     <title>Kairos - Availability Monitor</title>
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
@@ -131,7 +132,7 @@
                 <small class="text-muted d-block mt-2">
                     by <span th:text="${announcement.createdBy != null && !#strings.isEmpty(announcement.createdBy)} ? ${announcement.createdBy} : 'Unknown'">Unknown</span>
                     Â·
-                    <span th:text="${announcement.createdAt != null} ? ${#temporals.format(announcement.createdAt, 'yyyy-MM-dd HH:mm')} : '-'">-</span>
+                    <span th:text="${announcement.createdAt != null} ? ${@kairosTime.format(announcement.createdAt, 'yyyy-MM-dd HH:mm')} : '-'">-</span>
                 </small>
             </div>
         </div>

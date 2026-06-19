@@ -65,7 +65,7 @@
                             <div class="col-md-4">
                                 <label class="form-label">Active Until (optional)</label>
                                 <input type="datetime-local" class="form-control" name="activeUntil"
-                                       th:value="${announcement.activeUntil != null} ? ${#temporals.format(announcement.activeUntil, 'yyyy-MM-dd''T''HH:mm')} : ''">
+                                       th:value="${announcement.activeUntil != null} ? ${@kairosTime.format(announcement.activeUntil, 'yyyy-MM-dd''T''HH:mm')} : ''">
                             </div>
                             <div class="col-12">
                                 <label class="form-label">Content</label>

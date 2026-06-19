@@ -22,13 +22,17 @@ class ApiKeyServiceTest {
     @Mock
     private ApiKeyRepository apiKeyRepository;
 
+    @Mock
+    private ApplicationTimeService applicationTimeService;
+
     private ApiKeyService apiKeyService;
 
     private static final String JWT_SECRET = "test-secret-that-is-long-enough-for-hs256-signing";
 
     @BeforeEach
     void setUp() {
-        apiKeyService = new ApiKeyService(apiKeyRepository);
+        lenient().when(applicationTimeService.now()).thenReturn(java.time.LocalDateTime.of(2026, 6, 19, 12, 0));
+        apiKeyService = new ApiKeyService(apiKeyRepository, applicationTimeService);
         ReflectionTestUtils.setField(apiKeyService, "jwtSecret", JWT_SECRET);
     }
 

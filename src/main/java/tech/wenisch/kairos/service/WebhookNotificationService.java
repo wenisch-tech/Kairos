@@ -1,5 +1,6 @@
 package tech.wenisch.kairos.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -11,13 +12,12 @@ import tech.wenisch.kairos.entity.NotificationEvent;
 import tech.wenisch.kairos.entity.NotificationProvider;
 import tech.wenisch.kairos.entity.Outage;
 
-import java.time.format.DateTimeFormatter;
-
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class WebhookNotificationService {
 
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+    private final ApplicationTimeService applicationTimeService;
     private final RestTemplate restTemplate = new RestTemplate();
 
     public void sendOutageNotification(NotificationProvider provider, NotificationEvent event,
@@ -53,8 +53,8 @@ public class WebhookNotificationService {
                 .replace("{{resource_name}}", resource.getName() != null ? resource.getName() : "")
                 .replace("{{resource_type}}", resource.getResourceType() != null ? resource.getResourceType().name() : "")
                 .replace("{{resource_target}}", resource.getTarget() != null ? resource.getTarget() : "")
-                .replace("{{outage_start}}", outage.getStartDate() != null ? outage.getStartDate().format(FORMATTER) : "")
-                .replace("{{outage_end}}", outage.getEndDate() != null ? outage.getEndDate().format(FORMATTER) : "");
+                .replace("{{outage_start}}", outage.getStartDate() != null ? applicationTimeService.formatIsoUtc(outage.getStartDate()) : "")
+                .replace("{{outage_end}}", outage.getEndDate() != null ? applicationTimeService.formatIsoUtc(outage.getEndDate()) : "");
         return result;
     }
 
@@ -65,8 +65,8 @@ public class WebhookNotificationService {
                 resource.getName() != null ? resource.getName() : "",
                 resource.getResourceType() != null ? resource.getResourceType().name() : "",
                 resource.getTarget() != null ? resource.getTarget() : "",
-                outage.getStartDate() != null ? outage.getStartDate().format(FORMATTER) : "",
-                outage.getEndDate() != null ? outage.getEndDate().format(FORMATTER) : ""
+                outage.getStartDate() != null ? applicationTimeService.formatIsoUtc(outage.getStartDate()) : "",
+                outage.getEndDate() != null ? applicationTimeService.formatIsoUtc(outage.getEndDate()) : ""
         );
     }
 }

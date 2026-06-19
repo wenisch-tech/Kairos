@@ -1,7 +1,6 @@
 package tech.wenisch.kairos.mcp;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +19,7 @@ import tech.wenisch.kairos.entity.MonitoredResource;
 import tech.wenisch.kairos.entity.ResourceType;
 import tech.wenisch.kairos.repository.CheckResultRepository;
 import tech.wenisch.kairos.service.AnnouncementService;
+import tech.wenisch.kairos.service.ApplicationTimeService;
 import tech.wenisch.kairos.service.CheckAuditService;
 import tech.wenisch.kairos.service.CheckExecutorService;
 import tech.wenisch.kairos.service.InstantCheckService;
@@ -43,6 +43,7 @@ public class KairosMcpTools {
     private final CheckAuditService checkAuditService;
     private final CheckExecutorService checkExecutorService;
     private final InstantCheckService instantCheckService;
+    private final ApplicationTimeService applicationTimeService;
 
     @Tool(description = "List all active monitored resources with their current status. "
             + "Returns id, name, type (HTTP or DOCKER), target URL/image, and current check status "
@@ -58,7 +59,7 @@ public class KairosMcpTools {
                     m.put("active", r.isActive());
                     checkResultRepository.findTopByResourceOrderByCheckedAtDesc(r).ifPresent(cr -> {
                         m.put("currentStatus", cr.getStatus() != null ? cr.getStatus().name() : "UNKNOWN");
-                        m.put("lastCheckedAt", cr.getCheckedAt() != null ? cr.getCheckedAt().toString() : null);
+                        m.put("lastCheckedAt", isoUtc(cr.getCheckedAt()));
                         m.put("lastMessage", cr.getMessage());
                     });
                     return m;
@@ -82,10 +83,10 @@ public class KairosMcpTools {
         m.put("type", r.getResourceType() != null ? r.getResourceType().name() : null);
         m.put("target", r.getTarget());
         m.put("active", r.isActive());
-        m.put("createdAt", r.getCreatedAt() != null ? r.getCreatedAt().toString() : null);
+        m.put("createdAt", isoUtc(r.getCreatedAt()));
         checkResultRepository.findTopByResourceOrderByCheckedAtDesc(r).ifPresent(cr -> {
             m.put("currentStatus", cr.getStatus() != null ? cr.getStatus().name() : "UNKNOWN");
-            m.put("lastCheckedAt", cr.getCheckedAt() != null ? cr.getCheckedAt().toString() : null);
+            m.put("lastCheckedAt", isoUtc(cr.getCheckedAt()));
             m.put("lastMessage", cr.getMessage());
             m.put("lastErrorCode", cr.getErrorCode());
             m.put("latencyMs", cr.getLatencyMs());
@@ -128,7 +129,7 @@ public class KairosMcpTools {
                 .map(cr -> {
                     Map<String, Object> m = new LinkedHashMap<>();
                     m.put("status", cr.getStatus() != null ? cr.getStatus().name() : "UNKNOWN");
-                    m.put("checkedAt", cr.getCheckedAt() != null ? cr.getCheckedAt().toString() : null);
+                    m.put("checkedAt", isoUtc(cr.getCheckedAt()));
                     m.put("message", cr.getMessage());
                     m.put("errorCode", cr.getErrorCode());
                     m.put("latencyMs", cr.getLatencyMs());
@@ -148,8 +149,8 @@ public class KairosMcpTools {
                     m.put("kind", a.getKind() != null ? a.getKind().name() : null);
                     m.put("content", a.getContent());
                     m.put("active", a.isActive());
-                    m.put("activeUntil", a.getActiveUntil() != null ? a.getActiveUntil().toString() : null);
-                    m.put("createdAt", a.getCreatedAt() != null ? a.getCreatedAt().toString() : null);
+                    m.put("activeUntil", isoUtc(a.getActiveUntil()));
+                    m.put("createdAt", isoUtc(a.getCreatedAt()));
                     return m;
                 })
                 .toList();
@@ -166,8 +167,8 @@ public class KairosMcpTools {
                     Map<String, Object> m = new LinkedHashMap<>();
                     m.put("id", o.getId());
                     m.put("active", o.isActive());
-                    m.put("startDate", o.getStartDate() != null ? o.getStartDate().toString() : null);
-                    m.put("endDate", o.getEndDate() != null ? o.getEndDate().toString() : null);
+                    m.put("startDate", isoUtc(o.getStartDate()));
+                    m.put("endDate", isoUtc(o.getEndDate()));
                     if (o.getResource() != null) {
                         m.put("resourceId", o.getResource().getId());
                         m.put("resourceName", o.getResource().getName());
@@ -184,7 +185,7 @@ public class KairosMcpTools {
         return checkAuditService.getEntries().stream()
                 .map(e -> {
                     Map<String, Object> m = new LinkedHashMap<>();
-                    m.put("timestamp", e.timestamp() != null ? e.timestamp().toString() : null);
+                    m.put("timestamp", isoUtc(e.timestamp()));
                     m.put("kind", e.kind());
                     m.put("resourceName", e.resourceName());
                     m.put("target", e.target());
@@ -246,7 +247,7 @@ public class KairosMcpTools {
                 .target(target)
                 .skipTls(skipTls)
                 .active(true)
-                .createdAt(LocalDateTime.now())
+                .createdAt(applicationTimeService.now())
                 .build();
         MonitoredResource saved = resourceService.save(resource);
         checkExecutorService.runImmediateCheck(saved.getId(), "MCP");
@@ -256,7 +257,7 @@ public class KairosMcpTools {
         m.put("type", saved.getResourceType().name());
         m.put("target", saved.getTarget());
         m.put("active", saved.isActive());
-        m.put("createdAt", saved.getCreatedAt().toString());
+        m.put("createdAt", isoUtc(saved.getCreatedAt()));
         m.put("message", "Resource created and initial check submitted.");
         return m;
     }
@@ -291,7 +292,7 @@ public class KairosMcpTools {
         LocalDateTime until = null;
         if (activeUntil != null && !activeUntil.isBlank() && !activeUntil.equalsIgnoreCase("null")) {
             try {
-                until = LocalDateTime.parse(activeUntil, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+                until = applicationTimeService.parseDisplayDateTime(activeUntil);
             } catch (Exception e) {
                 return Map.of("error", "Invalid activeUntil format. Use ISO-8601 datetime, e.g. 2026-06-01T08:00:00");
             }
@@ -309,8 +310,8 @@ public class KairosMcpTools {
         m.put("kind", saved.getKind().name());
         m.put("content", saved.getContent());
         m.put("active", saved.isActive());
-        m.put("activeUntil", saved.getActiveUntil() != null ? saved.getActiveUntil().toString() : null);
-        m.put("createdAt", saved.getCreatedAt() != null ? saved.getCreatedAt().toString() : null);
+        m.put("activeUntil", isoUtc(saved.getActiveUntil()));
+        m.put("createdAt", isoUtc(saved.getCreatedAt()));
         return m;
     }
 
@@ -323,5 +324,9 @@ public class KairosMcpTools {
         }
         announcementService.delete(id);
         return Map.of("status", "deleted", "announcementId", id);
+    }
+
+    private String isoUtc(LocalDateTime timestamp) {
+        return timestamp == null ? null : applicationTimeService.formatIsoUtc(timestamp);
     }
 }

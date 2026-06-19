@@ -37,7 +37,6 @@ import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Optional;
 
@@ -52,6 +51,7 @@ public class HttpCheckService {
     private final OutageService outageService;
     private final ProxySettingsService proxySettingsService;
     private final MetricsService metricsService;
+    private final ApplicationTimeService applicationTimeService;
 
     public InstantCheckExecutionResult probe(String target, boolean skipTls, boolean useStoredAuth) {
         String url = target == null ? "" : target.trim();
@@ -131,7 +131,7 @@ public class HttpCheckService {
                 result = CheckResult.builder()
                         .resource(resource)
                         .status(CheckStatus.AVAILABLE)
-                        .checkedAt(LocalDateTime.now())
+                        .checkedAt(applicationTimeService.now())
                         .message("HTTP " + statusCode)
                         .errorCode(String.valueOf(statusCode))
                     .latencyMs(elapsedMillis(checkStartedNanos))
@@ -143,7 +143,7 @@ public class HttpCheckService {
                 result = CheckResult.builder()
                         .resource(resource)
                         .status(CheckStatus.NOT_AVAILABLE)
-                        .checkedAt(LocalDateTime.now())
+                        .checkedAt(applicationTimeService.now())
                         .message("HTTP " + statusCode)
                         .errorCode(String.valueOf(statusCode))
                     .latencyMs(elapsedMillis(checkStartedNanos))
@@ -164,7 +164,7 @@ public class HttpCheckService {
             CheckResult result = CheckResult.builder()
                     .resource(resource)
                     .status(CheckFailureClassifier.resolveStatus(e))
-                    .checkedAt(LocalDateTime.now())
+                    .checkedAt(applicationTimeService.now())
                 .message(errorDetails)
                     .errorCode(errorCode)
                     .latencyMs(elapsedMillis(checkStartedNanos))

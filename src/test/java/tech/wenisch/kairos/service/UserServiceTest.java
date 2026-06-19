@@ -29,13 +29,17 @@ class UserServiceTest {
     @Mock
     private AppUserRepository userRepository;
 
+    @Mock
+    private ApplicationTimeService applicationTimeService;
+
     private PasswordEncoder passwordEncoder;
     private UserService userService;
 
     @BeforeEach
     void setUp() {
         passwordEncoder = new BCryptPasswordEncoder();
-        userService = new UserService(userRepository, passwordEncoder);
+        lenient().when(applicationTimeService.now()).thenReturn(LocalDateTime.of(2026, 6, 19, 12, 0));
+        userService = new UserService(userRepository, passwordEncoder, applicationTimeService);
     }
 
     // ── loadUserByUsername ─────────────────────────────────────────────────

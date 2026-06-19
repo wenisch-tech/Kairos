@@ -7,7 +7,6 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import tech.wenisch.kairos.dto.ResourceStatusUpdateDTO;
 import tech.wenisch.kairos.entity.MonitoredResource;
 
-import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -22,10 +21,8 @@ public class ResourceStatusStreamService {
 
     private final ResourceService resourceService;
     private final OutageService outageService;
+    private final ApplicationTimeService applicationTimeService;
     private final CopyOnWriteArrayList<SseEmitter> emitters = new CopyOnWriteArrayList<>();
-
-    private static final DateTimeFormatter OUTAGE_FORMATTER =
-        DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
     public SseEmitter subscribe() {
         SseEmitter emitter = new SseEmitter(0L);
@@ -41,7 +38,7 @@ public class ResourceStatusStreamService {
 
     public void publishResourceUpdate(MonitoredResource resource) {
         String activeOutageSince = outageService.findActiveOutage(resource)
-            .map(o -> o.getStartDate().format(OUTAGE_FORMATTER))
+            .map(o -> applicationTimeService.formatIsoUtc(o.getStartDate()))
             .orElse(null);
         ResourceStatusUpdateDTO update = buildUpdate(resource, 24, activeOutageSince);
         for (SseEmitter emitter : emitters) {
@@ -72,7 +69,7 @@ public class ResourceStatusStreamService {
         return resourceService.findById(resourceId)
             .map(resource -> {
                 String activeOutageSince = outageService.findActiveOutage(resource)
-                    .map(o -> o.getStartDate().format(OUTAGE_FORMATTER))
+                    .map(o -> applicationTimeService.formatIsoUtc(o.getStartDate()))
                     .orElse(null);
                 return buildUpdate(resource, hours, activeOutageSince);
             });
@@ -82,7 +79,7 @@ public class ResourceStatusStreamService {
         return resourceService.findById(resourceId)
             .map(resource -> {
                 String activeOutageSince = outageService.findActiveOutage(resource)
-                    .map(o -> o.getStartDate().format(OUTAGE_FORMATTER))
+                    .map(o -> applicationTimeService.formatIsoUtc(o.getStartDate()))
                     .orElse(null);
                 return buildUpdate(resource, hours, activeOutageSince, includeTimeline);
             });

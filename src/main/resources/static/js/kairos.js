@@ -42,14 +42,98 @@ function toggleDarkMode() {
     applyTheme(next);
 }
 
+function getKairosTimeZone() {
+    const meta = document.querySelector('meta[name="kairos-time-zone"]');
+    const configured = meta ? meta.getAttribute('content') : '';
+    if (configured) {
+        return configured;
+    }
+    return (Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC');
+}
+
+function getZoneDateTimeParts(date, timeZone) {
+    const formatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: timeZone,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hourCycle: 'h23'
+    });
+    const parts = {};
+    formatter.formatToParts(date).forEach(function(part) {
+        if (part.type !== 'literal') {
+            parts[part.type] = part.value;
+        }
+    });
+    return {
+        year: Number(parts.year),
+        month: Number(parts.month),
+        day: Number(parts.day),
+        hour: Number(parts.hour),
+        minute: Number(parts.minute),
+        second: Number(parts.second)
+    };
+}
+
+function parseDateTimeParts(value) {
+    if (typeof value !== 'string' || value.length === 0) {
+        return null;
+    }
+    const match = value.trim().match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2})(?::(\d{2}))?)?/);
+    if (!match) {
+        return null;
+    }
+    return {
+        year: Number(match[1]),
+        month: Number(match[2]),
+        day: Number(match[3]),
+        hour: Number(match[4] || 0),
+        minute: Number(match[5] || 0),
+        second: Number(match[6] || 0)
+    };
+}
+
+function parseKairosDateTime(value) {
+    if (typeof value !== 'string' || value.length === 0) {
+        return null;
+    }
+    const trimmed = value.trim();
+    if (/[zZ]|[+-]\d{2}:?\d{2}$/.test(trimmed)) {
+        const absolute = new Date(trimmed);
+        return Number.isNaN(absolute.getTime()) ? null : absolute;
+    }
+
+    const input = parseDateTimeParts(trimmed);
+    if (!input) {
+        const parsed = new Date(trimmed);
+        return Number.isNaN(parsed.getTime()) ? null : parsed;
+    }
+    return new Date(Date.UTC(input.year, input.month - 1, input.day, input.hour, input.minute, input.second));
+}
+
 function formatDateTime(date) {
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const year = date.getFullYear();
-    const hours = String(date.getHours()).padStart(2, '0');
-    const mins = String(date.getMinutes()).padStart(2, '0');
-    const shortMonth = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][date.getMonth()];
-    return shortMonth + ' ' + day + ', ' + year + ' ' + hours + ':' + mins;
+    return new Intl.DateTimeFormat('en-US', {
+        timeZone: getKairosTimeZone(),
+        month: 'short',
+        day: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hourCycle: 'h23'
+    }).format(date);
+}
+
+function formatDateTimeSeconds(date) {
+    const parts = getZoneDateTimeParts(date, getKairosTimeZone());
+    return parts.year
+        + '-' + String(parts.month).padStart(2, '0')
+        + '-' + String(parts.day).padStart(2, '0')
+        + ' ' + String(parts.hour).padStart(2, '0')
+        + ':' + String(parts.minute).padStart(2, '0')
+        + ':' + String(parts.second).padStart(2, '0');
 }
 
 function calculateStartDateTime(hours) {
@@ -304,12 +388,7 @@ function initializeOutageSinceCounters() {
         if (!raw) {
             return null;
         }
-        const normalized = raw.includes('T') ? raw : raw.replace(' ', 'T');
-        const parsed = new Date(normalized);
-        if (Number.isNaN(parsed.getTime())) {
-            return null;
-        }
-        return parsed;
+        return parseKairosDateTime(raw);
     }
 
     function refresh() {
@@ -537,7 +616,7 @@ function showInstantCheckResult(result) {
     }
 
     if (timeElement) {
-        timeElement.textContent = new Date().toLocaleString();
+        timeElement.textContent = formatDateTimeSeconds(new Date());
     }
 
     if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
@@ -1523,17 +1602,12 @@ function formatTimelineTimestamp(timestamp) {
         return null;
     }
 
-    const parsed = new Date(timestamp);
-    if (Number.isNaN(parsed.getTime())) {
+    const parsed = parseKairosDateTime(timestamp);
+    if (!parsed) {
         return timestamp;
     }
 
-    return parsed.getFullYear()
-        + '-' + String(parsed.getMonth() + 1).padStart(2, '0')
-        + '-' + String(parsed.getDate()).padStart(2, '0')
-        + ' ' + String(parsed.getHours()).padStart(2, '0')
-        + ':' + String(parsed.getMinutes()).padStart(2, '0')
-        + ':' + String(parsed.getSeconds()).padStart(2, '0');
+    return formatDateTimeSeconds(parsed);
 }
 
 function updateCardStatus(row, status) {

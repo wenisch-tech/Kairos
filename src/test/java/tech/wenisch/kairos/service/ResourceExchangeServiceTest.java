@@ -28,11 +28,15 @@ class ResourceExchangeServiceTest {
     @Mock
     private ResourceService resourceService;
 
+    @Mock
+    private ApplicationTimeService applicationTimeService;
+
     private ResourceExchangeService resourceExchangeService;
 
     @BeforeEach
     void setUp() {
-        resourceExchangeService = new ResourceExchangeService(resourceService);
+        lenient().when(applicationTimeService.now()).thenReturn(LocalDateTime.of(2026, 6, 19, 12, 0));
+        resourceExchangeService = new ResourceExchangeService(resourceService, applicationTimeService);
     }
 
     // ── exportResourcesAsYaml ──────────────────────────────────────────────

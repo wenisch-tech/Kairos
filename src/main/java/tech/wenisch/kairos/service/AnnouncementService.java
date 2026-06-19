@@ -20,13 +20,14 @@ import java.util.Optional;
 public class AnnouncementService {
 
     private final AnnouncementRepository announcementRepository;
+    private final ApplicationTimeService applicationTimeService;
 
     public List<Announcement> findAllOrderedByCreatedAtDesc() {
         return announcementRepository.findAllByOrderByCreatedAtDesc();
     }
 
     public List<Announcement> findAllActiveForPublicView() {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = applicationTimeService.now();
         List<Announcement> activeWithoutEnd = announcementRepository
                 .findByActiveTrueAndActiveUntilIsNullOrderByCreatedAtDesc();
         List<Announcement> activeWithFutureEnd = announcementRepository
@@ -45,9 +46,11 @@ public class AnnouncementService {
 
     @Transactional
     public Announcement save(Announcement announcement) {
+        LocalDateTime now = applicationTimeService.now();
         if (announcement.getCreatedAt() == null) {
-            announcement.setCreatedAt(LocalDateTime.now());
+            announcement.setCreatedAt(now);
         }
+        announcement.setUpdatedAt(now);
         return announcementRepository.save(announcement);
     }
 
@@ -59,7 +62,7 @@ public class AnnouncementService {
     @Scheduled(fixedDelay = 60000)
     @Transactional
     public void deactivateExpiredAnnouncements() {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = applicationTimeService.now();
         List<Announcement> expired = announcementRepository.findByActiveTrueAndActiveUntilLessThanEqual(now);
         if (expired.isEmpty()) {
             return;

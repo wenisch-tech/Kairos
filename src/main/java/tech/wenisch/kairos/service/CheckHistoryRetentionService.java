@@ -19,6 +19,7 @@ public class CheckHistoryRetentionService {
 
     private final CheckResultRepository checkResultRepository;
     private final ResourceTypeConfigRepository resourceTypeConfigRepository;
+    private final ApplicationTimeService applicationTimeService;
 
     private volatile long lastCleanupTimeMs = 0L;
 
@@ -45,7 +46,7 @@ public class CheckHistoryRetentionService {
         }
 
         lastCleanupTimeMs = now;
-        LocalDateTime cutoff = LocalDateTime.now().minusDays(retentionDays);
+        LocalDateTime cutoff = applicationTimeService.now().minusDays(retentionDays);
 
         try {
             long deletedRows = checkResultRepository.deleteByCheckedAtBefore(cutoff);

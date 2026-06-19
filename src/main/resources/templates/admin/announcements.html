@@ -85,9 +85,9 @@
                                 <span th:if="${announcement.active}" class="badge bg-success">Active</span>
                                 <span th:unless="${announcement.active}" class="badge bg-secondary">Inactive</span>
                             </td>
-                            <td th:text="${announcement.activeUntil != null} ? ${#temporals.format(announcement.activeUntil, 'yyyy-MM-dd HH:mm')} : '-'">-</td>
+                            <td th:text="${announcement.activeUntil != null} ? ${@kairosTime.format(announcement.activeUntil, 'yyyy-MM-dd HH:mm')} : '-'">-</td>
                             <td th:text="${announcement.createdBy != null && !#strings.isEmpty(announcement.createdBy)} ? ${announcement.createdBy} : 'Unknown'">Unknown</td>
-                            <td th:text="${announcement.createdAt != null} ? ${#temporals.format(announcement.createdAt, 'yyyy-MM-dd HH:mm')} : '-'">-</td>
+                            <td th:text="${announcement.createdAt != null} ? ${@kairosTime.format(announcement.createdAt, 'yyyy-MM-dd HH:mm')} : '-'">-</td>
                             <td>
                                 <div class="announcement-content-preview" th:utext="${announcement.content}"></div>
                             </td>

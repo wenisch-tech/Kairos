@@ -2,7 +2,6 @@ package tech.wenisch.kairos.controller;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -60,6 +59,7 @@ import tech.wenisch.kairos.repository.ResourceTypeAuthRepository;
 import tech.wenisch.kairos.repository.ResourceTypeConfigRepository;
 import tech.wenisch.kairos.service.AnnouncementService;
 import tech.wenisch.kairos.service.ApiKeyService;
+import tech.wenisch.kairos.service.ApplicationTimeService;
 import tech.wenisch.kairos.service.ApplicationVersionService;
 import tech.wenisch.kairos.service.CheckAuditService;
 import tech.wenisch.kairos.service.CheckExecutorService;
@@ -96,6 +96,7 @@ public class AdminController {
     private final ResourceDiscoveryManagementService resourceDiscoveryManagementService;
     private final CheckAuditService checkAuditService;
     private final OutageService outageService;
+    private final ApplicationTimeService applicationTimeService;
 
     @GetMapping
     public String admin() {
@@ -117,7 +118,7 @@ public class AdminController {
         model.addAttribute("appVersion", applicationVersionService.getVersion());
         model.addAttribute("springBootVersion", SpringBootVersion.getVersion());
         model.addAttribute("javaVersion", System.getProperty("java.version", "unknown"));
-        model.addAttribute("buildTimestamp", LocalDateTime.now());
+        model.addAttribute("buildTimestamp", applicationTimeService.now());
         return "admin/about";
     }
 
@@ -218,6 +219,11 @@ public class AdminController {
             .map(ResourceTypeConfig::getDashboardAutoGroupThreshold)
             .findFirst()
             .orElse(10);
+        String configuredTimeZone = configs.stream()
+            .map(ResourceTypeConfig::getTimeZone)
+            .filter(value -> value != null && !value.isBlank())
+            .findFirst()
+            .orElseGet(applicationTimeService::timeZoneId);
         model.addAttribute("allowPublicAccess", allowPublicAccess);
         model.addAttribute("allowPublicAdd", allowPublicAdd);
         model.addAttribute("allowPublicCheckNow", allowPublicCheckNow);
@@ -234,6 +240,8 @@ public class AdminController {
         model.addAttribute("outageRetentionDays", outageRetentionDays);
         model.addAttribute("deleteOutagesOnResourceDelete", deleteOutagesOnResourceDelete);
         model.addAttribute("dashboardAutoGroupThreshold", dashboardAutoGroupThreshold);
+        model.addAttribute("configuredTimeZone", applicationTimeService.normalizeTimeZone(configuredTimeZone));
+        model.addAttribute("timeZoneOptions", applicationTimeService.timeZoneOptions());
         model.addAttribute("corsAllowedOrigins", corsAllowedOriginRepository.findAll());
         model.addAttribute("configs", configs);
         return "admin/settings";
@@ -256,6 +264,7 @@ public class AdminController {
                                @RequestParam(defaultValue = "31") int outageRetentionDays,
                                @RequestParam(defaultValue = "false") boolean deleteOutagesOnResourceDelete,
                                @RequestParam(defaultValue = "10") int dashboardAutoGroupThreshold,
+                               @RequestParam(defaultValue = "") String timeZone,
                                RedirectAttributes redirectAttributes) {
         int sanitizedRetentionIntervalMinutes = Math.max(1, checkHistoryRetentionIntervalMinutes);
         int sanitizedRetentionDays = Math.max(1, checkHistoryRetentionDays);
@@ -266,6 +275,7 @@ public class AdminController {
             (instantCheckAllowedDomains == null || instantCheckAllowedDomains.trim().isEmpty())
                 ? "*"
                 : instantCheckAllowedDomains.trim();
+        String normalizedTimeZone = applicationTimeService.normalizeTimeZone(timeZone);
         List<ResourceTypeConfig> configs = resourceTypeConfigRepository.findAll();
         for (ResourceTypeConfig config : configs) {
             config.setAllowPublicAccess(allowPublicAccess);
@@ -284,6 +294,7 @@ public class AdminController {
             config.setOutageRetentionDays(sanitizedOutageRetentionDays);
             config.setDeleteOutagesOnResourceDelete(deleteOutagesOnResourceDelete);
             config.setDashboardAutoGroupThreshold(sanitizedDashboardAutoGroupThreshold);
+            config.setTimeZone(normalizedTimeZone);
             resourceTypeConfigRepository.save(config);
         }
         redirectAttributes.addFlashAttribute("successMessage", "Settings saved successfully");
@@ -536,7 +547,7 @@ public class AdminController {
     @GetMapping("/resources/export")
     public ResponseEntity<byte[]> exportResources() throws Exception {
         String yaml = resourceExchangeService.exportResourcesAsYaml();
-        String fileName = "kairos-resources-" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss")) + ".yaml";
+        String fileName = "kairos-resources-" + applicationTimeService.format(applicationTimeService.now(), "yyyyMMdd-HHmmss") + ".yaml";
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
@@ -1024,7 +1035,7 @@ public class AdminController {
         if (value == null || value.isBlank()) {
             return null;
         }
-        return LocalDateTime.parse(value);
+        return applicationTimeService.parseDisplayDateTime(value);
     }
 
     private ResourceGroup resolveGroup(Long groupId) {

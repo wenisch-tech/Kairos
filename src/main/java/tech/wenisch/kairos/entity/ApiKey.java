@@ -31,10 +31,4 @@ public class ApiKey {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
-    @PrePersist
-    public void onCreate() {
-        if (createdAt == null) {
-            createdAt = LocalDateTime.now();
-        }
-    }
 }

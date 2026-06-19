@@ -91,8 +91,8 @@
                                     <span th:class="'badge ' + (${user.provider.name == 'OIDC'} ? 'bg-info text-dark' : 'bg-secondary')"
                                           th:text="${user.provider}">PROVIDER</span>
                                 </td>
-                                <td th:text="${user.lastLoginAt != null} ? ${#temporals.format(user.lastLoginAt, 'yyyy-MM-dd HH:mm')} : 'Never'">date</td>
-                                <td th:text="${user.createdAt != null} ? ${#temporals.format(user.createdAt, 'yyyy-MM-dd')} : '-'">date</td>
+                                <td th:text="${user.lastLoginAt != null} ? ${@kairosTime.format(user.lastLoginAt, 'yyyy-MM-dd HH:mm')} : 'Never'">date</td>
+                                <td th:text="${user.createdAt != null} ? ${@kairosTime.format(user.createdAt, 'yyyy-MM-dd')} : '-'">date</td>
                                 <td>
                                     <form th:action="@{/admin/users/delete/{id}(id=${user.id})}" method="post" class="d-inline"
                                           onsubmit="return confirm('Delete this user?')">

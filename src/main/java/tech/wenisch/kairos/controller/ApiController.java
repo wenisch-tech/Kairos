@@ -14,6 +14,7 @@ import tech.wenisch.kairos.entity.Outage;
 import tech.wenisch.kairos.entity.ResourceGroup;
 import tech.wenisch.kairos.entity.ResourceGroupVisibility;
 import tech.wenisch.kairos.service.AnnouncementService;
+import tech.wenisch.kairos.service.ApplicationTimeService;
 import tech.wenisch.kairos.service.CheckExecutorService;
 import tech.wenisch.kairos.service.OutageService;
 import tech.wenisch.kairos.service.ResourceGroupService;
@@ -58,6 +59,7 @@ public class ApiController {
         private final OutageService outageService;
     private final AnnouncementService announcementService;
     private final ResourceStatusStreamService resourceStatusStreamService;
+    private final ApplicationTimeService applicationTimeService;
 
             @Operation(summary = "List outages",
                 description = "Returns outages ordered by newest start date. By default returns all outages visible to the caller. Use active=true to only return active outages.",
@@ -277,7 +279,7 @@ public class ApiController {
 
     private OutageDTO toOutageDto(Outage outage) {
         MonitoredResource resource = outage.getResource();
-        java.time.LocalDateTime endDate = outage.getEndDate() != null ? outage.getEndDate() : java.time.LocalDateTime.now();
+        java.time.LocalDateTime endDate = outage.getEndDate() != null ? outage.getEndDate() : applicationTimeService.now();
         long durationMinutes = Math.max(0L, java.time.Duration.between(outage.getStartDate(), endDate).toMinutes());
 
         return new OutageDTO(

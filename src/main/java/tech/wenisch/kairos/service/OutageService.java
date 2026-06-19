@@ -1,7 +1,6 @@
 package tech.wenisch.kairos.service;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -35,6 +34,7 @@ public class OutageService {
     private final ResourceTypeConfigRepository resourceTypeConfigRepository;
     private final NotificationDispatchService notificationDispatchService;
     private final MetricsService metricsService;
+    private final ApplicationTimeService applicationTimeService;
 
     /**
      * Evaluates whether an outage should be opened or closed for the given resource,
@@ -109,9 +109,6 @@ public class OutageService {
     }
 
 
-        private static final DateTimeFormatter ACTIVE_OUTAGE_FORMATTER =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
-
         /**
          * Returns a map of resourceId → ISO outage start datetime for all currently active outages,
          * loaded in a single batch query (no N+1).
@@ -120,7 +117,7 @@ public class OutageService {
         return outageRepository.findAllActiveWithResource().stream()
             .collect(Collectors.toMap(
                 outage -> outage.getResource().getId(),
-                outage -> outage.getStartDate().format(ACTIVE_OUTAGE_FORMATTER),
+                outage -> applicationTimeService.formatIsoUtc(outage.getStartDate()),
                 (a, b) -> a   // keep first (most recent) when duplicates exist per resource
             ));
         }
