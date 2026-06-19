@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.16.0 - 2026-06-19
+
+## [2.16.0](https://github.com/wenisch-tech/Kairos/compare/v2.15.0...v2.16.0) (2026-06-19)
+
+
+### Features
+
+* added configurable timezone for all displayed data and ensured all data in general is stored as UTC ([400f8d5](https://github.com/wenisch-tech/Kairos/commit/400f8d53a0a2d8fcc52a870711c34ee5e2defeee))
+
+
+
+Docker image: ghcr.io/wenisch-tech/kairos:2.16.0
+
+
 ## v2.15.0 - 2026-06-15
 
 ## [2.15.0](https://github.com/wenisch-tech/Kairos/compare/v2.14.0...v2.15.0) (2026-06-15)
