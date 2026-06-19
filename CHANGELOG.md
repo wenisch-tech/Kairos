@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.16.6 - 2026-06-19
+
+### [2.16.6](https://github.com/wenisch-tech/Kairos/compare/v2.16.5...v2.16.6) (2026-06-19)
+
+
+### Bug Fixes
+
+* **deps:** update dependency org.springframework.boot:spring-boot-starter-parent to v3.5.15 ([41deb46](https://github.com/wenisch-tech/Kairos/commit/41deb469ce3d0d5cf38bd2537ada65eb7b9225bf))
+
+
+
+Docker image: ghcr.io/wenisch-tech/kairos:2.16.6
+
+
 ## v2.16.3 - 2026-06-19
 
 ### [2.16.3](https://github.com/wenisch-tech/Kairos/compare/v2.16.2...v2.16.3) (2026-06-19)
