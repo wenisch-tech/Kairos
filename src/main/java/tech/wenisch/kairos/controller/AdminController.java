@@ -59,6 +59,7 @@ import tech.wenisch.kairos.repository.ResourceTypeAuthRepository;
 import tech.wenisch.kairos.repository.ResourceTypeConfigRepository;
 import tech.wenisch.kairos.service.AnnouncementService;
 import tech.wenisch.kairos.service.ApiKeyService;
+import tech.wenisch.kairos.service.AvailabilityFormattingService;
 import tech.wenisch.kairos.service.ApplicationTimeService;
 import tech.wenisch.kairos.service.ApplicationVersionService;
 import tech.wenisch.kairos.service.CheckAuditService;
@@ -97,6 +98,7 @@ public class AdminController {
     private final CheckAuditService checkAuditService;
     private final OutageService outageService;
     private final ApplicationTimeService applicationTimeService;
+    private final AvailabilityFormattingService availabilityFormattingService;
 
     @GetMapping
     public String admin() {
@@ -219,6 +221,11 @@ public class AdminController {
             .map(ResourceTypeConfig::getDashboardAutoGroupThreshold)
             .findFirst()
             .orElse(10);
+        int availabilityPercentageDecimalPlaces = configs.stream()
+            .map(ResourceTypeConfig::getAvailabilityPercentageDecimalPlaces)
+            .findFirst()
+            .map(availabilityFormattingService::sanitizeDecimalPlaces)
+            .orElse(AvailabilityFormattingService.DEFAULT_DECIMAL_PLACES);
         String configuredTimeZone = configs.stream()
             .map(ResourceTypeConfig::getTimeZone)
             .filter(value -> value != null && !value.isBlank())
@@ -240,6 +247,7 @@ public class AdminController {
         model.addAttribute("outageRetentionDays", outageRetentionDays);
         model.addAttribute("deleteOutagesOnResourceDelete", deleteOutagesOnResourceDelete);
         model.addAttribute("dashboardAutoGroupThreshold", dashboardAutoGroupThreshold);
+        model.addAttribute("availabilityPercentageDecimalPlaces", availabilityPercentageDecimalPlaces);
         model.addAttribute("configuredTimeZone", applicationTimeService.normalizeTimeZone(configuredTimeZone));
         model.addAttribute("timeZoneOptions", applicationTimeService.timeZoneOptions());
         model.addAttribute("corsAllowedOrigins", corsAllowedOriginRepository.findAll());
@@ -264,6 +272,7 @@ public class AdminController {
                                @RequestParam(defaultValue = "31") int outageRetentionDays,
                                @RequestParam(defaultValue = "false") boolean deleteOutagesOnResourceDelete,
                                @RequestParam(defaultValue = "10") int dashboardAutoGroupThreshold,
+                               @RequestParam(defaultValue = "2") int availabilityPercentageDecimalPlaces,
                                @RequestParam(defaultValue = "") String timeZone,
                                RedirectAttributes redirectAttributes) {
         int sanitizedRetentionIntervalMinutes = Math.max(1, checkHistoryRetentionIntervalMinutes);
@@ -271,6 +280,8 @@ public class AdminController {
         int sanitizedOutageRetentionIntervalHours = Math.max(1, outageRetentionIntervalHours);
         int sanitizedOutageRetentionDays = Math.max(1, outageRetentionDays);
         int sanitizedDashboardAutoGroupThreshold = Math.max(1, dashboardAutoGroupThreshold);
+        int sanitizedAvailabilityPercentageDecimalPlaces =
+            availabilityFormattingService.sanitizeDecimalPlaces(availabilityPercentageDecimalPlaces);
         String normalizedInstantCheckAllowedDomains =
             (instantCheckAllowedDomains == null || instantCheckAllowedDomains.trim().isEmpty())
                 ? "*"
@@ -294,6 +305,7 @@ public class AdminController {
             config.setOutageRetentionDays(sanitizedOutageRetentionDays);
             config.setDeleteOutagesOnResourceDelete(deleteOutagesOnResourceDelete);
             config.setDashboardAutoGroupThreshold(sanitizedDashboardAutoGroupThreshold);
+            config.setAvailabilityPercentageDecimalPlaces(sanitizedAvailabilityPercentageDecimalPlaces);
             config.setTimeZone(normalizedTimeZone);
             resourceTypeConfigRepository.save(config);
         }

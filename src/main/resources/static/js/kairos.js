@@ -51,6 +51,23 @@ function getKairosTimeZone() {
     return (Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC');
 }
 
+function getAvailabilityPercentageDecimals() {
+    const meta = document.querySelector('meta[name="kairos-availability-decimals"]');
+    const rawValue = meta ? Number.parseInt(meta.getAttribute('content') || '', 10) : NaN;
+    if (!Number.isFinite(rawValue)) {
+        return 2;
+    }
+    return Math.max(2, Math.min(5, rawValue));
+}
+
+function formatAvailabilityPercentage(value) {
+    const decimals = getAvailabilityPercentageDecimals();
+    return new Intl.NumberFormat(undefined, {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals
+    }).format(value) + '%';
+}
+
 function getZoneDateTimeParts(date, timeZone) {
     const formatter = new Intl.DateTimeFormat('en-US', {
         timeZone: timeZone,
@@ -1666,7 +1683,7 @@ function updateUptime(row, uptimePercentage) {
         return;
     }
 
-    uptimeElement.textContent = uptimePercentage.toFixed(1) + '%';
+    uptimeElement.textContent = formatAvailabilityPercentage(uptimePercentage);
 }
 
 function updateLatencyLabel(row, timelineBlocks) {

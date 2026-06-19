@@ -79,6 +79,9 @@ public class ResourceTypeConfig {
     private int dashboardAutoGroupThreshold = 10;
 
     @Builder.Default
+    private int availabilityPercentageDecimalPlaces = 2;
+
+    @Builder.Default
     @Column(length = 100)
     private String timeZone = java.time.ZoneId.systemDefault().getId();
 

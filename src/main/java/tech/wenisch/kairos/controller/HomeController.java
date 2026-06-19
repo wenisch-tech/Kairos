@@ -42,6 +42,7 @@ import tech.wenisch.kairos.entity.ResourceType;
 import tech.wenisch.kairos.entity.ResourceTypeConfig;
 import tech.wenisch.kairos.repository.ResourceTypeConfigRepository;
 import tech.wenisch.kairos.service.AnnouncementService;
+import tech.wenisch.kairos.service.AvailabilityFormattingService;
 import tech.wenisch.kairos.service.ApplicationTimeService;
 import tech.wenisch.kairos.service.ApplicationVersionService;
 import tech.wenisch.kairos.service.CheckExecutorService;
@@ -67,6 +68,7 @@ public class HomeController {
     private final ResourceGroupService resourceGroupService;
     private final InstantCheckService instantCheckService;
     private final ApplicationTimeService applicationTimeService;
+    private final AvailabilityFormattingService availabilityFormattingService;
 
     @Value("${OIDC_ENABLED:false}")
     private boolean oidcEnabled;
@@ -116,6 +118,7 @@ public class HomeController {
             .map(ResourceTypeConfig::getDashboardAutoGroupThreshold)
             .findFirst()
             .orElse(10);
+        int availabilityPercentageScale = availabilityFormattingService.getConfiguredDecimalPlaces();
         String initialDashboardViewMode = groupedResources.size() >= dashboardAutoGroupThreshold ? "groups" : "timeline";
 
         model.addAttribute("totalResourceCount", resources.size());
@@ -133,6 +136,7 @@ public class HomeController {
             instantCheckSettings.enabled() && (instantCheckSettings.allowPublic() || authenticated));
         model.addAttribute("instantCheckRequiresAuth",
             instantCheckSettings.enabled() && !instantCheckSettings.allowPublic() && !authenticated);
+        model.addAttribute("availabilityPercentageScale", availabilityPercentageScale);
         model.addAttribute("appVersion", applicationVersionService.getVersion());
         return "index";
     }
@@ -189,6 +193,7 @@ public class HomeController {
         model.addAttribute("totalResourceCount", groupResources.size());
         model.addAttribute("groupResources", groupResources);
         model.addAttribute("showResourceUrl", shouldShowResourceUrl(authentication));
+        model.addAttribute("availabilityPercentageScale", availabilityFormattingService.getConfiguredDecimalPlaces());
         model.addAttribute("appVersion", applicationVersionService.getVersion());
         return "group-dashboard";
     }
@@ -377,6 +382,7 @@ public class HomeController {
             double uptime24h = resourceService.getUptimePercentage(resource, 24);
             double uptime7d = resourceService.getUptimePercentage(resource, 168);
             double uptime30d = resourceService.getUptimePercentage(resource, 720);
+            int availabilityPercentageScale = availabilityFormattingService.getConfiguredDecimalPlaces();
                 List<CheckResult> fullHistory = resourceService.getFullHistory(id);
             Page<CheckResult> historyPage = resourceService.getHistoryPage(
                     id,
@@ -432,13 +438,15 @@ public class HomeController {
                     timelineBlocks,
                     fullHistory,
                     allOutages,
-                    activeOutage.orElse(null)
+                    activeOutage.orElse(null),
+                    availabilityPercentageScale
                 );
 
             model.addAttribute("vm", viewModel);
             model.addAttribute("uptime24h", uptime24h);
             model.addAttribute("uptime7d", uptime7d);
             model.addAttribute("uptime30d", uptime30d);
+            model.addAttribute("availabilityPercentageScale", availabilityPercentageScale);
             model.addAttribute("detailSummaryText", detailSummaryText);
             model.addAttribute("activeOutage", activeOutage.orElse(null));
             activeOutage.ifPresent(outage ->
@@ -714,12 +722,13 @@ public class HomeController {
     private String buildDetailSummary(MonitoredResource resource,
                                       String currentStatus,
                                       double uptime24h,
-                          double uptime7d,
-                          double uptime30d,
+                                      double uptime7d,
+                                      double uptime30d,
                                       List<TimelineBlockDTO> timelineBlocks,
                                       List<CheckResult> fullHistory,
-                          List<Outage> allOutages,
-                                      Outage activeOutage) {
+                                      List<Outage> allOutages,
+                                      Outage activeOutage,
+                                      int availabilityPercentageScale) {
         LocalDateTime now = applicationTimeService.now();
         String createdAtText = resource.getCreatedAt() == null
                 ? "an unknown date"
@@ -801,12 +810,13 @@ public class HomeController {
 
         return "This resource was added on " + createdAtText + " and has been monitored " + ageText + ". "
                 + "It is " + statusText + " right now, with a lifetime availability of "
-                + String.format(Locale.US, "%.1f", lifetimeAvailability) + "% across " + relevantChecks + " evaluated checks"
+                + availabilityFormattingService.formatPercentage(lifetimeAvailability, availabilityPercentageScale)
+                + " across " + relevantChecks + " evaluated checks"
                 + " (" + totalChecks + " total checks, " + unknownChecks + " unknown, " + downChecks + " down). "
                 + "Availability trends are "
-                + String.format(Locale.US, "%.1f", uptime24h) + "% over 24h, "
-                + String.format(Locale.US, "%.1f", uptime7d) + "% over 7d, and "
-                + String.format(Locale.US, "%.1f", uptime30d) + "% over 30d. "
+                + availabilityFormattingService.formatPercentage(uptime24h, availabilityPercentageScale) + " over 24h, "
+                + availabilityFormattingService.formatPercentage(uptime7d, availabilityPercentageScale) + " over 7d, and "
+                + availabilityFormattingService.formatPercentage(uptime30d, availabilityPercentageScale) + " over 30d. "
                 + "Latency currently sits at " + latestLatencyText + ", averages " + averageLatencyText + ", and p95 is " + latencyPercentileText + ". "
                 + "Last check was recorded at " + lastCheckText + ". "
                 + "Outage history includes " + allOutages.size() + " incidents ("

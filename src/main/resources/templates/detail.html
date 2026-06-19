@@ -6,6 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="kairos-time-zone" th:content="${timeZoneId}">
+    <meta name="kairos-availability-decimals" th:content="${availabilityPercentageScale}">
     <link rel="icon" th:href="@{/img/kairos.png}" type="image/png">
     <title th:text="${vm.resource.name} + ' - Kairos'">Resource - Kairos</title>
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
@@ -101,7 +102,7 @@
                 <div class="card-body">
                     <h5 class="card-title">Last 24 Hours</h5>
                     <div class="display-6 fw-bold resource-uptime"
-                         th:text="${#numbers.formatDecimal(uptime24h, 1, 1)} + '%'"
+                         th:text="${#numbers.formatDecimal(uptime24h, 1, availabilityPercentageScale)} + '%'"
                          th:classappend="${uptime24h >= 99} ? 'text-success' : (${uptime24h >= 95} ? 'text-warning' : 'text-danger')">
                         99.9%
                     </div>
@@ -113,7 +114,7 @@
                 <div class="card-body">
                     <h5 class="card-title">Last 7 Days</h5>
                     <div class="display-6 fw-bold"
-                         th:text="${#numbers.formatDecimal(uptime7d, 1, 1)} + '%'"
+                         th:text="${#numbers.formatDecimal(uptime7d, 1, availabilityPercentageScale)} + '%'"
                          th:classappend="${uptime7d >= 99} ? 'text-success' : (${uptime7d >= 95} ? 'text-warning' : 'text-danger')">
                         99.9%
                     </div>
@@ -125,7 +126,7 @@
                 <div class="card-body">
                     <h5 class="card-title">Last 30 Days</h5>
                     <div class="display-6 fw-bold"
-                         th:text="${#numbers.formatDecimal(uptime30d, 1, 1)} + '%'"
+                         th:text="${#numbers.formatDecimal(uptime30d, 1, availabilityPercentageScale)} + '%'"
                          th:classappend="${uptime30d >= 99} ? 'text-success' : (${uptime30d >= 95} ? 'text-warning' : 'text-danger')">
                         99.9%
                     </div>

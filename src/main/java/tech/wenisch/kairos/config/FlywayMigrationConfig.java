@@ -13,6 +13,7 @@ import db.migration.V23__add_dashboard_auto_group_threshold;
 import db.migration.V24__adjust_dashboard_auto_group_threshold_default_to_10;
 import db.migration.V28__add_proxy_settings;
 import db.migration.V30__add_application_time_zone_setting;
+import db.migration.V31__add_availability_percentage_decimal_places_setting;
 import db.migration.V2__expand_resource_type_for_dockerrepository;
 import db.migration.V4__backfill_outages_from_history;
 import db.migration.V6__add_check_history_retention_config;
@@ -41,7 +42,8 @@ public class FlywayMigrationConfig {
             new V23__add_dashboard_auto_group_threshold(),
             new V24__adjust_dashboard_auto_group_threshold_default_to_10(),
             new V28__add_proxy_settings(),
-            new V30__add_application_time_zone_setting()
+            new V30__add_application_time_zone_setting(),
+            new V31__add_availability_percentage_decimal_places_setting()
         );
     }
 }
