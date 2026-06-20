@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.18.0 - 2026-06-20
+
+## [2.18.0](https://github.com/wenisch-tech/Kairos/compare/v2.17.0...v2.18.0) (2026-06-20)
+
+
+### Features
+
+* initial commit migration to java 25 and spring 4 ([52b6ab2](https://github.com/wenisch-tech/Kairos/commit/52b6ab24b3e77375685ca4f41d1caf440041a65b))
+
+
+
+Docker image: ghcr.io/wenisch-tech/kairos:2.18.0
+
+
 ## v2.17.0 - 2026-06-20
 
 ## [2.17.0](https://github.com/wenisch-tech/Kairos/compare/v2.16.6...v2.17.0) (2026-06-20)
