@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.19.0 - 2026-06-20
+
+## [2.19.0](https://github.com/wenisch-tech/Kairos/compare/v2.18.0...v2.19.0) (2026-06-20)
+
+
+### Features
+
+* switched to chainguard image again and removed hibernate lazyloading ([ae7c90e](https://github.com/wenisch-tech/Kairos/commit/ae7c90e5fcfe071c1ae9f95645711c5c47723377))
+
+
+
+Docker image: ghcr.io/wenisch-tech/kairos:2.19.0
+
+
 ## v2.18.0 - 2026-06-20
 
 ## [2.18.0](https://github.com/wenisch-tech/Kairos/compare/v2.17.0...v2.18.0) (2026-06-20)
