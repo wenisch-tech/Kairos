@@ -4,7 +4,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceUnitUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import tech.wenisch.kairos.entity.MonitoredResource;
 import tech.wenisch.kairos.entity.ResourceGroup;
 import tech.wenisch.kairos.entity.ResourceGroupVisibility;

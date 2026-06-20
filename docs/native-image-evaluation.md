@@ -208,6 +208,6 @@ Native images use closed-world analysis. If a runtime path fails because reflect
 
 ## References
 
-- [Spring Boot GraalVM native applications](https://docs.spring.io/spring-boot/3.5/how-to/native-image/developing-your-first-application.html)
-- [Spring Boot native image advanced topics](https://docs.spring.io/spring-boot/3.5/reference/packaging/native-image/advanced-topics.html)
+- [Spring Boot GraalVM native applications](https://docs.spring.io/spring-boot/4.1/how-to/aot.html#howto.aot.native-images)
+- [Spring Boot native image advanced topics](https://docs.spring.io/spring-boot/4.1/reference/packaging/native-image/index.html)
 - [Spring AI MCP native image hints](https://docs.spring.io/spring-ai/reference/api/mcp/mcp-helpers.html)

@@ -6,6 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="kairos-time-zone" th:content="${timeZoneId}">
+    <meta name="kairos-availability-decimals" th:content="${availabilityPercentageDecimalPlaces}">
     <link rel="icon" th:href="@{/img/kairos.png}" type="image/png">
     <title>Settings - Kairos Admin</title>
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
@@ -115,6 +116,17 @@
                                         th:selected="${option.id == configuredTimeZone}">GMT+01:00 - Berlin (Europe/Berlin)</option>
                             </select>
                             <div class="form-text">Used for check timestamps, outage windows, Prometheus timestamp metrics, and all displayed dates.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="availabilityPercentageDecimalPlaces" class="form-label">Availability percentage decimals</label>
+                            <input type="number"
+                                   min="2"
+                                   max="5"
+                                   class="form-control"
+                                   id="availabilityPercentageDecimalPlaces"
+                                   name="availabilityPercentageDecimalPlaces"
+                                   th:value="${availabilityPercentageDecimalPlaces}">
+                            <div class="form-text">Default: 2. Controls how many digits are always shown after the decimal separator for availability percentages, up to 5.</div>
                         </div>
                 </div>
             </div>

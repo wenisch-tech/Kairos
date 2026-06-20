@@ -12,7 +12,7 @@ This guide helps you get Kairos running quickly for local testing or small deplo
 
 ## Prerequisites
 
-- Java 17+ (for source run)
+- Java 25+ (for source run)
 - Docker (for container run)
 - Kubernetes 1.20+ and Helm 3+ (for chart install)
 
