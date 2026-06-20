@@ -3,7 +3,7 @@ package tech.wenisch.kairos.config;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.DefaultApplicationArguments;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import tech.wenisch.kairos.entity.AppUser;
 import tech.wenisch.kairos.entity.AuthProvider;
 import tech.wenisch.kairos.entity.ResourceTypeConfig;

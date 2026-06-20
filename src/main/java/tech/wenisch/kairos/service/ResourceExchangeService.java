@@ -1,9 +1,8 @@
 package tech.wenisch.kairos.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.dataformat.yaml.YAMLFactory;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -37,7 +36,7 @@ public class ResourceExchangeService {
         Map<String, Object> root = new LinkedHashMap<>();
         root.put("format", "kairos-resources");
         root.put("schemaVersion", EXCHANGE_SCHEMA_VERSION);
-        root.put("exportedAt", applicationTimeService.now());
+        root.put("exportedAt", applicationTimeService.now().toString());
         root.put("resourceCount", resources.size());
         root.put("resources", resources.stream().map(this::toResourceNode).collect(Collectors.toList()));
 
@@ -132,7 +131,7 @@ public class ResourceExchangeService {
         node.put("displayOrder", resource.getDisplayOrder());
         node.put("groupName", resource.getGroups().isEmpty() ? null
                 : resource.getGroups().iterator().next().getName());
-        node.put("createdAt", resource.getCreatedAt());
+        node.put("createdAt", resource.getCreatedAt() != null ? resource.getCreatedAt().toString() : null);
         return node;
     }
 
@@ -226,10 +225,7 @@ public class ResourceExchangeService {
     }
 
     private ObjectMapper yamlMapper() {
-        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        mapper.findAndRegisterModules();
-        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        return mapper;
+        return new ObjectMapper(new YAMLFactory());
     }
 
     @Getter

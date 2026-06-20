@@ -258,7 +258,7 @@ A health endpoint is also available at `/actuator/health`.
 
 ### Prerequisites
 
-- Java 17+
+- Java 25+
 - Maven 3.8+ 
 - Network access to target Docker/OCI registries if you want Docker image checks
 
