@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.17.0 - 2026-06-20
+
+## [2.17.0](https://github.com/wenisch-tech/Kairos/compare/v2.16.6...v2.17.0) (2026-06-20)
+
+
+### Features
+
+* added configuration options for display of availability ([2059e5e](https://github.com/wenisch-tech/Kairos/commit/2059e5e427e600ad11306a2a122deb3e2255fc25))
+
+
+
+Docker image: ghcr.io/wenisch-tech/kairos:2.17.0
+
+
 ## v2.16.6 - 2026-06-19
 
 ### [2.16.6](https://github.com/wenisch-tech/Kairos/compare/v2.16.5...v2.16.6) (2026-06-19)
