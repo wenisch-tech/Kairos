@@ -13,7 +13,7 @@
 
     <groupId>tech.wenisch</groupId>
     <artifactId>kairos</artifactId>
-    <version>2.17.0</version>
+    <version>2.18.0</version>
     <packaging>jar</packaging>
     <name>kairos</name>
     <description>Uptime monitoring application</description>
@@ -260,27 +260,6 @@
             <id>native</id>
             <build>
                 <plugins>
-                    <plugin>
-                        <groupId>org.hibernate.orm.tooling</groupId>
-                        <artifactId>hibernate-enhance-maven-plugin</artifactId>
-                        <version>${hibernate.version}</version>
-                        <executions>
-                            <execution>
-                                <id>enhance-hibernate-entities</id>
-                                <phase>process-classes</phase>
-                                <goals>
-                                    <goal>enhance</goal>
-                                </goals>
-                                <configuration>
-                                    <failOnError>true</failOnError>
-                                    <enableLazyInitialization>true</enableLazyInitialization>
-                                    <enableDirtyTracking>true</enableDirtyTracking>
-                                    <enableAssociationManagement>true</enableAssociationManagement>
-                                    <enableExtendedEnhancement>false</enableExtendedEnhancement>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
                     <plugin>
                         <groupId>org.springframework.boot</groupId>
                         <artifactId>spring-boot-maven-plugin</artifactId>
