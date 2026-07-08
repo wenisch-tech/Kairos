@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.19.5 - 2026-07-08
+
+### [2.19.5](https://github.com/wenisch-tech/Kairos/compare/v2.19.4...v2.19.5) (2026-07-08)
+
+
+### Bug Fixes
+
+* updated v32 migration to re-enabled percentile display ([33dcd8a](https://github.com/wenisch-tech/Kairos/commit/33dcd8aff3e34b66abfeee1b7d8feac84bd189c2))
+
+
+
+Docker image: ghcr.io/wenisch-tech/kairos:2.19.5
+
+
 ## v2.19.4 - 2026-07-08
 
 ### [2.19.4](https://github.com/wenisch-tech/Kairos/compare/v2.19.3...v2.19.4) (2026-07-08)
