@@ -11,6 +11,10 @@ public class V31__add_availability_percentage_decimal_places_setting extends Bas
 
     @Override
     public void migrate(Context context) throws Exception {
+        if (!tableExists(context, "resource_type_config")) {
+            return;
+        }
+
         if (!columnExists(context, "resource_type_config", "availability_percentage_decimal_places")) {
             try (Statement st = context.getConnection().createStatement()) {
                 st.executeUpdate(
@@ -29,10 +33,27 @@ public class V31__add_availability_percentage_decimal_places_setting extends Bas
         }
     }
 
+    private boolean tableExists(Context context, String tableName) throws Exception {
+        DatabaseMetaData meta = context.getConnection().getMetaData();
+        for (String tbl : new String[]{tableName.toUpperCase(), tableName.toLowerCase(), tableName}) {
+            try (ResultSet rs = meta.getTables(null, null, tbl, null)) {
+                if (rs.next()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     private boolean columnExists(Context context, String tableName, String columnName) throws Exception {
         DatabaseMetaData meta = context.getConnection().getMetaData();
-        for (String tbl : new String[]{tableName.toUpperCase(), tableName}) {
-            try (ResultSet rs = meta.getColumns(null, null, tbl, columnName)) {
+        for (String tbl : new String[]{tableName.toUpperCase(), tableName.toLowerCase(), tableName}) {
+            try (ResultSet rs = meta.getColumns(null, null, tbl, columnName.toUpperCase())) {
+                if (rs.next()) {
+                    return true;
+                }
+            }
+            try (ResultSet rs = meta.getColumns(null, null, tbl, columnName.toLowerCase())) {
                 if (rs.next()) {
                     return true;
                 }
