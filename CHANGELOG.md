@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.19.7 - 2026-07-14
+
+### [2.19.7](https://github.com/wenisch-tech/Kairos/compare/v2.19.6...v2.19.7) (2026-07-14)
+
+
+### Bug Fixes
+
+* add support for discovery of catalogue on remotes ([f0d83f6](https://github.com/wenisch-tech/Kairos/commit/f0d83f6651c8dd8a65dc3860965b7e4acd4053f8))
+
+
+
+Docker image: ghcr.io/wenisch-tech/kairos:2.19.7
+
+
 ## v2.19.6 - 2026-07-08
 
 ### [2.19.6](https://github.com/wenisch-tech/Kairos/compare/v2.19.5...v2.19.6) (2026-07-08)
