@@ -43,7 +43,7 @@ flowchart TD
 
 ## Authentication behavior
 
-- A configured Docker credential is sent as `Authorization: Basic ...`.
+- A configured Docker credential is sent as `Authorization: Basic ...` or `Authorization: Bearer ...`, depending on the configured auth type.
 - If the registry responds with `WWW-Authenticate: Bearer ...`, Kairos requests a token and retries with `Authorization: Bearer ...`.
 - Scope defaults to `repository:<repo>:pull` when not explicitly provided by the challenge.
 
