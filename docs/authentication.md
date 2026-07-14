@@ -98,7 +98,7 @@ Any HTTP resource whose target starts with `https://internal.example.com` will i
 
 ### Docker Checks
 
-When a matching credential is found, Kairos sends `Authorization: Basic ...` for registry API requests and token endpoint requests when Bearer-token negotiation is required. No `docker login` command is executed. Kairos then probes blob download access to validate pullability, not only manifest visibility.
+When a matching credential is found, Kairos sends `Authorization: Basic ...` or `Authorization: Bearer ...`, depending on the configured auth type. Basic credentials are also used for token endpoint requests when Bearer-token negotiation is required. No `docker login` command is executed. Kairos then probes blob download access to validate pullability, not only manifest visibility.
 
 The registry is extracted from the image reference:
 
@@ -130,7 +130,9 @@ Any Docker resource whose target starts with `ghcr.io` will use those credential
 
 Any Docker resource whose target starts with `registry.example.com` will use those credentials for registry authentication.
 
-For `DOCKER_REPOSITORY` discovery services, credentials are configured in **Admin -> Resource Discovery** and used for registry discovery requests and, for GHCR owner discovery, for GitHub API calls when patterns match.
+For `DOCKER_REPOSITORY` discovery services, credentials are configured in **Admin -> Resource Discovery** and used for registry discovery requests and, for GHCR owner discovery, for GitHub API calls when patterns match. Artifactory access tokens can be configured as `BEARER` credentials; use the Artifactory discovery target pattern, for example `https://registry.example.com/artifactory/plain-images*`.
+
+Generated `DOCKER` resources use the separate credentials configured under **Admin -> Resource Types**. If an Artifactory discovery creates targets such as `registry.example.com/plain-images/alpine:latest`, also add a matching `DOCKER` credential such as `registry.example.com/plain-images*` with auth type `BEARER`.
 
 > **Note:** Registry checks are socketless and do not need local Docker/Podman binaries.
 

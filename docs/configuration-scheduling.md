@@ -96,6 +96,8 @@ flowchart TD
 
 Instead, each run synchronizes discovered images into generated `DOCKER` resources in an auto-created group and removes resources that no longer exist in the upstream registry.
 
+For Artifactory Docker remotes, Kairos first tries Docker Registry v2 catalog endpoints. If an Artifactory catalog is empty, Kairos falls back to the Artifactory storage listing API and discovers repositories from tagged `manifest.json` entries before reading tags through the registry API.
+
 ## OPENSHIFT_ROUTE Discovery Behavior
 
 `OPENSHIFT_ROUTE` sync queries the OpenShift API to discover routes across all accessible projects and automatically creates, updates, or removes generated `HTTP` resources in Kairos.

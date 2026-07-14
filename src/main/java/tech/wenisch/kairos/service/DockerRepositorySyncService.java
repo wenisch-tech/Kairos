@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tech.wenisch.kairos.entity.AuthType;
 import tech.wenisch.kairos.entity.DiscoveryServiceAuth;
 import tech.wenisch.kairos.entity.MonitoredResource;
 import tech.wenisch.kairos.entity.ResourceDiscovery;
@@ -27,6 +28,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -243,6 +245,9 @@ public class DockerRepositorySyncService {
         collectFromCatalogEndpoint(matches, auth, repositoryRef, sourceResource,
                 "https://" + repositoryRef.registry() + "/" + repositoryRef.path() + "/v2/_catalog?n=" + PAGE_SIZE, true);
         collectFromArtifactoryCatalog(matches, auth, repositoryRef, sourceResource);
+        if (matches.isEmpty()) {
+            collectFromArtifactoryStorage(matches, auth, repositoryRef, sourceResource);
+        }
         return matches;
     }
 
@@ -258,6 +263,57 @@ public class DockerRepositorySyncService {
         if (!"artifactory".equalsIgnoreCase(prefix) || repoKey.isBlank()) return;
         collectFromCatalogEndpoint(matches, auth, repositoryRef, sourceResource,
                 "https://" + repositoryRef.registry() + "/artifactory/api/docker/" + repoKey + "/v2/_catalog?n=" + PAGE_SIZE, true);
+    }
+
+    private void collectFromArtifactoryStorage(Set<String> matches,
+                                               Optional<DiscoveryServiceAuth> auth,
+                                               RepositoryRef repositoryRef,
+                                               ResourceDiscovery sourceResource) {
+        String path = repositoryRef.path();
+        int firstSlash = path.indexOf('/');
+        if (firstSlash < 0) return;
+        String prefix = path.substring(0, firstSlash);
+        String repoKey = path.substring(firstSlash + 1);
+        if (!"artifactory".equalsIgnoreCase(prefix) || repoKey.isBlank()) return;
+
+        String url = "https://" + repositoryRef.registry() + "/artifactory/api/storage/" + repoKey
+                + "?list&deep=1&listFolders=1";
+        try {
+            HttpResponse<String> response = sendGet(url, auth, sourceResource);
+            if (response.statusCode() != 200) {
+                throw new IllegalStateException("Artifactory storage endpoint responded with HTTP " + response.statusCode());
+            }
+            JsonNode files = objectMapper.readTree(response.body()).path("files");
+            if (!files.isArray()) return;
+            for (JsonNode file : files) {
+                String uri = file.path("uri").asText(null);
+                extractRepositoryFromArtifactoryStorageUri(repositoryRef, repoKey, uri)
+                        .filter(repositoryName -> matchesPrefix(repositoryName, repositoryRef.path(), sourceResource.isRecursive()))
+                        .ifPresent(matches::add);
+            }
+        } catch (Exception ex) {
+            log.debug("Artifactory storage discovery failed for '{}': {}", repositoryRef.originalInput(), ex.getMessage());
+        }
+    }
+
+    private Optional<String> extractRepositoryFromArtifactoryStorageUri(RepositoryRef repositoryRef,
+                                                                       String repoKey,
+                                                                       String uri) {
+        if (uri == null || uri.isBlank()) return Optional.empty();
+        String trimmed = uri.trim();
+        if (trimmed.startsWith("/")) trimmed = trimmed.substring(1);
+        String marker = "/manifest.json";
+        if (!trimmed.endsWith(marker)) return Optional.empty();
+
+        String repositoryAndReference = trimmed.substring(0, trimmed.length() - marker.length());
+        int lastSlash = repositoryAndReference.lastIndexOf('/');
+        if (lastSlash <= 0 || lastSlash == repositoryAndReference.length() - 1) return Optional.empty();
+        String reference = repositoryAndReference.substring(lastSlash + 1);
+        if (reference.startsWith("sha256__")) return Optional.empty();
+
+        String repositoryName = repositoryAndReference.substring(0, lastSlash);
+        String scopedName = "artifactory/" + repoKey + "/" + repositoryName;
+        return Optional.of(normalizeCatalogRepositoryName(repositoryRef, scopedName, false));
     }
 
     private void collectFromCatalogEndpoint(Set<String> matches,
@@ -380,9 +436,17 @@ public class DockerRepositorySyncService {
                 }
                 return;
             }
+            if (value.getAuthType() == AuthType.BEARER) {
+                String token = value.getPassword();
+                if (token == null || token.isBlank()) token = value.getUsername();
+                if (token != null && !token.isBlank()) {
+                    requestBuilder.header("Authorization", "Bearer " + token.trim());
+                }
+                return;
+            }
             if (value.getUsername() != null && !value.getUsername().isBlank()) {
                 String encoded = Base64.getEncoder().encodeToString(
-                        (value.getUsername() + ":" + (value.getPassword() == null ? "" : value.getPassword())).getBytes()
+                        (value.getUsername() + ":" + (value.getPassword() == null ? "" : value.getPassword())).getBytes(StandardCharsets.UTF_8)
                 );
                 requestBuilder.header("Authorization", "Basic " + encoded);
             }

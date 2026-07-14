@@ -3,6 +3,7 @@ package tech.wenisch.kairos.service;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tech.wenisch.kairos.dto.InstantCheckExecutionResult;
+import tech.wenisch.kairos.entity.AuthType;
 import tech.wenisch.kairos.entity.CheckResult;
 import tech.wenisch.kairos.entity.CheckStatus;
 import tech.wenisch.kairos.entity.MonitoredResource;
@@ -71,17 +72,11 @@ public class DockerCheckService {
             Optional<ResourceTypeAuth> authOpt = useStoredAuth
                     ? resolveDockerAuth(image, imageRef)
                     : Optional.empty();
-            String basicAuthHeader = authOpt
-                    .map(auth -> toBasicHeader(auth.getUsername(), auth.getPassword()))
-                    .orElse(null);
-            String authUsername = authOpt.map(ResourceTypeAuth::getUsername).orElse(null);
+                AuthState authState = authOpt
+                    .map(this::toAuthState)
+                    .orElseGet(() -> new AuthState(null, null, null));
 
             HttpClient client = getHttpClient(image, skipTls);
-            AuthState authState = new AuthState(
-                    basicAuthHeader,
-                    authUsername,
-                    null
-            );
 
             ManifestResponse manifestResponse = fetchManifest(client, imageRef, imageRef.reference(), authState);
             List<String> blobDigests = extractBlobDigests(client, imageRef, manifestResponse, authState);
@@ -116,17 +111,11 @@ public class DockerCheckService {
             DockerImageRef imageRef = parseImageRef(image);
 
             Optional<ResourceTypeAuth> authOpt = resolveDockerAuth(image, imageRef);
-                String basicAuthHeader = authOpt
-                    .map(auth -> toBasicHeader(auth.getUsername(), auth.getPassword()))
-                    .orElse(null);
-                String authUsername = authOpt.map(ResourceTypeAuth::getUsername).orElse(null);
+            AuthState authState = authOpt
+                    .map(this::toAuthState)
+                    .orElseGet(() -> new AuthState(null, null, null));
 
             HttpClient client = getHttpClient(image, resource.isSkipTls());
-            AuthState authState = new AuthState(
-                    basicAuthHeader,
-                    authUsername,
-                null
-            );
 
             ManifestResponse manifestResponse = fetchManifest(client, imageRef, imageRef.reference(), authState);
             List<String> blobDigests = extractBlobDigests(client, imageRef, manifestResponse, authState);
@@ -336,6 +325,15 @@ public class DockerCheckService {
         }
         String credentials = username + ":" + password;
         return "Basic " + Base64.getEncoder().encodeToString(credentials.getBytes(StandardCharsets.UTF_8));
+    }
+
+    private AuthState toAuthState(ResourceTypeAuth auth) {
+        if (auth.getAuthType() == AuthType.BEARER) {
+            String token = auth.getPassword();
+            if (token == null || token.isBlank()) token = auth.getUsername();
+            return new AuthState(null, null, token == null ? null : token.trim());
+        }
+        return new AuthState(toBasicHeader(auth.getUsername(), auth.getPassword()), auth.getUsername(), null);
     }
 
     private String fetchBearerToken(HttpClient client,
