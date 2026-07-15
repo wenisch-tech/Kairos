@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.19.8 - 2026-07-15
+
+### [2.19.8](https://github.com/wenisch-tech/Kairos/compare/v2.19.7...v2.19.8) (2026-07-15)
+
+
+### Bug Fixes
+
+* update tomcat to latest version ([ede3c9b](https://github.com/wenisch-tech/Kairos/commit/ede3c9b8e4b6f918e990c0bcf2e8c010a144543c))
+
+
+
+Docker image: ghcr.io/wenisch-tech/kairos:2.19.8
+
+
 ## v2.19.7 - 2026-07-14
 
 ### [2.19.7](https://github.com/wenisch-tech/Kairos/compare/v2.19.6...v2.19.7) (2026-07-14)
