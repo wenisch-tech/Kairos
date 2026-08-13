@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.19.12 - 2026-08-13
+
+### [2.19.12](https://github.com/wenisch-tech/Kairos/compare/v2.19.11...v2.19.12) (2026-08-13)
+
+
+### Bug Fixes
+
+* **deps:** update non-major dependencies ([c2d640d](https://github.com/wenisch-tech/Kairos/commit/c2d640d80076bd71413468e3d2d8783d432388ec))
+
+
+
+Docker image: ghcr.io/wenisch-tech/kairos:2.19.12
+
+
 ## v2.19.11 - 2026-07-27
 
 ### [2.19.11](https://github.com/wenisch-tech/Kairos/compare/v2.19.10...v2.19.11) (2026-07-27)
