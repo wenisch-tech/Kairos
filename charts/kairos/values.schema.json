@@ -34,6 +34,9 @@
                 "OIDC_ISSUER_URI": {
                     "type": "string"
                 },
+                "OIDC_IGNORE_TLS": {
+                    "type": "string"
+                },
                 "SERVER_SERVLET_SESSION_COOKIE_SAME_SITE": {
                     "type": "string"
                 },
@@ -41,6 +44,9 @@
                     "type": "string"
                 },
                 "SPRING_DATASOURCE_PASSWORD": {
+                    "type": "string"
+                },
+                "SPRING_JPA_DATABASE_PLATFORM": {
                     "type": "string"
                 },
                 "SPRING_DATASOURCE_URL": {

@@ -11,6 +11,7 @@ spring.datasource.url=jdbc:h2:file:./kairos;AUTO_SERVER=TRUE
 spring.datasource.driver-class-name=org.h2.Driver
 spring.datasource.username=sa
 spring.datasource.password=
+spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
 spring.jpa.hibernate.ddl-auto=update
 spring.flyway.enabled=true
 spring.flyway.baseline-on-migrate=true
@@ -28,6 +29,7 @@ spring.datasource.url=jdbc:postgresql://localhost:5432/kairos
 spring.datasource.driver-class-name=org.postgresql.Driver
 spring.datasource.username=kairos
 spring.datasource.password=secret
+spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
 spring.jpa.hibernate.ddl-auto=update
 spring.flyway.enabled=true
 spring.flyway.baseline-on-migrate=true
@@ -40,7 +42,12 @@ Environment variable equivalent:
 SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/kairos
 SPRING_DATASOURCE_USERNAME=kairos
 SPRING_DATASOURCE_PASSWORD=secret
+SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.PostgreSQLDialect
 ```
+
+When deploying with the Helm chart, set `env.SPRING_JPA_DATABASE_PLATFORM` to
+`org.hibernate.dialect.PostgreSQLDialect` together with the PostgreSQL datasource
+settings. The chart otherwise defaults this property to H2.
 
 Example `docker-compose` with PostgreSQL:
 
@@ -64,6 +71,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/kairos
       SPRING_DATASOURCE_USERNAME: kairos
       SPRING_DATASOURCE_PASSWORD: secret
+      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
     depends_on:
       - db
 

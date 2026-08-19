@@ -73,6 +73,7 @@ env:
   SPRING_DATASOURCE_URL: ""
   SPRING_DATASOURCE_USERNAME: ""
   SPRING_DATASOURCE_PASSWORD: ""
+  SPRING_JPA_DATABASE_PLATFORM: "org.hibernate.dialect.H2Dialect"
   # Session cookie configuration required for cross-site OIDC redirects
   SERVER_SERVLET_SESSION_COOKIE_SAME_SITE: "none"
   SERVER_SERVLET_SESSION_COOKIE_SECURE: "true"
@@ -82,6 +83,7 @@ env:
   OIDC_CLIENT_ID: ""
   OIDC_CLIENT_SECRET: ""
   OIDC_ISSUER_URI: ""
+  OIDC_IGNORE_TLS: "false"
   # Docker socket configuration (if accessing Docker from container)
   DOCKER_HOST: ""
   # Optional: Custom Spring Boot properties

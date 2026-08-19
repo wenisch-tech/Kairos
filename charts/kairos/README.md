@@ -88,8 +88,13 @@ helm install kairos . -n kairos --create-namespace \
 helm install kairos . -n kairos --create-namespace \
   --set env.SPRING_DATASOURCE_URL="jdbc:postgresql://postgres:5432/kairos" \
   --set env.SPRING_DATASOURCE_USERNAME="kairos" \
+  --set env.SPRING_JPA_DATABASE_PLATFORM="org.hibernate.dialect.PostgreSQLDialect" \
   --set secrets.SPRING_DATASOURCE_PASSWORD="your-password"
 ```
+
+The chart defaults to H2 and therefore sets `SPRING_JPA_DATABASE_PLATFORM` to
+`org.hibernate.dialect.H2Dialect`. Set it to `org.hibernate.dialect.PostgreSQLDialect`
+when using PostgreSQL.
 
 #### Enable OIDC / OAuth2 (e.g., Keycloak)
 
@@ -101,6 +106,11 @@ helm install kairos . -n kairos --create-namespace \
   --set env.OIDC_CLIENT_ID="kairos" \
   --set secrets.OIDC_CLIENT_SECRET="your-secret"
 ```
+
+For a temporary workaround while diagnosing a private or self-signed issuer
+certificate, set `env.OIDC_IGNORE_TLS="true"`. This disables both certificate
+and hostname verification for OIDC HTTPS requests. Install the issuer CA into
+the container trust store instead for production use.
 
 You can also pass the OIDC client secret directly via `env` when you do not want Helm to create a Kubernetes `Secret` for it:
 
@@ -168,6 +178,7 @@ helm install kairos . -n kairos --create-namespace \
 | `SPRING_DATASOURCE_URL` | *(auto H2)* | JDBC URL for database |
 | `SPRING_DATASOURCE_USERNAME` | `sa` | Database username |
 | `SPRING_DATASOURCE_PASSWORD` | *(empty)* | Database password (**use secrets**) |
+| `SPRING_JPA_DATABASE_PLATFORM` | `org.hibernate.dialect.H2Dialect` | Hibernate dialect; override with `org.hibernate.dialect.PostgreSQLDialect` for PostgreSQL |
 
 #### Environment Variables - Session Cookies
 
@@ -185,6 +196,7 @@ helm install kairos . -n kairos --create-namespace \
 | `OIDC_ISSUER_URI` | *(empty)* | OIDC provider issuer URI (e.g. Keycloak realm) |
 | `OIDC_CLIENT_ID` | *(empty)* | OIDC client ID |
 | `OIDC_CLIENT_SECRET` | *(empty)* | OIDC client secret (can be set directly, but `secrets` is preferred) |
+| `OIDC_IGNORE_TLS` | `false` | Disable OIDC certificate and hostname verification temporarily; do not use in production |
 
 #### Health Probes
 
