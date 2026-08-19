@@ -107,6 +107,11 @@ helm install kairos . -n kairos --create-namespace \
   --set secrets.OIDC_CLIENT_SECRET="your-secret"
 ```
 
+For a temporary workaround while diagnosing a private or self-signed issuer
+certificate, set `env.OIDC_IGNORE_TLS="true"`. This disables both certificate
+and hostname verification for OIDC HTTPS requests. Install the issuer CA into
+the container trust store instead for production use.
+
 You can also pass the OIDC client secret directly via `env` when you do not want Helm to create a Kubernetes `Secret` for it:
 
 ```bash
@@ -191,6 +196,7 @@ helm install kairos . -n kairos --create-namespace \
 | `OIDC_ISSUER_URI` | *(empty)* | OIDC provider issuer URI (e.g. Keycloak realm) |
 | `OIDC_CLIENT_ID` | *(empty)* | OIDC client ID |
 | `OIDC_CLIENT_SECRET` | *(empty)* | OIDC client secret (can be set directly, but `secrets` is preferred) |
+| `OIDC_IGNORE_TLS` | `false` | Disable OIDC certificate and hostname verification temporarily; do not use in production |
 
 #### Health Probes
 

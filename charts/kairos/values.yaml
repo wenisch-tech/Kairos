@@ -83,6 +83,7 @@ env:
   OIDC_CLIENT_ID: ""
   OIDC_CLIENT_SECRET: ""
   OIDC_ISSUER_URI: ""
+  OIDC_IGNORE_TLS: "false"
   # Docker socket configuration (if accessing Docker from container)
   DOCKER_HOST: ""
   # Optional: Custom Spring Boot properties

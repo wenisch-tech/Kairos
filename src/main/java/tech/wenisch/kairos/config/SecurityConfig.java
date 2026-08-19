@@ -41,7 +41,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.XorCsrfTokenRequestAttributeHandler;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import java.security.KeyManagementException;
 import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
 import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -65,6 +72,9 @@ public class SecurityConfig {
 
     @Value("${OIDC_CREATEUSERS:true}")
     private boolean oidcCreateUsers;
+
+    @Value("${OIDC_IGNORE_TLS:false}")
+    private boolean oidcIgnoreTls;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -193,6 +203,7 @@ public class SecurityConfig {
         http.addFilterBefore(apiKeyAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         if (oidcEnabled && !oidcClientId.isBlank() && !oidcClientSecret.isBlank() && !oidcIssuerUri.isBlank()) {
+            configureOidcTls();
             log.info("OIDC authentication enabled");
             ClientRegistration registration = ClientRegistrations
                     .fromIssuerLocation(oidcIssuerUri)
@@ -239,6 +250,39 @@ public class SecurityConfig {
         }
 
         return http.build();
+    }
+
+    private void configureOidcTls() {
+        if (!oidcIgnoreTls) {
+            return;
+        }
+
+        try {
+            TrustManager[] trustAllCertificates = {new X509TrustManager() {
+                @Override
+                public void checkClientTrusted(X509Certificate[] certificateChain, String authType) {
+                }
+
+                @Override
+                public void checkServerTrusted(X509Certificate[] certificateChain, String authType) {
+                }
+
+                @Override
+                public X509Certificate[] getAcceptedIssuers() {
+                    return new X509Certificate[0];
+                }
+            }};
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(null, trustAllCertificates, new SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
+            HostnameVerifier trustAllHosts = (hostname, session) -> true;
+            HttpsURLConnection.setDefaultHostnameVerifier(trustAllHosts);
+            log.warn("OIDC_IGNORE_TLS is enabled: OIDC TLS certificate and hostname verification are disabled. Use only for temporary troubleshooting.");
+        } catch (KeyManagementException exception) {
+            throw new IllegalStateException("Unable to configure OIDC TLS verification bypass", exception);
+        } catch (java.security.NoSuchAlgorithmException exception) {
+            throw new IllegalStateException("TLS is unavailable for OIDC", exception);
+        }
     }
 
     private boolean isPublicAccessAllowed(ResourceTypeConfigRepository resourceTypeConfigRepository) {

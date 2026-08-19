@@ -29,6 +29,7 @@ sequenceDiagram
 | `OIDC_CLIENT_ID` | Yes | Client ID registered with your identity provider |
 | `OIDC_CLIENT_SECRET` | Yes | Client secret registered with your identity provider |
 | `OIDC_ISSUER_URI` | Yes | OIDC issuer base URI |
+| `OIDC_IGNORE_TLS` | No | Set to `true` only for temporary troubleshooting of an untrusted issuer certificate; defaults to `false` |
 
 When deploying with the Helm chart, `OIDC_CLIENT_SECRET` can be provided either through `env.OIDC_CLIENT_SECRET` or through `secrets.OIDC_CLIENT_SECRET`. The `secrets` variant is preferred. If both are set, the Secret-backed value takes precedence.
 
@@ -40,7 +41,14 @@ OIDC_CREATEUSERS=true
 OIDC_CLIENT_ID=kairos
 OIDC_CLIENT_SECRET=<your-secret>
 OIDC_ISSUER_URI=https://keycloak.example.com/realms/myrealm
+OIDC_IGNORE_TLS=false
 ```
+
+## TLS Certificates
+
+Kairos verifies the issuer certificate and hostname for OIDC discovery, token exchange, and signing-key retrieval. The certificate chain presented by the identity provider must therefore be trusted by the Java runtime in the Kairos container.
+
+For temporary troubleshooting only, set `OIDC_IGNORE_TLS=true`. This disables certificate and hostname verification for OIDC HTTPS requests and exposes credentials and tokens to interception. Do not use it in production; add the issuer's CA certificate to the container trust store instead.
 
 Kairos derives OIDC endpoints from the issuer URI:
 
