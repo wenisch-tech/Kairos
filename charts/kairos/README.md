@@ -88,8 +88,13 @@ helm install kairos . -n kairos --create-namespace \
 helm install kairos . -n kairos --create-namespace \
   --set env.SPRING_DATASOURCE_URL="jdbc:postgresql://postgres:5432/kairos" \
   --set env.SPRING_DATASOURCE_USERNAME="kairos" \
+  --set env.SPRING_JPA_DATABASE_PLATFORM="org.hibernate.dialect.PostgreSQLDialect" \
   --set secrets.SPRING_DATASOURCE_PASSWORD="your-password"
 ```
+
+The chart defaults to H2 and therefore sets `SPRING_JPA_DATABASE_PLATFORM` to
+`org.hibernate.dialect.H2Dialect`. Set it to `org.hibernate.dialect.PostgreSQLDialect`
+when using PostgreSQL.
 
 #### Enable OIDC / OAuth2 (e.g., Keycloak)
 
@@ -168,6 +173,7 @@ helm install kairos . -n kairos --create-namespace \
 | `SPRING_DATASOURCE_URL` | *(auto H2)* | JDBC URL for database |
 | `SPRING_DATASOURCE_USERNAME` | `sa` | Database username |
 | `SPRING_DATASOURCE_PASSWORD` | *(empty)* | Database password (**use secrets**) |
+| `SPRING_JPA_DATABASE_PLATFORM` | `org.hibernate.dialect.H2Dialect` | Hibernate dialect; override with `org.hibernate.dialect.PostgreSQLDialect` for PostgreSQL |
 
 #### Environment Variables - Session Cookies
 

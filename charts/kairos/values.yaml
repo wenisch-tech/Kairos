@@ -73,6 +73,7 @@ env:
   SPRING_DATASOURCE_URL: ""
   SPRING_DATASOURCE_USERNAME: ""
   SPRING_DATASOURCE_PASSWORD: ""
+  SPRING_JPA_DATABASE_PLATFORM: "org.hibernate.dialect.H2Dialect"
   # Session cookie configuration required for cross-site OIDC redirects
   SERVER_SERVLET_SESSION_COOKIE_SAME_SITE: "none"
   SERVER_SERVLET_SESSION_COOKIE_SECURE: "true"

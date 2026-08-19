@@ -43,6 +43,9 @@
                 "SPRING_DATASOURCE_PASSWORD": {
                     "type": "string"
                 },
+                "SPRING_JPA_DATABASE_PLATFORM": {
+                    "type": "string"
+                },
                 "SPRING_DATASOURCE_URL": {
                     "type": "string"
                 },
