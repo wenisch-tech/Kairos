@@ -37,5 +37,9 @@ public class ResourceDiscovery {
     @Builder.Default
     private boolean onlyTaggedResources = false;
 
+    @Column(name = "latest_tag_only", nullable = false)
+    @Builder.Default
+    private boolean latestTagOnly = false;
+
     private LocalDateTime createdAt;
 }
