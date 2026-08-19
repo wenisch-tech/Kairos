@@ -22,6 +22,10 @@
         <java.version>25</java.version>
         <tomcat.version>11.0.24</tomcat.version>
         <flyway.version>12.9.0</flyway.version>
+        <jackson-2-bom.version>2.21.5</jackson-2-bom.version>
+        <jackson-bom.version>3.1.5</jackson-bom.version>
+        <log4j2.version>2.25.5</log4j2.version>
+        <postgresql.version>42.7.12</postgresql.version>
         <spring-ai.version>2.0.0</spring-ai.version>
         <springdoc-openapi.version>3.1.0</springdoc-openapi.version>
         <native-build-tools.version>1.1.9</native-build-tools.version>
