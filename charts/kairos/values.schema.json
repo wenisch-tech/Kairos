@@ -31,10 +31,10 @@
                 "OIDC_ENABLED": {
                     "type": "string"
                 },
-                "OIDC_ISSUER_URI": {
+                "OIDC_IGNORE_TLS": {
                     "type": "string"
                 },
-                "OIDC_IGNORE_TLS": {
+                "OIDC_ISSUER_URI": {
                     "type": "string"
                 },
                 "SERVER_SERVLET_SESSION_COOKIE_SAME_SITE": {
@@ -46,13 +46,13 @@
                 "SPRING_DATASOURCE_PASSWORD": {
                     "type": "string"
                 },
-                "SPRING_JPA_DATABASE_PLATFORM": {
-                    "type": "string"
-                },
                 "SPRING_DATASOURCE_URL": {
                     "type": "string"
                 },
                 "SPRING_DATASOURCE_USERNAME": {
+                    "type": "string"
+                },
+                "SPRING_JPA_DATABASE_PLATFORM": {
                     "type": "string"
                 }
             }
