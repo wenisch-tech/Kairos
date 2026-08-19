@@ -11,13 +11,26 @@ public class V33__add_latest_tag_only_to_discovery extends BaseJavaMigration {
 
     @Override
     public void migrate(Context context) throws Exception {
-        if (!columnExists(context, "resource_discovery", "latest_tag_only")) {
+        if (tableExists(context, "resource_discovery") && !columnExists(context, "resource_discovery", "latest_tag_only")) {
             try (Statement st = context.getConnection().createStatement()) {
                 st.executeUpdate(
                         "ALTER TABLE resource_discovery ADD COLUMN latest_tag_only BOOLEAN NOT NULL DEFAULT FALSE"
                 );
             }
         }
+    }
+
+    private boolean tableExists(Context context, String tableName) throws Exception {
+        DatabaseMetaData meta = context.getConnection().getMetaData();
+        // H2 stores names in uppercase, PostgreSQL in lowercase — check both
+        for (String tbl : new String[]{tableName.toUpperCase(), tableName}) {
+            try (ResultSet rs = meta.getTables(null, null, tbl, null)) {
+                if (rs.next()) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private boolean columnExists(Context context, String tableName, String columnName) throws Exception {
