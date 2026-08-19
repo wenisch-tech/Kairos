@@ -117,6 +117,42 @@ class DockerRepositorySyncServiceTest {
         }
     }
 
+    @Test
+    void filterTagsKeepsOnlyLatestWhenLatestTagOnlyEnabled() throws Exception {
+        Method filterTags = DockerRepositorySyncService.class.getDeclaredMethod("filterTags", java.util.Set.class, boolean.class);
+        filterTags.setAccessible(true);
+
+        java.util.Set<String> tags = new java.util.LinkedHashSet<>(java.util.List.of("latest", "v1.0", "v1.1"));
+        @SuppressWarnings("unchecked")
+        java.util.Set<String> filtered = (java.util.Set<String>) filterTags.invoke(service, tags, true);
+
+        assertThat(filtered).containsExactly("latest");
+    }
+
+    @Test
+    void filterTagsReturnsEmptyWhenLatestTagOnlyEnabledAndLatestAbsent() throws Exception {
+        Method filterTags = DockerRepositorySyncService.class.getDeclaredMethod("filterTags", java.util.Set.class, boolean.class);
+        filterTags.setAccessible(true);
+
+        java.util.Set<String> tags = new java.util.LinkedHashSet<>(java.util.List.of("v1.0", "v1.1"));
+        @SuppressWarnings("unchecked")
+        java.util.Set<String> filtered = (java.util.Set<String>) filterTags.invoke(service, tags, true);
+
+        assertThat(filtered).isEmpty();
+    }
+
+    @Test
+    void filterTagsKeepsAllTagsWhenLatestTagOnlyDisabled() throws Exception {
+        Method filterTags = DockerRepositorySyncService.class.getDeclaredMethod("filterTags", java.util.Set.class, boolean.class);
+        filterTags.setAccessible(true);
+
+        java.util.Set<String> tags = new java.util.LinkedHashSet<>(java.util.List.of("latest", "v1.0", "v1.1"));
+        @SuppressWarnings("unchecked")
+        java.util.Set<String> filtered = (java.util.Set<String>) filterTags.invoke(service, tags, false);
+
+        assertThat(filtered).containsExactlyInAnyOrder("latest", "v1.0", "v1.1");
+    }
+
     private Object parseRepositoryRef(String target) throws Exception {
         Method parse = DockerRepositorySyncService.class.getDeclaredMethod("parseRepositoryRef", String.class);
         parse.setAccessible(true);

@@ -234,6 +234,12 @@ public class DockerRepositorySyncService {
         } catch (Exception ex) {
             log.debug("Tag discovery failed for repository '{}': {}", repositoryName, ex.getMessage());
         }
+        return filterTags(tags, sourceResource.isLatestTagOnly());
+    }
+
+    private Set<String> filterTags(Set<String> tags, boolean latestTagOnly) {
+        if (!latestTagOnly) return tags;
+        tags.retainAll(Set.of("latest"));
         return tags;
     }
 
