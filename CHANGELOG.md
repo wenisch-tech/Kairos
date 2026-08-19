@@ -1,5 +1,26 @@
 # Changelog
 
+## v2.20.0 - 2026-08-19
+
+## [2.20.0](https://github.com/wenisch-tech/Kairos/compare/v2.19.12...v2.20.0) (2026-08-19)
+
+
+### Features
+
+* support for only latest ([7095efb](https://github.com/wenisch-tech/Kairos/commit/7095efb8dd2282eb7fa10bd9d08b30fc40d0378d))
+
+
+### Bug Fixes
+
+* fixed cves, manually overriding package dependencies ([e9dc400](https://github.com/wenisch-tech/Kairos/commit/e9dc400d5a15cfb267a3bced57aa7196d86806c9))
+* update noop for migration of latest tag ([eb5f139](https://github.com/wenisch-tech/Kairos/commit/eb5f139043fc9e16f13a028cf2742daf758d2557))
+* updated maven strategy for renovate ([be288ed](https://github.com/wenisch-tech/Kairos/commit/be288ede1ad8f3b84ba211e4fda59b04e0f72e1d))
+
+
+
+Docker image: ghcr.io/wenisch-tech/kairos:2.20.0
+
+
 ## v2.19.12 - 2026-08-13
 
 ### [2.19.12](https://github.com/wenisch-tech/Kairos/compare/v2.19.11...v2.19.12) (2026-08-13)
