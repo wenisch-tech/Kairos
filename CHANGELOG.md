@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.20.4 - 2026-08-20
+
+### [2.20.4](https://github.com/wenisch-tech/Kairos/compare/v2.20.3...v2.20.4) (2026-08-20)
+
+
+### Bug Fixes
+
+* **deps:** update dependency org.springframework.boot:spring-boot-starter-parent to v4.1.1 ([#99](https://github.com/wenisch-tech/Kairos/issues/99)) ([7347b20](https://github.com/wenisch-tech/Kairos/commit/7347b209444e4374b06bdf33dfa6c26256766aa2))
+
+
+
+Docker image: ghcr.io/wenisch-tech/kairos:2.20.4
+
+
 ## v2.20.3 - 2026-08-20
 
 ### [2.20.3](https://github.com/wenisch-tech/Kairos/compare/v2.20.2...v2.20.3) (2026-08-20)
