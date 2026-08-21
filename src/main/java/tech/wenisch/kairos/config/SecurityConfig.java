@@ -27,11 +27,13 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
+import org.springframework.security.oauth2.client.endpoint.RestClientAuthorizationCodeTokenResponseClient;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
@@ -41,12 +43,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.XorCsrfTokenRequestAttributeHandler;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLParameters;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-import java.security.KeyManagementException;
+import java.net.http.HttpClient;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
@@ -227,6 +228,8 @@ public class SecurityConfig {
                     .authorizationEndpoint(authorization -> authorization
                             .authorizationRequestResolver(authorizationRequestResolver)
                             .authorizationRequestRepository(new StateOAuth2AuthorizationRequestRepository()))
+                    .tokenEndpoint(token -> token
+                        .accessTokenResponseClient(authorizationCodeTokenResponseClient()))
                     .loginPage("/login")
                     .failureHandler((request, response, exception) -> {
                         log.warn("OIDC login failed: {}", exception.getMessage());
@@ -258,6 +261,20 @@ public class SecurityConfig {
         }
 
         try {
+            log.warn("OIDC_IGNORE_TLS is enabled: OIDC TLS certificate and hostname verification are disabled. Use only for temporary troubleshooting.");
+        } catch (Exception exception) {
+            throw new IllegalStateException("Unable to configure OIDC TLS verification bypass", exception);
+        }
+    }
+
+    private RestClientAuthorizationCodeTokenResponseClient authorizationCodeTokenResponseClient() {
+        RestClientAuthorizationCodeTokenResponseClient tokenClient =
+                new RestClientAuthorizationCodeTokenResponseClient();
+        if (!oidcIgnoreTls) {
+            return tokenClient;
+        }
+
+        try {
             TrustManager[] trustAllCertificates = {new X509TrustManager() {
                 @Override
                 public void checkClientTrusted(X509Certificate[] certificateChain, String authType) {
@@ -274,14 +291,18 @@ public class SecurityConfig {
             }};
             SSLContext sslContext = SSLContext.getInstance("TLS");
             sslContext.init(null, trustAllCertificates, new SecureRandom());
-            HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
-            HostnameVerifier trustAllHosts = (hostname, session) -> true;
-            HttpsURLConnection.setDefaultHostnameVerifier(trustAllHosts);
-            log.warn("OIDC_IGNORE_TLS is enabled: OIDC TLS certificate and hostname verification are disabled. Use only for temporary troubleshooting.");
-        } catch (KeyManagementException exception) {
+            SSLParameters sslParameters = new SSLParameters();
+            sslParameters.setEndpointIdentificationAlgorithm("");
+            HttpClient httpClient = HttpClient.newBuilder()
+                    .sslContext(sslContext)
+                    .sslParameters(sslParameters)
+                    .build();
+            tokenClient.setRestClient(org.springframework.web.client.RestClient.builder()
+                    .requestFactory(new JdkClientHttpRequestFactory(httpClient))
+                    .build());
+            return tokenClient;
+        } catch (java.security.GeneralSecurityException exception) {
             throw new IllegalStateException("Unable to configure OIDC TLS verification bypass", exception);
-        } catch (java.security.NoSuchAlgorithmException exception) {
-            throw new IllegalStateException("TLS is unavailable for OIDC", exception);
         }
     }
 

@@ -83,6 +83,8 @@ env:
   # Session cookie configuration required for cross-site OIDC redirects
   SERVER_SERVLET_SESSION_COOKIE_SAME_SITE: "none"
   SERVER_SERVLET_SESSION_COOKIE_SECURE: "true"
+  # Honor HTTPS and host headers sent by a TLS-terminating reverse proxy or ingress.
+  SERVER_FORWARD_HEADERS_STRATEGY: "framework"
   # OIDC / OAuth2 configuration
   OIDC_ENABLED: "false"
   OIDC_CREATEUSERS: "true"

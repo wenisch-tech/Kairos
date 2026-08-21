@@ -193,6 +193,7 @@ helm install kairos . -n kairos --create-namespace \
 |--------------|---------|-------------|
 | `SERVER_SERVLET_SESSION_COOKIE_SAME_SITE` | `none` | Allows the session cookie to survive cross-site OIDC redirects |
 | `SERVER_SERVLET_SESSION_COOKIE_SECURE` | `true` | Sends the session cookie only over HTTPS |
+| `SERVER_FORWARD_HEADERS_STRATEGY` | `framework` | Uses `Forwarded` / `X-Forwarded-*` headers to create HTTPS redirects behind an ingress |
 
 #### Environment Variables - OIDC / OAuth2
 
