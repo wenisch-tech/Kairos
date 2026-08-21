@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.20.8 - 2026-08-21
+
+### [2.20.8](https://github.com/wenisch-tech/Kairos/compare/v2.20.7...v2.20.8) (2026-08-21)
+
+
+### Bug Fixes
+
+* Updated OIDC RestClient ensuring proper deserialization of additionalParameters ([bea76ae](https://github.com/wenisch-tech/Kairos/commit/bea76ae1d126e39f3dc4b2bb324e533926ce3411))
+
+
+
+Docker image: ghcr.io/wenisch-tech/kairos:2.20.8
+
+
 ## v2.20.7 - 2026-08-21
 
 ### [2.20.7](https://github.com/wenisch-tech/Kairos/compare/v2.20.6...v2.20.7) (2026-08-21)
