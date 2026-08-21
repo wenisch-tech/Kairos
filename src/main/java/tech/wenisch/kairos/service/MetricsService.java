@@ -6,9 +6,10 @@ import io.micrometer.core.instrument.Meter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tags;
 import io.micrometer.core.instrument.Timer;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import tech.wenisch.kairos.entity.CheckResult;
 import tech.wenisch.kairos.entity.CheckStatus;
@@ -48,19 +49,42 @@ public class MetricsService {
     private final AtomicLong activeOutages = new AtomicLong(0);
     private final AtomicBoolean globalMetricsRegistered = new AtomicBoolean(false);
 
-    @PostConstruct
+    /**
+     * Seeds the registry from the persisted state once the application is up.
+     * <p>
+     * Runs after startup instead of during bean initialization, and never propagates database
+     * failures: a metric backfill is best effort and must not take the whole application down.
+     * Anything that could not be seeded is picked up again by the next persisted check result.
+     */
+    @EventListener(ApplicationReadyEvent.class)
     public void registerMetrics() {
         ensureGlobalMetrics();
 
-        List<MonitoredResource> resources = resourceRepository.findByActiveTrue();
-        for (MonitoredResource resource : resources) {
-            registerOrUpdateResource(resource);
-            ResourceMetricState state = resourceStates.get(resource.getId());
-            checkResultRepository.findTopByResourceOrderByCheckedAtDesc(resource)
-                    .ifPresent(result -> updateLatestCheckGauges(state, result));
+        List<MonitoredResource> resources;
+        try {
+            resources = resourceRepository.findByActiveTrue();
+        } catch (Exception ex) {
+            log.error("Could not load resources for metric registration; metrics are seeded from upcoming checks", ex);
+            return;
         }
 
-        refreshOutageState();
+        for (MonitoredResource resource : resources) {
+            try {
+                registerOrUpdateResource(resource);
+                ResourceMetricState state = resourceStates.get(resource.getId());
+                checkResultRepository.findTopByResourceOrderByCheckedAtDesc(resource)
+                        .ifPresent(result -> updateLatestCheckGauges(state, result));
+            } catch (Exception ex) {
+                log.error("Could not register metrics for resource {}; continuing with the remaining resources",
+                        resource.getId(), ex);
+            }
+        }
+
+        try {
+            refreshOutageState();
+        } catch (Exception ex) {
+            log.error("Could not initialize outage metrics", ex);
+        }
     }
 
     public void registerResourceMetric(MonitoredResource resource) {

@@ -8,8 +8,9 @@ data:
   # Default environment variables for Spring Boot
   SPRING_APPLICATION_NAME: "kairos"
   {{- if not .Values.env.SPRING_DATASOURCE_URL }}
-  # When using H2 (default), data is stored at /app/data/kairos
-  SPRING_DATASOURCE_URL: "jdbc:h2:file:/app/data/kairos;AUTO_SERVER=TRUE"
+  # When using H2 (default), data is stored at /app/data/kairos.
+  # No AUTO_SERVER: a second process opening the same file store is what corrupts it.
+  SPRING_DATASOURCE_URL: "jdbc:h2:file:/app/data/kairos"
   SPRING_DATASOURCE_DRIVER_CLASS_NAME: "org.h2.Driver"
   {{- end }}
   {{- if not .Values.env.SPRING_DATASOURCE_USERNAME }}

@@ -9,6 +9,16 @@ spec:
   {{- if not $root.Values.autoscaling.enabled }}
   replicas: {{ $root.Values.replicaCount }}
   {{- end }}
+  strategy:
+    {{- if $root.Values.updateStrategy }}
+    {{- toYaml $root.Values.updateStrategy | nindent 4 }}
+    {{- else if $root.Values.persistence.enabled }}
+    # The embedded H2 file store tolerates exactly one writer, so the old pod must be
+    # gone before the new one mounts the volume.
+    type: Recreate
+    {{- else }}
+    type: RollingUpdate
+    {{- end }}
   selector:
     matchLabels:
       {{- include "kairos.selectorLabels" $root | nindent 6 }}
@@ -28,6 +38,7 @@ spec:
       labels:
         {{- include "kairos.selectorLabels" $root | nindent 8 }}
     spec:
+      terminationGracePeriodSeconds: {{ $root.Values.terminationGracePeriodSeconds }}
       {{- with $root.Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}

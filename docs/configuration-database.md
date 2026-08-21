@@ -18,6 +18,16 @@ spring.flyway.baseline-on-migrate=true
 spring.flyway.baseline-version=0
 ```
 
+!!! warning "One writer only"
+
+    An H2 file database must be opened by exactly one process. Running two Kairos instances
+    (or a rolling update that briefly runs two pods) against the same `kairos.mv.db` corrupts
+    the file and produces `MVStoreException: Chunk <n> not found`. Keep `replicaCount: 1`, keep
+    the `Recreate` update strategy that the chart applies when `persistence.enabled=true`, and
+    leave `AUTO_SERVER=TRUE` out of containerized datasource URLs — it is meant for local
+    development, where a second tool on the same machine connects to the running database.
+    Use PostgreSQL when you need more than one instance.
+
 The H2 web console is available at `http://localhost:8080/h2-console` when `spring.h2.console.enabled=true`.
 
 ## PostgreSQL

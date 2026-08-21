@@ -162,6 +162,13 @@ helm install kairos . -n kairos --create-namespace \
 | `persistence.storageClassName` | `""` | Storage class name |
 | `persistence.mountPath` | `/app/data` | Mount path in container |
 
+#### Rollout Configuration
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `updateStrategy` | `{}` | Deployment strategy. Empty means `Recreate` when `persistence.enabled=true` (the embedded H2 file store allows a single writer only) and `RollingUpdate` otherwise |
+| `terminationGracePeriodSeconds` | `60` | Time the pod gets to drain requests and close the database before SIGKILL |
+
 #### Resource Limits
 
 | Parameter | Default | Description |

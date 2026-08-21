@@ -31,6 +31,51 @@ Typical fixes:
 
 ---
 
+### H2 database fails with "Chunk not found"
+
+Symptoms:
+
+- Startup or queries fail with `org.h2.mvstore.MVStoreException: Chunk <n> not found`
+- Errors mention `General error` on a `select ... from check_result ...` statement
+
+This means the H2 file store under the data directory (`kairos.mv.db`) is physically damaged.
+Kairos itself keeps starting when this happens, so the UI and `/actuator/health` stay reachable,
+but every query that touches a damaged page keeps failing. The file cannot be repaired in place.
+
+Checks:
+
+1. Confirm only one process uses the database file. Two writers on one `kairos.mv.db` corrupt it:
+   - Kubernetes: `replicaCount` must stay `1`, and rollouts must not run two pods on the volume
+     (the chart uses the `Recreate` strategy when `persistence.enabled=true`).
+   - Docker: never point two containers at the same data volume.
+   - Do not add `AUTO_SERVER=TRUE` to a containerized `SPRING_DATASOURCE_URL`.
+2. Confirm the data volume is not full:
+   ```bash
+   kubectl exec -n kairos deploy/kairos -- df -h /app/data
+   ```
+3. Confirm the volume is block or local storage. H2 file locking is unreliable on NFS/SMB shares.
+4. Confirm the container is stopped with SIGTERM and given time to shut down
+   (`terminationGracePeriodSeconds`, no `docker kill`).
+
+Typical fixes:
+
+- Restore `kairos.mv.db` from the most recent backup.
+- If no backup exists, try to salvage the readable rows with the H2 recovery tool, then import the
+  script into an empty database:
+  ```bash
+  java -cp h2-*.jar org.h2.tools.Recover -dir /app/data -db kairos
+  ```
+  `Recover` writes `kairos.h2.sql` next to the database. Rows in damaged chunks are lost.
+- As a last resort, stop Kairos, move the damaged files aside, and let it start with an empty
+  database (Flyway recreates the schema; monitoring history is lost):
+  ```bash
+  mv /app/data/kairos.mv.db /app/data/kairos.mv.db.corrupt
+  ```
+- For setups where the history matters, move to PostgreSQL. See
+  [Database](configuration-database.md).
+
+---
+
 ### Web UI is unreachable
 
 Symptoms:

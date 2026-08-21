@@ -5,6 +5,12 @@ image:
   tag: 2.20.4
   pullPolicy: IfNotPresent
 imagePullSecrets: []
+# Leave empty to derive the strategy from `persistence.enabled`:
+# Recreate with persistence (the embedded H2 file store allows a single writer only),
+# RollingUpdate otherwise. Set explicitly to override, e.g. when using PostgreSQL.
+updateStrategy: {}
+# Give the JVM time to drain requests and close the datasource before SIGKILL.
+terminationGracePeriodSeconds: 60
 nameOverride: ""
 fullnameOverride: ""
 podAnnotations: {}

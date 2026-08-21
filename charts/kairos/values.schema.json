@@ -377,8 +377,14 @@
                 }
             }
         },
+        "terminationGracePeriodSeconds": {
+            "type": "integer"
+        },
         "tolerations": {
             "type": "array"
+        },
+        "updateStrategy": {
+            "type": "object"
         }
     }
 }

@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.orm.jpa.JpaSystemException;
 import tech.wenisch.kairos.entity.CheckResult;
 import tech.wenisch.kairos.entity.CheckStatus;
 import tech.wenisch.kairos.entity.MonitoredResource;
@@ -24,6 +25,7 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
@@ -96,6 +98,39 @@ class MetricsServiceTest {
         assertThat(resourceGauge(resource).value()).isEqualTo(1.0);
         assertThat(gauge("kairos_resource_last_check_latency_seconds", resource, "phase", "total").value())
                 .isEqualTo(0.12);
+    }
+
+    @Test
+    void registerMetricsSurvivesFailingCheckResultLookup() {
+        MonitoredResource failing = resource("Broken History", ResourceType.HTTP);
+        MonitoredResource healthy = resource("Website", ResourceType.HTTP);
+        healthy.setId(2L);
+        CheckResult latest = CheckResult.builder()
+                .status(CheckStatus.AVAILABLE)
+                .checkedAt(LocalDateTime.now())
+                .latencyMs(120L)
+                .build();
+
+        when(resourceRepository.findByActiveTrue()).thenReturn(List.of(failing, healthy));
+        when(checkResultRepository.findTopByResourceOrderByCheckedAtDesc(failing))
+                .thenThrow(new JpaSystemException(new RuntimeException("Chunk 222110 not found")));
+        when(checkResultRepository.findTopByResourceOrderByCheckedAtDesc(healthy)).thenReturn(Optional.of(latest));
+        when(outageRepository.findAllActiveWithResource()).thenReturn(List.of());
+
+        assertThatCode(() -> metricsService.registerMetrics()).doesNotThrowAnyException();
+
+        assertThat(resourceGauge(failing).value()).isEqualTo(-1.0);
+        assertThat(resourceGauge(healthy).value()).isEqualTo(1.0);
+    }
+
+    @Test
+    void registerMetricsSurvivesUnavailableDatabase() {
+        when(resourceRepository.findByActiveTrue())
+                .thenThrow(new JpaSystemException(new RuntimeException("Chunk 222110 not found")));
+
+        assertThatCode(() -> metricsService.registerMetrics()).doesNotThrowAnyException();
+
+        assertThat(meterRegistry.find("kairos_active_outages").gauge()).isNotNull();
     }
 
     @Test
