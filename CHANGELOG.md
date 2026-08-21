@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.20.5 - 2026-08-21
+
+### [2.20.5](https://github.com/wenisch-tech/Kairos/compare/v2.20.4...v2.20.5) (2026-08-21)
+
+
+### Bug Fixes
+
+* The default datasource URL carried AUTO_SERVER=TRUE (configmap.yaml). That flag exists so a second process on the same machine can attach; across pods, with a stale lock file, it lets a second JVM take over a file the old one is still writing. Removed. ([9cb37f8](https://github.com/wenisch-tech/Kairos/commit/9cb37f88af4e8a7b6ca555d5c805ebd57664c34c))
+
+
+
+Docker image: ghcr.io/wenisch-tech/kairos:2.20.5
+
+
 ## v2.20.4 - 2026-08-20
 
 ### [2.20.4](https://github.com/wenisch-tech/Kairos/compare/v2.20.3...v2.20.4) (2026-08-20)
