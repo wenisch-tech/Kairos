@@ -1,5 +1,6 @@
 package tech.wenisch.kairos.config;
 
+import tech.wenisch.kairos.entity.AppUser;
 import tech.wenisch.kairos.entity.CorsAllowedOrigin;
 import tech.wenisch.kairos.entity.EmbedPolicy;
 import tech.wenisch.kairos.entity.ResourceTypeConfig;
@@ -25,6 +26,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrations;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.endpoint.RestClientAuthorizationCodeTokenResponseClient;
@@ -48,6 +50,11 @@ import org.springframework.security.web.authentication.SavedRequestAwareAuthenti
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.XorCsrfTokenRequestAttributeHandler;
 
@@ -62,6 +69,7 @@ import java.security.cert.X509Certificate;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.client.RestClient;
@@ -264,11 +272,18 @@ public class SecurityConfig {
                             rejectOidcLogin(request, response, authentication);
                             return;
                         }
-                        if (userService.syncOidcUser(email, oidcCreateUsers).isEmpty()) {
+                        Optional<AppUser> syncedUser = userService.syncOidcUser(email, oidcCreateUsers);
+                        if (syncedUser.isEmpty()) {
                             log.info("OIDC login rejected for unknown user {} because OIDC_CREATEUSERS is disabled", email);
                             rejectOidcLogin(request, response, authentication);
                             return;
                         }
+                        // The framework already persisted the default-authority context before this handler ran, so
+                        // the DB-derived role must be applied and explicitly re-saved for it to take effect.
+                        Authentication roleAwareAuthentication = applyDatabaseRole(authentication, syncedUser.get());
+                        SecurityContext securityContext = SecurityContextHolder.getContext();
+                        securityContext.setAuthentication(roleAwareAuthentication);
+                        new HttpSessionSecurityContextRepository().saveContext(securityContext, request, response);
                         response.sendRedirect("/");
                     })
             );
@@ -399,6 +414,15 @@ public class SecurityConfig {
         new SecurityContextLogoutHandler().logout(request, response, authentication);
         SecurityContextHolder.clearContext();
         response.sendRedirect("/login?oidcError");
+    }
+
+    private Authentication applyDatabaseRole(Authentication authentication, AppUser user) {
+        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
+        if (authentication instanceof OAuth2AuthenticationToken oauth2Authentication) {
+            return new OAuth2AuthenticationToken(oauth2Authentication.getPrincipal(), authorities,
+                    oauth2Authentication.getAuthorizedClientRegistrationId());
+        }
+        return authentication;
     }
 
     private String firstEmailLike(String... candidates) {
