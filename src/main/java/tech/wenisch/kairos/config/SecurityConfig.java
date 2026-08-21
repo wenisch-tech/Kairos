@@ -28,9 +28,11 @@ import org.springframework.security.oauth2.client.registration.InMemoryClientReg
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.endpoint.RestClientAuthorizationCodeTokenResponseClient;
+import org.springframework.security.oauth2.client.http.OAuth2ErrorResponseErrorHandler;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.security.oauth2.core.http.converter.OAuth2AccessTokenResponseHttpMessageConverter;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -308,8 +310,12 @@ public class SecurityConfig {
         RestClientAuthorizationCodeTokenResponseClient tokenClient =
                 new RestClientAuthorizationCodeTokenResponseClient();
         if (oidcIgnoreTls) {
+            // Rebuild with the same converters/error handler as the default RestClient,
+            // only swapping the request factory - setRestClient() replaces it wholesale.
             tokenClient.setRestClient(RestClient.builder()
                     .requestFactory(new JdkClientHttpRequestFactory(insecureHttpClient()))
+                    .configureMessageConverters(converters -> converters.addCustomConverter(new OAuth2AccessTokenResponseHttpMessageConverter()))
+                    .defaultStatusHandler(new OAuth2ErrorResponseErrorHandler())
                     .build());
         }
         return tokenClient;
@@ -326,7 +332,9 @@ public class SecurityConfig {
     }
 
     private RestTemplate insecureRestTemplate() {
-        return new RestTemplate(new JdkClientHttpRequestFactory(insecureHttpClient()));
+        RestTemplate restTemplate = new RestTemplate(new JdkClientHttpRequestFactory(insecureHttpClient()));
+        restTemplate.setErrorHandler(new OAuth2ErrorResponseErrorHandler());
+        return restTemplate;
     }
 
     private HttpClient insecureHttpClient() {
