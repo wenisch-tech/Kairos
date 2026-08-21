@@ -28,12 +28,18 @@ import org.springframework.security.oauth2.client.registration.InMemoryClientReg
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.endpoint.RestClientAuthorizationCodeTokenResponseClient;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
+import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.oauth2.jwt.JwtDecoderFactory;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
@@ -48,11 +54,15 @@ import javax.net.ssl.SSLParameters;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import java.net.http.HttpClient;
+import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.web.client.RestClient;
 
 @Configuration
 @EnableWebSecurity
@@ -97,6 +107,16 @@ public class SecurityConfig {
             userService.updateLastLogin(authentication.getName());
             handler.onAuthenticationSuccess(request, response, authentication);
         };
+    }
+
+    // Only registered while OIDC_IGNORE_TLS is enabled, so the normal path keeps Spring's default ID token validation untouched.
+    @Bean
+    @ConditionalOnProperty(name = "OIDC_IGNORE_TLS", havingValue = "true")
+    public JwtDecoderFactory<ClientRegistration> idTokenDecoderFactory() {
+        return clientRegistration -> NimbusJwtDecoder
+                .withJwkSetUri(clientRegistration.getProviderDetails().getJwkSetUri())
+                .restOperations(insecureRestTemplate())
+                .build();
     }
 
         @Bean
@@ -206,8 +226,7 @@ public class SecurityConfig {
         if (oidcEnabled && !oidcClientId.isBlank() && !oidcClientSecret.isBlank() && !oidcIssuerUri.isBlank()) {
             configureOidcTls();
             log.info("OIDC authentication enabled");
-            ClientRegistration registration = ClientRegistrations
-                    .fromIssuerLocation(oidcIssuerUri)
+            ClientRegistration registration = resolveOidcClientRegistrationBuilder()
                     .registrationId("oidc")
                     .clientId(oidcClientId)
                     .clientSecret(oidcClientSecret)
@@ -230,6 +249,7 @@ public class SecurityConfig {
                             .authorizationRequestRepository(new StateOAuth2AuthorizationRequestRepository()))
                     .tokenEndpoint(token -> token
                         .accessTokenResponseClient(authorizationCodeTokenResponseClient()))
+                    .userInfoEndpoint(userInfo -> userInfo.oidcUserService(oidcUserService()))
                     .loginPage("/login")
                     .failureHandler((request, response, exception) -> {
                         log.warn("OIDC login failed: {}", exception.getMessage());
@@ -256,24 +276,60 @@ public class SecurityConfig {
     }
 
     private void configureOidcTls() {
+        if (oidcIgnoreTls) {
+            log.warn("OIDC_IGNORE_TLS is enabled: OIDC TLS certificate and hostname verification are disabled. Use only for temporary troubleshooting.");
+        }
+    }
+
+    private ClientRegistration.Builder resolveOidcClientRegistrationBuilder() {
         if (!oidcIgnoreTls) {
-            return;
+            return ClientRegistrations.fromIssuerLocation(oidcIssuerUri);
         }
 
-        try {
-            log.warn("OIDC_IGNORE_TLS is enabled: OIDC TLS certificate and hostname verification are disabled. Use only for temporary troubleshooting.");
-        } catch (Exception exception) {
-            throw new IllegalStateException("Unable to configure OIDC TLS verification bypass", exception);
+        // ClientRegistrations.fromIssuerLocation has no hook for a custom HTTP client,
+        // so fetch the discovery document ourselves with the TLS-bypassing client.
+        String metadataUrl = (oidcIssuerUri.endsWith("/") ? oidcIssuerUri : oidcIssuerUri + "/")
+                + ".well-known/openid-configuration";
+        Map<String, Object> configuration = RestClient.builder()
+                .requestFactory(new JdkClientHttpRequestFactory(insecureHttpClient()))
+                .build()
+                .get()
+                .uri(metadataUrl)
+                .retrieve()
+                .body(new ParameterizedTypeReference<Map<String, Object>>() {
+                });
+        if (configuration == null) {
+            throw new IllegalStateException("OIDC discovery document at " + metadataUrl + " was empty");
         }
+        return ClientRegistrations.fromOidcConfiguration(configuration);
     }
 
     private RestClientAuthorizationCodeTokenResponseClient authorizationCodeTokenResponseClient() {
         RestClientAuthorizationCodeTokenResponseClient tokenClient =
                 new RestClientAuthorizationCodeTokenResponseClient();
-        if (!oidcIgnoreTls) {
-            return tokenClient;
+        if (oidcIgnoreTls) {
+            tokenClient.setRestClient(RestClient.builder()
+                    .requestFactory(new JdkClientHttpRequestFactory(insecureHttpClient()))
+                    .build());
         }
+        return tokenClient;
+    }
 
+    private OidcUserService oidcUserService() {
+        OidcUserService userService = new OidcUserService();
+        if (oidcIgnoreTls) {
+            DefaultOAuth2UserService delegate = new DefaultOAuth2UserService();
+            delegate.setRestOperations(insecureRestTemplate());
+            userService.setOauth2UserService(delegate);
+        }
+        return userService;
+    }
+
+    private RestTemplate insecureRestTemplate() {
+        return new RestTemplate(new JdkClientHttpRequestFactory(insecureHttpClient()));
+    }
+
+    private HttpClient insecureHttpClient() {
         try {
             TrustManager[] trustAllCertificates = {new X509TrustManager() {
                 @Override
@@ -293,15 +349,11 @@ public class SecurityConfig {
             sslContext.init(null, trustAllCertificates, new SecureRandom());
             SSLParameters sslParameters = new SSLParameters();
             sslParameters.setEndpointIdentificationAlgorithm("");
-            HttpClient httpClient = HttpClient.newBuilder()
+            return HttpClient.newBuilder()
                     .sslContext(sslContext)
                     .sslParameters(sslParameters)
                     .build();
-            tokenClient.setRestClient(org.springframework.web.client.RestClient.builder()
-                    .requestFactory(new JdkClientHttpRequestFactory(httpClient))
-                    .build());
-            return tokenClient;
-        } catch (java.security.GeneralSecurityException exception) {
+        } catch (GeneralSecurityException exception) {
             throw new IllegalStateException("Unable to configure OIDC TLS verification bypass", exception);
         }
     }
