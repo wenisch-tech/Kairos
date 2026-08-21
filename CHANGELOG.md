@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.20.7 - 2026-08-21
+
+### [2.20.7](https://github.com/wenisch-tech/Kairos/compare/v2.20.6...v2.20.7) (2026-08-21)
+
+
+### Bug Fixes
+
+* ensure all OIDC-related HTTP calls now honor OIDC_IGNORE_TLS consistently, and the default (secure) path is unaffected since these overrides only activate when the flag is explicitly true. ([33d37a2](https://github.com/wenisch-tech/Kairos/commit/33d37a29fa249f3da373b811f9b0f952729a69d8))
+
+
+
+Docker image: ghcr.io/wenisch-tech/kairos:2.20.7
+
+
 ## v2.20.6 - 2026-08-21
 
 ### [2.20.6](https://github.com/wenisch-tech/Kairos/compare/v2.20.5...v2.20.6) (2026-08-21)
