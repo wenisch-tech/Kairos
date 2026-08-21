@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.20.9 - 2026-08-21
+
+### [2.20.9](https://github.com/wenisch-tech/Kairos/compare/v2.20.8...v2.20.9) (2026-08-21)
+
+
+### Bug Fixes
+
+* ensure right roles are set (admin is persisted) when logging into ui as oidc user ([85cbe98](https://github.com/wenisch-tech/Kairos/commit/85cbe98bc9aceb9220552f0be453cd67806e8aac))
+
+
+
+Docker image: ghcr.io/wenisch-tech/kairos:2.20.9
+
+
 ## v2.20.8 - 2026-08-21
 
 ### [2.20.8](https://github.com/wenisch-tech/Kairos/compare/v2.20.7...v2.20.8) (2026-08-21)
