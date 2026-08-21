@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.20.6 - 2026-08-21
+
+### [2.20.6](https://github.com/wenisch-tech/Kairos/compare/v2.20.5...v2.20.6) (2026-08-21)
+
+
+### Bug Fixes
+
+* ensure headers are forwarded to ensure redirects behind proxy work as expected ([ccd2341](https://github.com/wenisch-tech/Kairos/commit/ccd234149e59250035b4aeac773296c96a51b7f4))
+
+
+
+Docker image: ghcr.io/wenisch-tech/kairos:2.20.6
+
+
 ## v2.20.5 - 2026-08-21
 
 ### [2.20.5](https://github.com/wenisch-tech/Kairos/compare/v2.20.4...v2.20.5) (2026-08-21)

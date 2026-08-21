@@ -37,6 +37,9 @@
                 "OIDC_ISSUER_URI": {
                     "type": "string"
                 },
+                "SERVER_FORWARD_HEADERS_STRATEGY": {
+                    "type": "string"
+                },
                 "SERVER_SERVLET_SESSION_COOKIE_SAME_SITE": {
                     "type": "string"
                 },
