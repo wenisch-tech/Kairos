@@ -106,6 +106,10 @@ secrets: {}
 # SPRING_DATASOURCE_PASSWORD: "your-password"
 
 # OIDC_CLIENT_SECRET: "your-secret"
+
+# Name of an externally managed Secret (e.g. populated by Vault Secrets Operator)
+# to load as env vars via envFrom. Leave empty to disable.
+externalSecretName: ""
 livenessProbe:
   enabled: true
   httpGet:
