@@ -60,6 +60,9 @@
                 }
             }
         },
+        "externalSecretName": {
+            "type": "string"
+        },
         "fullnameOverride": {
             "type": "string"
         },
