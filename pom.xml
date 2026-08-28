@@ -28,7 +28,7 @@
         <postgresql.version>42.7.12</postgresql.version>
         <spring-ai.version>2.0.1</spring-ai.version>
         <springdoc-openapi.version>3.1.0</springdoc-openapi.version>
-        <native-build-tools.version>1.1.10</native-build-tools.version>
+        <native-build-tools.version>1.1.11</native-build-tools.version>
         <nimbus-jose-jwt.version>10.9.1</nimbus-jose-jwt.version>
     </properties>
 
