@@ -88,6 +88,10 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ include "kairos.fullname" $root }}
+            {{- if $root.Values.externalSecretName }}
+            - secretRef:
+                name: {{ $root.Values.externalSecretName }}
+            {{- end }}
           {{- if $root.Values.persistence.enabled }}
           volumeMounts:
             - name: data

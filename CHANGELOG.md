@@ -1,5 +1,28 @@
 # Changelog
 
+## v2.21.0 - 2026-08-27
+
+## [2.21.0](https://github.com/wenisch-tech/Kairos/compare/v2.20.10...v2.21.0) (2026-08-27)
+
+
+### Features
+
+* added support for external-secrets ([#101](https://github.com/wenisch-tech/Kairos/issues/101)) ([75197ab](https://github.com/wenisch-tech/Kairos/commit/75197abb0736f4088a84c85dca9753eb95d0ed29))
+
+
+
+Docker image: ghcr.io/wenisch-tech/kairos:2.21.0
+
+
+## v2.20.10 - 2026-08-27
+
+### [2.20.10](https://github.com/wenisch-tech/Kairos/compare/v2.20.9...v2.20.10) (2026-08-27)
+
+
+
+Docker image: ghcr.io/wenisch-tech/kairos:2.20.10
+
+
 ## v2.20.9 - 2026-08-21
 
 ### [2.20.9](https://github.com/wenisch-tech/Kairos/compare/v2.20.8...v2.20.9) (2026-08-21)
