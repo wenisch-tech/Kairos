@@ -81,13 +81,16 @@ Triggers an immediate health check for a resource. The check runs asynchronously
 
 ### `getCheckHistory`
 
-Returns the last 50 check results for a resource (most recent first).
+Returns check results for a resource (most recent first), with pagination and an optional status filter.
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `resourceId` | number | Numeric resource ID |
+| `page` | number | Optional, 0-based page number (default `0`) |
+| `pageSize` | number | Optional, entries per page (default `50`, max `200`) |
+| `status` | string | Optional filter: `AVAILABLE`, `NOT_AVAILABLE`, or `UNKNOWN` |
 
-**Returns:** status, checkedAt, message, errorCode, latencyMs per entry.
+**Returns:** `resourceId`, `page`, `pageSize`, `totalElements`, `totalPages`, and `entries` (status, checkedAt, message, errorCode, latencyMs per entry). Use `page`/`pageSize` to walk through older entries beyond the default page.
 
 ---
 

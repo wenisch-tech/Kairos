@@ -154,22 +154,53 @@ class KairosMcpToolsTest {
     @Test
     void getCheckHistoryReturnsErrorWhenResourceNotFound() {
         when(resourceService.findById(99L)).thenReturn(Optional.empty());
-        List<Map<String, Object>> result = tools.getCheckHistory(99L);
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0)).containsKey("error");
+        Map<String, Object> result = tools.getCheckHistory(99L, null, null, null);
+        assertThat(result).containsKey("error");
     }
 
     @Test
-    void getCheckHistoryReturnsEntries() {
+    void getCheckHistoryReturnsEntriesWithDefaultPagination() {
         MonitoredResource r = MonitoredResource.builder().id(1L).build();
         CheckResult cr = CheckResult.builder()
                 .status(CheckStatus.AVAILABLE).checkedAt(LocalDateTime.now()).message("OK").errorCode("200").latencyMs(50L).build();
         when(resourceService.findById(1L)).thenReturn(Optional.of(r));
-        when(checkResultRepository.findByResourceOrderByCheckedAtDesc(r)).thenReturn(List.of(cr));
+        when(resourceService.getHistoryPage(eq(1L), eq(0), eq(50), eq(null), eq(null), eq(null)))
+                .thenReturn(new org.springframework.data.domain.PageImpl<>(List.of(cr),
+                        org.springframework.data.domain.PageRequest.of(0, 50), 1));
 
-        List<Map<String, Object>> result = tools.getCheckHistory(1L);
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0)).containsEntry("status", "AVAILABLE").containsEntry("latencyMs", 50L);
+        Map<String, Object> result = tools.getCheckHistory(1L, null, null, null);
+        assertThat(result).containsEntry("page", 0).containsEntry("pageSize", 50)
+                .containsEntry("totalElements", 1L).containsEntry("totalPages", 1);
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> entries = (List<Map<String, Object>>) result.get("entries");
+        assertThat(entries).hasSize(1);
+        assertThat(entries.get(0)).containsEntry("status", "AVAILABLE").containsEntry("latencyMs", 50L);
+    }
+
+    @Test
+    void getCheckHistorySupportsPageAndStatusFilter() {
+        MonitoredResource r = MonitoredResource.builder().id(1L).build();
+        CheckResult cr = CheckResult.builder()
+                .status(CheckStatus.NOT_AVAILABLE).checkedAt(LocalDateTime.now()).message("down").latencyMs(0L).build();
+        when(resourceService.findById(1L)).thenReturn(Optional.of(r));
+        when(resourceService.getHistoryPage(eq(1L), eq(1), eq(10), eq(CheckStatus.NOT_AVAILABLE), eq(null), eq(null)))
+                .thenReturn(new org.springframework.data.domain.PageImpl<>(List.of(cr),
+                        org.springframework.data.domain.PageRequest.of(1, 10), 11));
+
+        Map<String, Object> result = tools.getCheckHistory(1L, 1, 10, "not_available");
+        assertThat(result).containsEntry("totalElements", 11L);
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> entries = (List<Map<String, Object>>) result.get("entries");
+        assertThat(entries.get(0)).containsEntry("status", "NOT_AVAILABLE");
+    }
+
+    @Test
+    void getCheckHistoryReturnsErrorForInvalidStatus() {
+        MonitoredResource r = MonitoredResource.builder().id(1L).build();
+        when(resourceService.findById(1L)).thenReturn(Optional.of(r));
+
+        Map<String, Object> result = tools.getCheckHistory(1L, null, null, "BOGUS");
+        assertThat(result).containsKey("error");
     }
 
     // ── listAnnouncements ──────────────────────────────────────────────────────

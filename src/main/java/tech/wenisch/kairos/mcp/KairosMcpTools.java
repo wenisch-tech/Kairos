@@ -8,6 +8,7 @@ import java.util.Optional;
 
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +16,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import tech.wenisch.kairos.entity.Announcement;
 import tech.wenisch.kairos.entity.AnnouncementKind;
+import tech.wenisch.kairos.entity.CheckResult;
+import tech.wenisch.kairos.entity.CheckStatus;
 import tech.wenisch.kairos.entity.MonitoredResource;
 import tech.wenisch.kairos.entity.ResourceType;
 import tech.wenisch.kairos.repository.CheckResultRepository;
@@ -114,18 +117,38 @@ public class KairosMcpTools {
         }
     }
 
-    @Tool(description = "Get the check history for a monitored resource (most recent first, up to 50 entries). "
-            + "Each entry includes status (AVAILABLE/NOT_AVAILABLE), checkedAt timestamp, message, "
-            + "error code, and latency in milliseconds.")
-    public List<Map<String, Object>> getCheckHistory(
-            @ToolParam(description = "The numeric ID of the resource") Long resourceId) {
+    @Tool(description = "Get the check history for a monitored resource (most recent first), with pagination and an "
+            + "optional status filter. Use page (0-based, default 0) and pageSize (default 50, max 200) to page "
+            + "through older entries. Use status to only return entries matching AVAILABLE, NOT_AVAILABLE, or UNKNOWN.")
+    public Map<String, Object> getCheckHistory(
+            @ToolParam(description = "The numeric ID of the resource") Long resourceId,
+            @ToolParam(description = "0-based page number (default 0)", required = false) Integer page,
+            @ToolParam(description = "Number of entries per page, max 200 (default 50)", required = false) Integer pageSize,
+            @ToolParam(description = "Optional status filter: AVAILABLE, NOT_AVAILABLE, or UNKNOWN", required = false) String status) {
         Optional<MonitoredResource> opt = resourceService.findById(resourceId);
         if (opt.isEmpty()) {
-            return List.of(Map.of("error", "Resource not found with id: " + resourceId));
+            return Map.of("error", "Resource not found with id: " + resourceId);
         }
-        return checkResultRepository.findByResourceOrderByCheckedAtDesc(opt.get())
-                .stream()
-                .limit(50)
+        CheckStatus statusFilter = null;
+        if (status != null && !status.isBlank()) {
+            try {
+                statusFilter = CheckStatus.valueOf(status.trim().toUpperCase());
+            } catch (IllegalArgumentException e) {
+                return Map.of("error", "Invalid status '" + status + "'. Must be AVAILABLE, NOT_AVAILABLE, or UNKNOWN.");
+            }
+        }
+        int pageNumber = page != null && page >= 0 ? page : 0;
+        int size = Math.min(Math.max(pageSize != null ? pageSize : 50, 1), 200);
+
+        Page<CheckResult> resultPage = resourceService.getHistoryPage(resourceId, pageNumber, size, statusFilter, null, null);
+
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("resourceId", resourceId);
+        response.put("page", resultPage.getNumber());
+        response.put("pageSize", resultPage.getSize());
+        response.put("totalElements", resultPage.getTotalElements());
+        response.put("totalPages", resultPage.getTotalPages());
+        response.put("entries", resultPage.getContent().stream()
                 .map(cr -> {
                     Map<String, Object> m = new LinkedHashMap<>();
                     m.put("status", cr.getStatus() != null ? cr.getStatus().name() : "UNKNOWN");
@@ -135,7 +158,8 @@ public class KairosMcpTools {
                     m.put("latencyMs", cr.getLatencyMs());
                     return m;
                 })
-                .toList();
+                .toList());
+        return response;
     }
 
     @Tool(description = "List all currently active announcements displayed to users. "
