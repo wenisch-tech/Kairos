@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.22.0 - 2026-08-31
+
+## [2.22.0](https://github.com/wenisch-tech/Kairos/compare/v2.21.2...v2.22.0) (2026-08-31)
+
+
+### Features
+
+* added MCP Support for getting history of resources by status and added supported for pagination ([6f059e6](https://github.com/wenisch-tech/Kairos/commit/6f059e63f4cca67a8db840f40cb7e1cd0f6253af))
+
+
+
+Docker image: ghcr.io/wenisch-tech/kairos:2.22.0
+
+
 ## v2.21.2 - 2026-08-28
 
 ### [2.21.2](https://github.com/wenisch-tech/Kairos/compare/v2.21.1...v2.21.2) (2026-08-28)
