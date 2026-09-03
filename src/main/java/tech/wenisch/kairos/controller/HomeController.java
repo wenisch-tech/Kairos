@@ -449,8 +449,11 @@ public class HomeController {
             model.addAttribute("availabilityPercentageScale", availabilityPercentageScale);
             model.addAttribute("detailSummaryText", detailSummaryText);
             model.addAttribute("activeOutage", activeOutage.orElse(null));
-            activeOutage.ifPresent(outage ->
-                    model.addAttribute("activeOutageDuration", formatDuration(outage.getStartDate(), applicationTimeService.now())));
+            activeOutage.ifPresent(outage -> {
+                model.addAttribute("activeOutageDuration", formatDuration(outage.getStartDate(), applicationTimeService.now()));
+                model.addAttribute("activeOutageStartedAt", applicationTimeService.format(outage.getStartDate(), "yyyy-MM-dd HH:mm:ss"));
+                model.addAttribute("activeOutageStartedAtIso", applicationTimeService.formatIsoUtc(outage.getStartDate()));
+            });
             model.addAttribute("recentHistory", historyPage.getContent());
             model.addAttribute("historyPage", historyPage);
             model.addAttribute("historyStatus", statusFilter != null ? statusFilter.name() : "");
