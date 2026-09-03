@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.22.1 - 2026-09-03
+
+### [2.22.1](https://github.com/wenisch-tech/Kairos/compare/v2.22.0...v2.22.1) (2026-09-03)
+
+
+### Bug Fixes
+
+* removed problem leading to 503 when clicking on resource with active outage ([2efb9ea](https://github.com/wenisch-tech/Kairos/commit/2efb9ea9887818cd6cb95b475b52293a45492bff))
+
+
+
+Docker image: ghcr.io/wenisch-tech/kairos:2.22.1
+
+
 ## v2.22.0 - 2026-08-31
 
 ## [2.22.0](https://github.com/wenisch-tech/Kairos/compare/v2.21.2...v2.22.0) (2026-08-31)
