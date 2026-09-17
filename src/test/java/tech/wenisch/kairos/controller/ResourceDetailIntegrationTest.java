@@ -1,8 +1,11 @@
 package tech.wenisch.kairos.controller;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
+
+import static org.hamcrest.Matchers.containsString;
 
 import java.time.LocalDateTime;
 
@@ -63,6 +66,8 @@ class ResourceDetailIntegrationTest {
 
         mockMvc.perform(get("/resources/{id}", resource.getId()))
                 .andExpect(status().isOk())
-                .andExpect(view().name("detail"));
+                .andExpect(view().name("detail"))
+                .andExpect(content().string(containsString("Active Outage")))
+                .andExpect(content().string(containsString("data-outage-start=")));
     }
 }
