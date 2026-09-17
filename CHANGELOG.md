@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.22.3 - 2026-09-17
+
+### [2.22.3](https://github.com/wenisch-tech/Kairos/compare/v2.22.2...v2.22.3) (2026-09-17)
+
+
+### Bug Fixes
+
+* **deps:** update dependency com.nimbusds:nimbus-jose-jwt to v10.10 ([aef86b2](https://github.com/wenisch-tech/Kairos/commit/aef86b21bc304adefe7f8436a7b077c891c0ab87))
+
+
+
+Docker image: ghcr.io/wenisch-tech/kairos:2.22.3
+
+
 ## v2.22.2 - 2026-09-17
 
 ### [2.22.2](https://github.com/wenisch-tech/Kairos/compare/v2.22.1...v2.22.2) (2026-09-17)
