@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.22.2 - 2026-09-17
+
+### [2.22.2](https://github.com/wenisch-tech/Kairos/compare/v2.22.1...v2.22.2) (2026-09-17)
+
+
+### Bug Fixes
+
+* fixed problem leading to detail view not being available when resource is not available ([ce5bbcb](https://github.com/wenisch-tech/Kairos/commit/ce5bbcb45c69bc56a91a9cf33014b29cc4af75ec))
+
+
+
+Docker image: ghcr.io/wenisch-tech/kairos:2.22.2
+
+
 ## v2.22.1 - 2026-09-03
 
 ### [2.22.1](https://github.com/wenisch-tech/Kairos/compare/v2.22.0...v2.22.1) (2026-09-03)
