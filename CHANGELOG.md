@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.22.7 - 2026-10-07
+
+### [2.22.7](https://github.com/wenisch-tech/Kairos/compare/v2.22.6...v2.22.7) (2026-10-07)
+
+
+### Bug Fixes
+
+* updated packaging of helm ([d86390e](https://github.com/wenisch-tech/Kairos/commit/d86390ee9d22f151f6d532c54fa5167c289fe38c))
+
+
+
+Docker image: ghcr.io/wenisch-tech/kairos:2.22.7
+
+
 ## v2.22.6 - 2026-10-02
 
 ### [2.22.6](https://github.com/wenisch-tech/Kairos/compare/v2.22.5...v2.22.6) (2026-10-02)
