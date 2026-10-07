@@ -10,7 +10,7 @@
   "dependencies": {
     "@alpinejs/focus": "3.15.8",
     "alpinejs": "3.15.8",
-    "lucide": "^0.468.0",
+    "lucide": "^0.577.0",
     "quill": "2.0.2"
   },
   "devDependencies": {
