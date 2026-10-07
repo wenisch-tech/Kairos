@@ -223,7 +223,7 @@ public class HomeController {
                 .resourceType(resourceType)
                 .target(target.trim())
                 .skipTls(skipTls)
-                .recursive(recursive)
+                .recursive(resourceType == ResourceType.DOCKER && recursive)
                 .active(true)
                 .build();
         MonitoredResource saved = resourceService.save(resource);

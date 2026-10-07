@@ -601,7 +601,7 @@ public class AdminController {
                 .resourceType(resourceType)
                 .target(target)
                 .skipTls(skipTls)
-                .recursive(recursive)
+                .recursive(resourceType == ResourceType.DOCKER && recursive)
                 .active(true)
                 .displayOrder(displayOrder)
                 .build();
@@ -659,7 +659,7 @@ public class AdminController {
             resource.setResourceType(resourceType);
             resource.setTarget(target == null ? "" : target.trim());
             resource.setSkipTls(skipTls);
-            resource.setRecursive(recursive);
+            resource.setRecursive(resourceType == ResourceType.DOCKER && recursive);
             resource.getGroups().clear();
             resolveGroups(groupIds).forEach(resource.getGroups()::add);
             resource.setDisplayOrder(displayOrder);

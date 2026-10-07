@@ -519,7 +519,8 @@
                 <h5 class="ui-modal-title" id="publicResourceModalLabel">Submit New Resource</h5>
                 <button type="button" class="ui-btn-close" data-ui-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form method="post" th:action="@{/resources/submit}">
+            <form method="post" th:action="@{/resources/submit}"
+                  x-data="{ resourceType: '' }" x-init="resourceType = $refs.resourceType.value">
                 <div class="ui-modal-body">
                     <div class="mb-4">
                         <label for="resource-name" class="ui-form-label">Name</label>
@@ -527,7 +528,8 @@
                     </div>
                     <div class="mb-4">
                         <label for="resource-type" class="ui-form-label">Type</label>
-                        <select id="resource-type" name="resourceType" class="ui-form-select" required>
+                        <select id="resource-type" name="resourceType" class="ui-form-select" required
+                                x-ref="resourceType" x-model="resourceType">
                             <option th:each="resourceType : ${resourceTypes}" th:value="${resourceType}" th:text="${resourceType}">HTTP</option>
                         </select>
                     </div>
@@ -541,10 +543,11 @@
                         <label for="resource-skip-tls" class="ui-form-check-label">Ignore TLS certificate and hostname errors</label>
                         <div class="ui-form-text">Applies to HTTPS checks, including Docker registry checks.</div>
                     </div>
-                    <div class="ui-form-check mt-4">
-                        <input id="resource-recursive" name="recursive" class="ui-form-check-input" type="checkbox" value="true">
-                        <label for="resource-recursive" class="ui-form-check-label">Recursive (Dockerrepository only)</label>
-                        <div class="ui-form-text">Includes nested repositories below the configured prefix.</div>
+                    <div class="ui-form-check mt-4" x-show="resourceType === 'DOCKER'" x-cloak>
+                        <input id="resource-recursive" name="recursive" class="ui-form-check-input" type="checkbox" value="true"
+                               :disabled="resourceType !== 'DOCKER'">
+                        <label for="resource-recursive" class="ui-form-check-label">Recursive</label>
+                        <div class="ui-form-text">Includes nested Docker repositories below the configured prefix.</div>
                     </div>
                 </div>
                 <div class="ui-modal-footer">

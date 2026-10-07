@@ -25,7 +25,8 @@
 
             <div class="ui-card">
                 <div class="ui-card-body">
-                    <form th:action="@{/admin/resources/edit/{id}(id=${resource.id})}" method="post">
+                    <form th:action="@{/admin/resources/edit/{id}(id=${resource.id})}" method="post"
+                          x-data="{ resourceType: '' }" x-init="resourceType = $refs.resourceType.value">
                         <div class="mb-4">
                             <label class="ui-form-label">Name</label>
                             <input type="text" class="ui-form-control" name="name" required maxlength="255" th:value="${resource.name}">
@@ -33,7 +34,8 @@
 
                         <div class="mb-4">
                             <label class="ui-form-label">Type</label>
-                            <select class="ui-form-select" name="resourceType" required>
+                            <select class="ui-form-select" name="resourceType" required
+                                    x-ref="resourceType" x-model="resourceType">
                                 <option th:each="type : ${resourceTypes}"
                                         th:value="${type}"
                                         th:selected="${resource.resourceType == type}"
@@ -73,13 +75,13 @@
                             <div class="ui-form-text">Used for HTTPS connections (HTTP checks and Docker registry checks).</div>
                         </div>
 
-                        <div class="ui-form-check mb-6">
+                        <div class="ui-form-check mb-6" x-show="resourceType === 'DOCKER'" x-cloak>
                             <input class="ui-form-check-input" type="checkbox" id="recursive" name="recursive" value="true"
-                                   th:checked="${resource.recursive}">
+                                   th:checked="${resource.recursive}" :disabled="resourceType !== 'DOCKER'">
                             <label class="ui-form-check-label" for="recursive">
                                 Recursive
                             </label>
-                            <div class="ui-form-text">Used by resource types that support recursive checks.</div>
+                            <div class="ui-form-text">Includes nested Docker repositories below the configured prefix.</div>
                         </div>
 
                         <div class="flex gap-2">

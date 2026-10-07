@@ -235,7 +235,8 @@
                 <h5 class="ui-modal-title"><i class="me-2" data-icon="circle-plus" aria-hidden="true"></i>Add Resource</h5>
                 <button type="button" class="ui-btn-close" data-ui-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form th:action="@{/admin/resources/add}" method="post">
+            <form th:action="@{/admin/resources/add}" method="post"
+                  x-data="{ resourceType: '' }" x-init="resourceType = $refs.resourceType.value">
                 <div class="ui-modal-body">
                     <div class="mb-4">
                         <label class="ui-form-label">Name</label>
@@ -243,7 +244,8 @@
                     </div>
                     <div class="mb-4">
                         <label class="ui-form-label">Type</label>
-                        <select class="ui-form-select" name="resourceType" required>
+                        <select class="ui-form-select" name="resourceType" required
+                                x-ref="resourceType" x-model="resourceType">
                             <option th:each="type : ${resourceTypes}" th:value="${type}" th:text="${type}">TYPE</option>
                         </select>
                     </div>
@@ -272,12 +274,13 @@
                         </label>
                         <div class="ui-form-text">Used for HTTPS connections (HTTP checks and Docker registry checks).</div>
                     </div>
-                    <div class="ui-form-check mt-4">
-                        <input class="ui-form-check-input" type="checkbox" id="recursive" name="recursive" value="true">
+                    <div class="ui-form-check mt-4" x-show="resourceType === 'DOCKER'" x-cloak>
+                        <input class="ui-form-check-input" type="checkbox" id="recursive" name="recursive" value="true"
+                               :disabled="resourceType !== 'DOCKER'">
                         <label class="ui-form-check-label" for="recursive">
                             Recursive
                         </label>
-                        <div class="ui-form-text">Used by resource types that support recursive checks.</div>
+                        <div class="ui-form-text">Includes nested Docker repositories below the configured prefix.</div>
                     </div>
                 </div>
                 <div class="ui-modal-footer">

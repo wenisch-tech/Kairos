@@ -477,6 +477,7 @@ function initializeInstantCheckForm() {
 
             if (resourceTypeField) {
                 resourceTypeField.value = lastInstantCheckRequest.resourceType;
+                resourceTypeField.dispatchEvent(new Event('change', { bubbles: true }));
             }
             if (resourceTargetField) {
                 resourceTargetField.value = lastInstantCheckRequest.target;
