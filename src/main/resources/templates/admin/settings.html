@@ -1,113 +1,82 @@
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="dark"
+<html lang="en" data-theme="light"
       xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="kairos-time-zone" th:content="${timeZoneId}">
-    <meta name="kairos-availability-decimals" th:content="${availabilityPercentageDecimalPlaces}">
-    <link rel="icon" th:href="@{/img/kairos.png}" type="image/png">
     <title>Settings - Kairos Admin</title>
-    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
-    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/font/bootstrap-icons.min.css}">
-    <link rel="stylesheet" th:href="@{/css/kairos.css}">
+    <th:block th:replace="~{layout :: assets}"></th:block>
     <th:block th:utext="${customHeadersHtml}"></th:block>
 </head>
-<body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom">
-    <div class="container-fluid">
-        <a class="navbar-brand fw-bold d-flex align-items-center" th:href="@{/}"><img th:src="@{/img/kairos.png}" alt="Kairos" height="28" class="me-2"><span>Kairos</span></a>
-        <div class="collapse navbar-collapse">
-            <ul class="navbar-nav ms-auto align-items-center">
-                <li class="nav-item"><a class="nav-link" th:href="@{/}"><i class="bi bi-house me-1"></i>Dashboard</a></li>
-                <li class="nav-item">
-                    <form th:action="@{/logout}" method="post" class="d-inline">
-                        <button type="submit" class="btn btn-link nav-link"><i class="bi bi-box-arrow-right me-1"></i>Logout</button>
-                    </form>
-                </li>
-                <li class="nav-item ms-2">
-                    <button class="btn btn-outline-secondary btn-sm" onclick="toggleDarkMode()"><i class="bi bi-moon-stars-fill"></i></button>
-                </li>
-            </ul>
-        </div>
-    </div>
-</nav>
+<body class="admin-page" x-data="{ navOpen: false }">
+<nav th:replace="~{admin/layout :: adminNavbar}"></nav>
 
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-md-2 min-vh-100 border-end py-3 bg-dark-subtle">
-            <div th:replace="~{admin/layout :: adminSidebar}"></div>
-        </div>
-        <div class="col-md-10 py-4 px-4">
-            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show">
-                <span th:text="${successMessage}">Success</span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show">
-                <span th:text="${errorMessage}">Error</span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
+<div class="admin-shell">
+    <div class="admin-frame">
+        <aside th:replace="~{admin/layout :: adminSidebar}"></aside>
+        <div class="admin-content" id="main-content">
+            <th:block th:replace="~{layout :: feedback}"></th:block>
 
-            <h2 class="h4 mb-4"><i class="bi bi-sliders me-2"></i>General Settings</h2>
+            <h1 class="heading-md mb-6"><i class="me-2" data-icon="sliders-horizontal" aria-hidden="true"></i>General Settings</h1>
 
             <form th:action="@{/admin/settings}" method="post">
-            <div class="card mb-4">
-                <div class="card-header">Public Access Settings</div>
-                <div class="card-body">
-                        <div class="form-check form-switch mb-3">
-                            <input class="form-check-input" type="checkbox" id="allowPublicAccess"
+            <div class="ui-card mb-6">
+                <div class="ui-card-header">Public Access Settings</div>
+                <div class="ui-card-body">
+                        <div class="ui-form-check ui-form-switch mb-4">
+                            <input class="ui-form-check-input" type="checkbox" id="allowPublicAccess"
                                    name="allowPublicAccess" th:checked="${allowPublicAccess}">
-                            <label class="form-check-label" for="allowPublicAccess">
+                            <label class="ui-form-check-label" for="allowPublicAccess">
                                 Allow public access
                             </label>
-                            <div class="form-text">When disabled, unauthenticated users are redirected to the login page and all pages require a signed-in user.</div>
+                            <div class="ui-form-text">When disabled, unauthenticated users are redirected to the login page and all pages require a signed-in user.</div>
                         </div>
-                        <div class="form-check form-switch mb-3">
-                            <input class="form-check-input" type="checkbox" id="allowPublicAdd"
+                        <div class="ui-form-check ui-form-switch mb-4">
+                            <input class="ui-form-check-input" type="checkbox" id="allowPublicAdd"
                                    name="allowPublicAdd" th:checked="${allowPublicAdd}">
-                            <label class="form-check-label" for="allowPublicAdd">
+                            <label class="ui-form-check-label" for="allowPublicAdd">
                                 Allow public resource submission
                             </label>
-                            <div class="form-text">When enabled, unauthenticated users can add resources via the API.</div>
+                            <div class="ui-form-text">When enabled, unauthenticated users can add resources via the API.</div>
                         </div>
-                        <div class="form-check form-switch mb-3">
-                            <input class="form-check-input" type="checkbox" id="allowPublicCheckNow"
+                        <div class="ui-form-check ui-form-switch mb-4">
+                            <input class="ui-form-check-input" type="checkbox" id="allowPublicCheckNow"
                                    name="allowPublicCheckNow" th:checked="${allowPublicCheckNow}">
-                            <label class="form-check-label" for="allowPublicCheckNow">
+                            <label class="ui-form-check-label" for="allowPublicCheckNow">
                                 Allow public "Check Now"
                             </label>
-                            <div class="form-text">When enabled, unauthenticated users can manually trigger a check on any resource detail page.</div>
+                            <div class="ui-form-text">When enabled, unauthenticated users can manually trigger a check on any resource detail page.</div>
                         </div>
-                        <div class="form-check form-switch mb-3">
-                            <input class="form-check-input" type="checkbox" id="instantCheckAllowPublic"
+                        <div class="ui-form-check ui-form-switch mb-4">
+                            <input class="ui-form-check-input" type="checkbox" id="instantCheckAllowPublic"
                                    name="instantCheckAllowPublic" th:checked="${instantCheckAllowPublic}">
-                            <label class="form-check-label" for="instantCheckAllowPublic">
+                            <label class="ui-form-check-label" for="instantCheckAllowPublic">
                                 Allow public instant checks
                             </label>
-                            <div class="form-text">When disabled, users must be authenticated to execute instant checks.</div>
+                            <div class="ui-form-text">When disabled, users must be authenticated to execute instant checks.</div>
                         </div>
-                        <div class="form-check form-switch mb-3">
-                            <input class="form-check-input" type="checkbox" id="alwaysDisplayUrl"
+                        <div class="ui-form-check ui-form-switch mb-4">
+                            <input class="ui-form-check-input" type="checkbox" id="alwaysDisplayUrl"
                                    name="alwaysDisplayUrl" th:checked="${alwaysDisplayUrl}">
-                            <label class="form-check-label" for="alwaysDisplayUrl">
+                            <label class="ui-form-check-label" for="alwaysDisplayUrl">
                                 Always display URL
                             </label>
-                            <div class="form-text">When enabled, full resource URLs are shown. When disabled, only the resource name is displayed.</div>
+                            <div class="ui-form-text">When enabled, full resource URLs are shown. When disabled, only the resource name is displayed.</div>
                         </div>
-                        <div class="mb-3">
-                            <label for="dashboardAutoGroupThreshold" class="form-label">Auto-switch to Groups mode at group count</label>
+                        <div class="mb-4">
+                            <label for="dashboardAutoGroupThreshold" class="ui-form-label">Auto-switch to Groups mode at group count</label>
                             <input type="number"
                                    min="1"
-                                   class="form-control"
+                                   class="ui-form-control"
                                    id="dashboardAutoGroupThreshold"
                                    name="dashboardAutoGroupThreshold"
                                    th:value="${dashboardAutoGroupThreshold}">
-                            <div class="form-text">Default: 10. If the dashboard has at least this many groups, the initial landing-page view defaults to Groups mode. Users can still switch modes and their preference is remembered.</div>
+                            <div class="ui-form-text">Default: 10. If the dashboard has at least this many groups, the initial landing-page view defaults to Groups mode. Users can still switch modes and their preference is remembered.</div>
                         </div>
-                        <div class="mb-3">
-                            <label for="timeZone" class="form-label">Time zone</label>
-                            <select class="form-select"
+                        <div class="mb-4">
+                            <label for="timeZone" class="ui-form-label">Time zone</label>
+                            <select class="ui-form-select"
                                     id="timeZone"
                                     name="timeZone">
                                 <option th:each="option : ${timeZoneOptions}"
@@ -115,79 +84,79 @@
                                         th:text="${option.label}"
                                         th:selected="${option.id == configuredTimeZone}">GMT+01:00 - Berlin (Europe/Berlin)</option>
                             </select>
-                            <div class="form-text">Used for check timestamps, outage windows, Prometheus timestamp metrics, and all displayed dates.</div>
+                            <div class="ui-form-text">Used for check timestamps, outage windows, Prometheus timestamp metrics, and all displayed dates.</div>
                         </div>
-                        <div class="mb-3">
-                            <label for="availabilityPercentageDecimalPlaces" class="form-label">Availability percentage decimals</label>
+                        <div class="mb-4">
+                            <label for="availabilityPercentageDecimalPlaces" class="ui-form-label">Availability percentage decimals</label>
                             <input type="number"
                                    min="2"
                                    max="5"
-                                   class="form-control"
+                                   class="ui-form-control"
                                    id="availabilityPercentageDecimalPlaces"
                                    name="availabilityPercentageDecimalPlaces"
                                    th:value="${availabilityPercentageDecimalPlaces}">
-                            <div class="form-text">Default: 2. Controls how many digits are always shown after the decimal separator for availability percentages, up to 5.</div>
+                            <div class="ui-form-text">Default: 2. Controls how many digits are always shown after the decimal separator for availability percentages, up to 5.</div>
                         </div>
                 </div>
             </div>
 
-            <div class="card mb-4">
-                <div class="card-header"><i class="bi bi-lightning-charge me-2"></i>Instant Check</div>
-                <div class="card-body">
-                        <div class="form-check form-switch mb-3">
-                            <input class="form-check-input" type="checkbox" id="instantCheckEnabled"
+            <div class="ui-card mb-6">
+                <div class="ui-card-header"><i class="me-2" data-icon="zap" aria-hidden="true"></i>Instant Check</div>
+                <div class="ui-card-body">
+                        <div class="ui-form-check ui-form-switch mb-4">
+                            <input class="ui-form-check-input" type="checkbox" id="instantCheckEnabled"
                                    name="instantCheckEnabled" th:checked="${instantCheckEnabled}">
-                            <label class="form-check-label" for="instantCheckEnabled">
+                            <label class="ui-form-check-label" for="instantCheckEnabled">
                                 Enable instant check form on landing page
                             </label>
-                            <div class="form-text">Shows an inline check form in the dashboard header without storing a resource.</div>
+                            <div class="ui-form-text">Shows an expandable check form below the dashboard summary without storing a resource.</div>
                         </div>
-                        <div class="form-check form-switch mb-3">
-                            <input class="form-check-input" type="checkbox" id="instantCheckUseStoredAuth"
+                        <div class="ui-form-check ui-form-switch mb-4">
+                            <input class="ui-form-check-input" type="checkbox" id="instantCheckUseStoredAuth"
                                    name="instantCheckUseStoredAuth" th:checked="${instantCheckUseStoredAuth}">
-                            <label class="form-check-label" for="instantCheckUseStoredAuth">
+                            <label class="ui-form-check-label" for="instantCheckUseStoredAuth">
                                 Use stored authentication mappings for instant checks
                             </label>
-                            <div class="form-text">Matches configured auth credentials using the same wildcard behavior as resource checks.</div>
+                            <div class="ui-form-text">Matches configured auth credentials using the same wildcard behavior as resource checks.</div>
                         </div>
-                        <div class="mb-3">
-                            <label for="instantCheckAllowedDomains" class="form-label">Allowed domains / targets (one entry per line)</label>
-                            <textarea class="form-control"
+                        <div class="mb-4">
+                            <label for="instantCheckAllowedDomains" class="ui-form-label">Allowed domains / targets (one entry per line)</label>
+                            <textarea class="ui-form-control"
                                       id="instantCheckAllowedDomains"
                                       name="instantCheckAllowedDomains"
                                       rows="5"
                                       th:text="${instantCheckAllowedDomains}"></textarea>
-                            <div class="form-text">Use <code>*</code> to allow all targets (default). Wildcards are supported, for example <code>example.com/*</code>.</div>
+                            <div class="ui-form-text">Use <code>*</code> to allow all targets (default). Wildcards are supported, for example <code>example.com/*</code>.</div>
                         </div>
                 </div>
             </div>
 
-            <div class="card mb-4">
-                <div class="card-header"><i class="bi bi-trash3 me-2"></i>Check History Retention</div>
-                <div class="card-body">
-                        <div class="form-check form-switch mb-3">
-                            <input class="form-check-input" type="checkbox" id="checkHistoryRetentionEnabled"
+            <div class="ui-card mb-6">
+                <div class="ui-card-header"><i class="me-2" data-icon="trash-2" aria-hidden="true"></i>Check History Retention</div>
+                <div class="ui-card-body">
+                        <div class="ui-form-check ui-form-switch mb-4">
+                            <input class="ui-form-check-input" type="checkbox" id="checkHistoryRetentionEnabled"
                                    name="checkHistoryRetentionEnabled" th:checked="${checkHistoryRetentionEnabled}">
-                            <label class="form-check-label" for="checkHistoryRetentionEnabled">
+                            <label class="ui-form-check-label" for="checkHistoryRetentionEnabled">
                                 Enable automatic check history cleanup
                             </label>
-                            <div class="form-text">Deletes old check records in the background without blocking regular checks.</div>
+                            <div class="ui-form-text">Deletes old check records in the background without blocking regular checks.</div>
                         </div>
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label for="checkHistoryRetentionIntervalMinutes" class="form-label">Run cleanup every (minutes)</label>
+                        <div class="ui-grid gap-4">
+                            <div class="md:col-span-6">
+                                <label for="checkHistoryRetentionIntervalMinutes" class="ui-form-label">Run cleanup every (minutes)</label>
                                 <input type="number"
                                        min="1"
-                                       class="form-control"
+                                       class="ui-form-control"
                                        id="checkHistoryRetentionIntervalMinutes"
                                        name="checkHistoryRetentionIntervalMinutes"
                                        th:value="${checkHistoryRetentionIntervalMinutes}">
                             </div>
-                            <div class="col-md-6">
-                                <label for="checkHistoryRetentionDays" class="form-label">Delete data older than (days)</label>
+                            <div class="md:col-span-6">
+                                <label for="checkHistoryRetentionDays" class="ui-form-label">Delete data older than (days)</label>
                                 <input type="number"
                                        min="1"
-                                       class="form-control"
+                                       class="ui-form-control"
                                        id="checkHistoryRetentionDays"
                                        name="checkHistoryRetentionDays"
                                        th:value="${checkHistoryRetentionDays}">
@@ -196,62 +165,62 @@
                 </div>
             </div>
 
-            <div class="card mb-4">
-                <div class="card-header"><i class="bi bi-clock-history me-2"></i>Outage Retention</div>
-                <div class="card-body">
-                        <div class="form-check form-switch mb-3">
-                            <input class="form-check-input" type="checkbox" id="outageRetentionEnabled"
+            <div class="ui-card mb-6">
+                <div class="ui-card-header"><i class="me-2" data-icon="history" aria-hidden="true"></i>Outage Retention</div>
+                <div class="ui-card-body">
+                        <div class="ui-form-check ui-form-switch mb-4">
+                            <input class="ui-form-check-input" type="checkbox" id="outageRetentionEnabled"
                                    name="outageRetentionEnabled" th:checked="${outageRetentionEnabled}">
-                            <label class="form-check-label" for="outageRetentionEnabled">
+                            <label class="ui-form-check-label" for="outageRetentionEnabled">
                                 Enable automatic outage cleanup
                             </label>
-                            <div class="form-text">Deletes closed outage records in a dedicated scheduled run using outage end date as the retention reference.</div>
+                            <div class="ui-form-text">Deletes closed outage records in a dedicated scheduled run using outage end date as the retention reference.</div>
                         </div>
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <label for="outageRetentionIntervalHours" class="form-label">Run cleanup every (hours)</label>
+                        <div class="ui-grid gap-4 mb-4">
+                            <div class="md:col-span-6">
+                                <label for="outageRetentionIntervalHours" class="ui-form-label">Run cleanup every (hours)</label>
                                 <input type="number"
                                        min="1"
-                                       class="form-control"
+                                       class="ui-form-control"
                                        id="outageRetentionIntervalHours"
                                        name="outageRetentionIntervalHours"
                                        th:value="${outageRetentionIntervalHours}">
                             </div>
-                            <div class="col-md-6">
-                                <label for="outageRetentionDays" class="form-label">Delete outages older than (days)</label>
+                            <div class="md:col-span-6">
+                                <label for="outageRetentionDays" class="ui-form-label">Delete outages older than (days)</label>
                                 <input type="number"
                                        min="1"
-                                       class="form-control"
+                                       class="ui-form-control"
                                        id="outageRetentionDays"
                                        name="outageRetentionDays"
                                        th:value="${outageRetentionDays}">
                             </div>
                         </div>
-                        <div class="form-check form-switch mb-3">
-                            <input class="form-check-input" type="checkbox" id="deleteOutagesOnResourceDelete"
+                        <div class="ui-form-check ui-form-switch mb-4">
+                            <input class="ui-form-check-input" type="checkbox" id="deleteOutagesOnResourceDelete"
                                    name="deleteOutagesOnResourceDelete" th:checked="${deleteOutagesOnResourceDelete}">
-                            <label class="form-check-label" for="deleteOutagesOnResourceDelete">
+                            <label class="ui-form-check-label" for="deleteOutagesOnResourceDelete">
                                 Delete outages when deleting a resource
                             </label>
-                            <div class="form-text">When enabled, all outage records for a resource are deleted together with it. When disabled, outage history is kept but no longer linked to any resource.</div>
+                            <div class="ui-form-text">When enabled, all outage records for a resource are deleted together with it. When disabled, outage history is kept but no longer linked to any resource.</div>
                         </div>
                 </div>
             </div>
 
-            <div class="mb-4">
-                <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-save me-1"></i>Save Settings
+            <div class="mb-6">
+                <button type="submit" class="ui-btn ui-btn-primary">
+                    <i class="me-1" data-icon="save" aria-hidden="true"></i>Save Settings
                 </button>
             </div>
             </form>
 
-            <div class="card mb-4">
-                <div class="card-header"><i class="bi bi-globe me-2"></i>API CORS Allowed Origins</div>
-                <div class="card-body">
-                    <p class="text-muted small mb-3">Add origins (e.g. <code>https://example.com</code>) that are allowed to call the Kairos API from a browser. Requests from unlisted origins will be blocked by the browser's same-origin policy.</p>
+            <div class="ui-card mb-6">
+                <div class="ui-card-header"><i class="me-2" data-icon="globe" aria-hidden="true"></i>API CORS Allowed Origins</div>
+                <div class="ui-card-body">
+                    <p class="text-muted text-sm mb-4">Add origins (e.g. <code>https://example.com</code>) that are allowed to call the Kairos API from a browser. Requests from unlisted origins will be blocked by the browser's same-origin policy.</p>
 
-                    <div th:if="${#lists.size(corsAllowedOrigins) > 0}" class="mb-3">
-                        <table class="table table-sm table-bordered align-middle">
+                    <div th:if="${#lists.size(corsAllowedOrigins) > 0}" class="mb-4">
+                        <div class="ui-table-responsive"><table class="ui-table ui-table-sm ui-table-bordered align-middle">
                             <thead>
                                 <tr>
                                     <th>Origin</th>
@@ -263,20 +232,20 @@
                                     <td><code th:text="${corsOrigin.origin}"></code></td>
                                     <td class="text-center">
                                         <form th:action="@{/admin/settings/cors/remove/{id}(id=${corsOrigin.id})}" method="post">
-                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Remove"><i class="bi bi-trash3"></i></button>
+                                            <button type="submit" class="ui-btn ui-btn-sm ui-btn-outline-danger" title="Remove"><i class="" data-icon="trash-2" aria-hidden="true"></i></button>
                                         </form>
                                     </td>
                                 </tr>
                             </tbody>
-                        </table>
+                        </table></div>
                     </div>
-                    <div th:if="${#lists.size(corsAllowedOrigins) == 0}" class="alert alert-secondary mb-3">
+                    <div th:if="${#lists.size(corsAllowedOrigins) == 0}" class="ui-alert ui-alert-secondary mb-4">
                         No CORS origins configured. Cross-origin API calls from browsers will be blocked.
                     </div>
 
-                    <form th:action="@{/admin/settings/cors/add}" method="post" class="d-flex gap-2">
-                        <input type="text" name="origin" class="form-control" placeholder="https://example.com" required>
-                        <button type="submit" class="btn btn-primary text-nowrap"><i class="bi bi-plus-lg me-1"></i>Add Origin</button>
+                    <form th:action="@{/admin/settings/cors/add}" method="post" class="flex gap-2">
+                        <input type="text" name="origin" class="ui-form-control" placeholder="https://example.com" required>
+                        <button type="submit" class="ui-btn ui-btn-primary whitespace-nowrap"><i class="me-1" data-icon="plus" aria-hidden="true"></i>Add Origin</button>
                     </form>
                 </div>
             </div>
@@ -284,7 +253,6 @@
         </div>
     </div>
 </div>
-<script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
 <script th:src="@{/js/kairos.js}"></script>
 </body>
 </html>

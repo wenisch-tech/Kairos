@@ -1,14 +1,11 @@
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="dark"
+<html lang="en" data-theme="light"
       xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" th:href="@{/img/kairos.png}" type="image/png">
     <title th:text="${editMode} ? 'Edit Notification Policy' : 'New Notification Policy'">Notification Policy - Kairos Admin</title>
-    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
-    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/font/bootstrap-icons.min.css}">
-    <link rel="stylesheet" th:href="@{/css/kairos.css}">
+    <th:block th:replace="~{layout :: assets}"></th:block>
     <th:block th:utext="${customHeadersHtml}"></th:block>
     <style>
         .scope-item { cursor: pointer; }
@@ -17,43 +14,37 @@
         #selectedPanel { min-height: 200px; max-height: 320px; overflow-y: auto; }
     </style>
 </head>
-<body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom">
-    <div class="container-fluid">
-        <a class="navbar-brand fw-bold d-flex align-items-center" th:href="@{/}"><img th:src="@{/img/kairos.png}" alt="Kairos" height="28" class="me-2"><span>Kairos</span></a>
-    </div>
-</nav>
+<body class="admin-page" x-data="{ navOpen: false }">
+<nav th:replace="~{admin/layout :: adminNavbar}"></nav>
 
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-md-2 min-vh-100 border-end py-3 bg-dark-subtle">
-            <div th:replace="~{admin/layout :: adminSidebar}"></div>
-        </div>
-        <div class="col-md-10 py-4 px-4">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="h4 mb-0">
-                    <i class="bi bi-bell-fill me-2"></i>
+<div class="admin-shell">
+    <div class="admin-frame">
+        <aside th:replace="~{admin/layout :: adminSidebar}"></aside>
+        <div class="admin-content" id="main-content">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="heading-md mb-0">
+                    <i class="me-2" data-icon="bell-ring" aria-hidden="true"></i>
                     <span th:text="${editMode} ? 'Edit Notification Policy' : 'New Notification Policy'">Notification Policy</span>
-                </h2>
-                <a class="btn btn-outline-secondary" th:href="@{/admin/notification-policies}">
-                    <i class="bi bi-arrow-left me-1"></i>Back
+                </h1>
+                <a class="ui-btn ui-btn-outline-secondary" th:href="@{/admin/notification-policies}">
+                    <i class="me-1" data-icon="arrow-left" aria-hidden="true"></i>Back
                 </a>
             </div>
 
-            <div class="card">
-                <div class="card-body">
+            <div class="ui-card">
+                <div class="ui-card-body">
                     <form th:action="${editMode} ? @{/admin/notification-policies/edit/{id}(id=${policy.id})} : @{/admin/notification-policies/new}"
                           method="post" id="policyForm">
 
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">Name</label>
-                            <input type="text" class="form-control" name="name" required maxlength="255"
+                        <div class="mb-4">
+                            <label class="ui-form-label font-semibold">Name</label>
+                            <input type="text" class="ui-form-control" name="name" required maxlength="255"
                                    th:value="${policy.name}" placeholder="e.g. Critical Alerts">
                         </div>
 
-                        <div class="mb-4">
-                            <label class="form-label fw-semibold">Notification Provider</label>
-                            <select class="form-select" name="providerId" required>
+                        <div class="mb-6">
+                            <label class="ui-form-label font-semibold">Notification Provider</label>
+                            <select class="ui-form-select" name="providerId" required>
                                 <option value="" disabled th:unless="${editMode}">-- Select a provider --</option>
                                 <option th:each="p : ${providers}"
                                         th:value="${p.id}"
@@ -62,83 +53,83 @@
                             </select>
                         </div>
 
-                        <div class="mb-4">
-                            <label class="form-label fw-semibold">Notify on Events</label>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="notifyOutageStarted"
+                        <div class="mb-6">
+                            <label class="ui-form-label font-semibold">Notify on Events</label>
+                            <div class="ui-form-check">
+                                <input class="ui-form-check-input" type="checkbox" id="notifyOutageStarted"
                                        name="notifyOnOutageStarted" value="true"
                                        th:checked="${policy.notifyOnOutageStarted}">
-                                <label class="form-check-label" for="notifyOutageStarted">
-                                    <span class="badge text-bg-danger me-1">Outage Started</span>
+                                <label class="ui-form-check-label" for="notifyOutageStarted">
+                                    <span class="ui-badge tone-danger me-1">Outage Started</span>
                                     Notify when a resource goes down
                                 </label>
                             </div>
-                            <div class="form-check mt-2">
-                                <input class="form-check-input" type="checkbox" id="notifyOutageEnded"
+                            <div class="ui-form-check mt-2">
+                                <input class="ui-form-check-input" type="checkbox" id="notifyOutageEnded"
                                        name="notifyOnOutageEnded" value="true"
                                        th:checked="${policy.notifyOnOutageEnded}">
-                                <label class="form-check-label" for="notifyOutageEnded">
-                                    <span class="badge text-bg-success me-1">Outage Resolved</span>
+                                <label class="ui-form-check-label" for="notifyOutageEnded">
+                                    <span class="ui-badge tone-success me-1">Outage Resolved</span>
                                     Notify when a resource recovers
                                 </label>
                             </div>
                         </div>
 
-                        <div class="mb-4">
-                            <label class="form-label fw-semibold">Scope</label>
+                        <div class="mb-6">
+                            <label class="ui-form-label font-semibold">Scope</label>
                             <div class="mb-2">
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="scopeType" id="scopeAll"
+                                <div class="ui-form-check ui-form-check-inline">
+                                    <input class="ui-form-check-input" type="radio" name="scopeType" id="scopeAll"
                                            value="ALL" onchange="updateScopePanel()"
                                            th:checked="${policy.scopeType == null or policy.scopeType.name == 'ALL'}">
-                                    <label class="form-check-label" for="scopeAll">All Resources</label>
+                                    <label class="ui-form-check-label" for="scopeAll">All Resources</label>
                                 </div>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="scopeType" id="scopeScoped"
+                                <div class="ui-form-check ui-form-check-inline">
+                                    <input class="ui-form-check-input" type="radio" name="scopeType" id="scopeScoped"
                                            value="SCOPED" onchange="updateScopePanel()"
                                            th:checked="${policy.scopeType != null and policy.scopeType.name == 'SCOPED'}">
-                                    <label class="form-check-label" for="scopeScoped">Scoped (specific groups/resources)</label>
+                                    <label class="ui-form-check-label" for="scopeScoped">Scoped (specific groups/resources)</label>
                                 </div>
                             </div>
 
                             <div id="scopePickerPanel" style="display:none;">
-                                <div class="row g-3">
-                                    <div class="col-md-6">
-                                        <div class="card h-100">
-                                            <div class="card-header d-flex align-items-center gap-2">
+                                <div class="ui-grid gap-4">
+                                    <div class="md:col-span-6">
+                                        <div class="ui-card h-full">
+                                            <div class="ui-card-header flex items-center gap-2">
                                                 <strong>Available</strong>
-                                                <input type="text" class="form-control form-control-sm ms-auto" id="scopeSearch"
+                                                <input type="text" class="ui-form-control ui-form-control-sm ms-auto" id="scopeSearch"
                                                        placeholder="Search..." oninput="filterScope(this.value)" style="max-width:160px;">
                                             </div>
-                                            <div class="card-body p-1" id="scopePanel">
+                                            <div class="ui-card-body p-1" id="scopePanel">
                                                 <!-- Groups -->
                                                 <div th:each="group : ${allGroups}"
-                                                     class="scope-item d-flex align-items-center px-2 py-1 rounded mb-1"
+                                                     class="scope-item flex items-center px-2 py-1 rounded mb-1"
                                                      th:data-id="${group.id}"
                                                      th:data-kind="group"
                                                      th:data-label="${group.name}"
                                                      onclick="addScopeItem(this)">
-                                                    <span class="badge text-bg-secondary me-2">Group</span>
+                                                    <span class="ui-badge tone-secondary me-2">Group</span>
                                                     <span th:text="${group.name}">Group</span>
                                                 </div>
                                                 <!-- Resources -->
                                                 <div th:each="resource : ${allResources}"
-                                                     class="scope-item d-flex align-items-center px-2 py-1 rounded mb-1"
+                                                     class="scope-item flex items-center px-2 py-1 rounded mb-1"
                                                      th:data-id="${resource.id}"
                                                      th:data-kind="resource"
                                                      th:data-label="${resource.name}"
                                                      onclick="addScopeItem(this)">
-                                                    <span class="badge text-bg-primary me-2" th:text="${resource.resourceType}">TYPE</span>
+                                                    <span class="ui-badge tone-primary me-2" th:text="${resource.resourceType}">TYPE</span>
                                                     <span th:text="${resource.name}">Resource</span>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
-                                        <div class="card h-100">
-                                            <div class="card-header"><strong>Selected Scope</strong></div>
-                                            <div class="card-body p-1" id="selectedPanel">
-                                                <div id="emptyHint" class="text-muted px-2 py-1 fst-italic">Click items on the left to add them.</div>
+                                    <div class="md:col-span-6">
+                                        <div class="ui-card h-full">
+                                            <div class="ui-card-header"><strong>Selected Scope</strong></div>
+                                            <div class="ui-card-body p-1" id="selectedPanel">
+                                                <div id="emptyHint" class="text-muted px-2 py-1 italic">Click items on the left to add them.</div>
                                             </div>
                                         </div>
                                     </div>
@@ -149,11 +140,11 @@
                         <!-- Hidden inputs for selected scope items -->
                         <div id="hiddenScopeInputs"></div>
 
-                        <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-save me-1"></i>Save
+                        <div class="flex gap-2">
+                            <button type="submit" class="ui-btn ui-btn-primary">
+                                <i class="me-1" data-icon="save" aria-hidden="true"></i>Save
                             </button>
-                            <a class="btn btn-outline-secondary" th:href="@{/admin/notification-policies}">Cancel</a>
+                            <a class="ui-btn ui-btn-outline-secondary" th:href="@{/admin/notification-policies}">Cancel</a>
                         </div>
                     </form>
                 </div>
@@ -161,8 +152,7 @@
         </div>
     </div>
 </div>
-<script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
-<script th:src="@{/js/kairos.js}" defer></script>
+<script th:src="@{/js/kairos.js}"></script>
 <script th:inline="javascript">
     // Pre-seeded selections from server (edit mode)
     const preselectedGroups    = /*[[${policy.scopedGroups != null ? policy.scopedGroups.![id] : {}}]]*/ [];
@@ -221,12 +211,13 @@
         hint.style.display = 'none';
         selected.forEach((item, key) => {
             const div = document.createElement('div');
-            div.className = 'selected-item d-flex align-items-center px-2 py-1 rounded mb-1 justify-content-between';
-            const badgeClass = item.kind === 'group' ? 'text-bg-secondary' : 'text-bg-primary';
+            div.className = 'selected-item flex items-center px-2 py-1 rounded mb-1 justify-between';
+            const badgeClass = item.kind === 'group' ? 'tone-secondary' : 'tone-primary';
             const kindLabel  = item.kind === 'group' ? 'Group' : item.kind.toUpperCase().replace('-','');
-            div.innerHTML = `<div><span class="badge ${badgeClass} me-2">${item.kind === 'group' ? 'Group' : kindLabel}</span><span>${item.label}</span></div>
-                             <button type="button" class="btn btn-sm btn-outline-danger py-0 px-1" onclick="removeScopeItem('${key}')"><i class="bi bi-x"></i></button>`;
+            div.innerHTML = `<div><span class="ui-badge ${badgeClass} me-2">${item.kind === 'group' ? 'Group' : kindLabel}</span><span>${item.label}</span></div>
+                             <button type="button" class="ui-btn ui-btn-sm ui-btn-outline-danger py-0 px-1" onclick="removeScopeItem('${key}')" aria-label="Close"><i class="" data-icon="x" aria-hidden="true"></i></button>`;
             panel.appendChild(div);
+            window.KairosUI.icons();
         });
     }
 

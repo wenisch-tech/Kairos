@@ -1,62 +1,40 @@
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="dark"
+<html lang="en" data-theme="light"
       xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" th:href="@{/img/kairos.png}" type="image/png">
     <title>About - Kairos Admin</title>
-    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
-    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/font/bootstrap-icons.min.css}">
-    <link rel="stylesheet" th:href="@{/css/kairos.css}">
+    <th:block th:replace="~{layout :: assets}"></th:block>
     <th:block th:utext="${customHeadersHtml}"></th:block>
 </head>
-<body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom">
-    <div class="container-fluid">
-        <a class="navbar-brand fw-bold d-flex align-items-center" th:href="@{/}"><img th:src="@{/img/kairos.png}" alt="Kairos" height="28" class="me-2"><span>Kairos</span></a>
-        <div class="collapse navbar-collapse">
-            <ul class="navbar-nav ms-auto align-items-center">
-                <li class="nav-item"><a class="nav-link" th:href="@{/}"><i class="bi bi-house me-1"></i>Dashboard</a></li>
-                <li class="nav-item">
-                    <form th:action="@{/logout}" method="post" class="d-inline">
-                        <button type="submit" class="btn btn-link nav-link"><i class="bi bi-box-arrow-right me-1"></i>Logout</button>
-                    </form>
-                </li>
-                <li class="nav-item ms-2">
-                    <button class="btn btn-outline-secondary btn-sm" onclick="toggleDarkMode()"><i class="bi bi-moon-stars-fill"></i></button>
-                </li>
-            </ul>
-        </div>
-    </div>
-</nav>
+<body class="admin-page" x-data="{ navOpen: false }">
+<nav th:replace="~{admin/layout :: adminNavbar}"></nav>
 
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-md-2 min-vh-100 border-end py-3 bg-dark-subtle">
-            <div th:replace="~{admin/layout :: adminSidebar}"></div>
-        </div>
+<div class="admin-shell">
+    <div class="admin-frame">
+        <aside th:replace="~{admin/layout :: adminSidebar}"></aside>
 
-        <div class="col-md-10 py-4 px-4">
-            <h2 class="h4 mb-4"><i class="bi bi-info-circle me-2"></i>About Kairos</h2>
+        <div class="admin-content" id="main-content">
+            <h1 class="heading-md mb-6"><i class="me-2" data-icon="info" aria-hidden="true"></i>About Kairos</h1>
 
-            <div class="card mb-3" style="font-size:.875rem">
-                <div class="card-header py-2">Application</div>
-                <div class="card-body py-3">
-                    <div class="row g-2">
-                        <div class="col-sm-6">
+            <div class="ui-card mb-4" style="font-size:.875rem">
+                <div class="ui-card-header py-2">Application</div>
+                <div class="ui-card-body py-4">
+                    <div class="ui-grid gap-2">
+                        <div class="sm:col-span-6">
                             <span class="text-muted">Name</span><br>
                             <strong>Kairos – Availability Monitor</strong>
                         </div>
-                        <div class="col-sm-2">
+                        <div class="sm:col-span-2">
                             <span class="text-muted">Version</span><br>
                             <strong th:text="${appVersion}">unknown</strong>
                         </div>
-                        <div class="col-sm-2">
+                        <div class="sm:col-span-2">
                             <span class="text-muted">Spring Boot</span><br>
                             <strong th:text="${springBootVersion}">unknown</strong>
                         </div>
-                        <div class="col-sm-2">
+                        <div class="sm:col-span-2">
                             <span class="text-muted">Java</span><br>
                             <strong th:text="${javaVersion}">unknown</strong>
                         </div>
@@ -64,49 +42,49 @@
                 </div>
             </div>
 
-            <div class="card mb-3" style="font-size:.875rem">
-                <div class="card-header py-2">Links</div>
-                <div class="card-body py-3">
-                    <div class="row g-2">
-                        <div class="col-sm-4">
+            <div class="ui-card mb-4" style="font-size:.875rem">
+                <div class="ui-card-header py-2">Links</div>
+                <div class="ui-card-body py-4">
+                    <div class="ui-grid gap-2">
+                        <div class="sm:col-span-4">
                             <span class="text-muted">Official Website</span><br>
-                            <a href="https://kairos.wenisch.tech" target="_blank" rel="noopener"><i class="bi bi-globe me-1"></i>kairos.wenisch.tech</a>
+                            <a href="https://kairos.wenisch.tech" target="_blank" rel="noopener"><i class="me-1" data-icon="globe" aria-hidden="true"></i>kairos.wenisch.tech</a>
                         </div>
-                        <div class="col-sm-4">
+                        <div class="sm:col-span-4">
                             <span class="text-muted">Documentation</span><br>
-                            <a href="https://kairos.wenisch.tech/docs" target="_blank" rel="noopener"><i class="bi bi-book me-1"></i>kairos.wenisch.tech/docs</a>
+                            <a href="https://kairos.wenisch.tech/docs" target="_blank" rel="noopener"><i class="me-1" data-icon="book-open" aria-hidden="true"></i>kairos.wenisch.tech/docs</a>
                         </div>
-                        <div class="col-sm-4">
+                        <div class="sm:col-span-4">
                             <span class="text-muted">Source Code</span><br>
-                            <a href="https://github.com/wenisch-tech/Kairos" target="_blank" rel="noopener"><i class="bi bi-github me-1"></i>github.com/wenisch-tech/Kairos</a>
+                            <a href="https://github.com/wenisch-tech/Kairos" target="_blank" rel="noopener"><i class="me-1" data-icon="github" aria-hidden="true"></i>github.com/wenisch-tech/Kairos</a>
                         </div>
                     </div>
-                    <div class="row g-2 mt-1">
-                        <div class="col-sm-4">
+                    <div class="ui-grid gap-2 mt-1">
+                        <div class="sm:col-span-4">
                             <span class="text-muted">Issues &amp; Feedback</span><br>
-                            <a href="https://github.com/wenisch-tech/Kairos/issues" target="_blank" rel="noopener"><i class="bi bi-bug me-1"></i>github.com/wenisch-tech/Kairos/issues</a>
+                            <a href="https://github.com/wenisch-tech/Kairos/issues" target="_blank" rel="noopener"><i class="me-1" data-icon="bug" aria-hidden="true"></i>github.com/wenisch-tech/Kairos/issues</a>
                         </div>
-                        <div class="col-sm-4">
+                        <div class="sm:col-span-4">
                             <span class="text-muted">Container Image</span><br>
-                            <a href="https://github.com/wenisch-tech/Kairos/pkgs/container/kairos" target="_blank" rel="noopener"><i class="bi bi-box me-1"></i>ghcr.io/wenisch-tech/kairos</a>
+                            <a href="https://github.com/wenisch-tech/Kairos/pkgs/container/kairos" target="_blank" rel="noopener"><i class="me-1" data-icon="box" aria-hidden="true"></i>ghcr.io/wenisch-tech/kairos</a>
                         </div>
-                        <div class="col-sm-4">
+                        <div class="sm:col-span-4">
                             <span class="text-muted">Releases</span><br>
-                            <a href="https://github.com/wenisch-tech/Kairos/releases" target="_blank" rel="noopener"><i class="bi bi-tag me-1"></i>github.com/wenisch-tech/Kairos/releases</a>
+                            <a href="https://github.com/wenisch-tech/Kairos/releases" target="_blank" rel="noopener"><i class="me-1" data-icon="tag" aria-hidden="true"></i>github.com/wenisch-tech/Kairos/releases</a>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="card mb-3" style="font-size:.875rem">
-                <div class="card-header py-2">Author</div>
-                <div class="card-body py-3">
-                    <div class="row g-2">
-                        <div class="col-sm-4">
+            <div class="ui-card mb-4" style="font-size:.875rem">
+                <div class="ui-card-header py-2">Author</div>
+                <div class="ui-card-body py-4">
+                    <div class="ui-grid gap-2">
+                        <div class="sm:col-span-4">
                             <span class="text-muted">Author</span><br>
                             <strong>Jean-Fabian Wenisch</strong>
                         </div>
-                        <div class="col-sm-4">
+                        <div class="sm:col-span-4">
                             <span class="text-muted">Website</span><br>
                             <a href="https://wenisch.tech" target="_blank" rel="noopener">wenisch.tech</a>
                         </div>
@@ -114,15 +92,15 @@
                 </div>
             </div>
 
-            <div class="card" style="font-size:.875rem">
-                <div class="card-header py-2">License</div>
-                <div class="card-body py-3">
-                    <div class="row g-2">
-                        <div class="col-sm-4">
+            <div class="ui-card" style="font-size:.875rem">
+                <div class="ui-card-header py-2">License</div>
+                <div class="ui-card-body py-4">
+                    <div class="ui-grid gap-2">
+                        <div class="sm:col-span-4">
                             <span class="text-muted">License</span><br>
                             <a href="https://github.com/wenisch-tech/Kairos/blob/main/LICENSE.md" target="_blank" rel="noopener">GNU AGPL v3.0</a>
                         </div>
-                        <div class="col-sm-8">
+                        <div class="sm:col-span-8">
                             <span class="text-muted">&nbsp;</span><br>
                             <span class="text-muted">Use and distribution are subject to the terms of the AGPL v3.0.</span>
                         </div>
@@ -133,7 +111,6 @@
     </div>
 </div>
 
-<script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
 <script th:src="@{/js/kairos.js}"></script>
 </body>
 </html>

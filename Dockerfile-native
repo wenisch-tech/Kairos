@@ -13,6 +13,8 @@ ENV PATH="${MAVEN_HOME}/bin:${PATH}"
 
 COPY pom.xml /workspace/pom.xml
 COPY src /workspace/src
+COPY package.json package-lock.json /workspace/
+COPY scripts/build-frontend.mjs /workspace/scripts/build-frontend.mjs
 
 RUN --mount=type=cache,target=/root/.m2 mvn -Pnative -DskipTests package
 

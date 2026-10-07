@@ -75,5 +75,16 @@ jobs:
           recreate: true
           path: code-coverage-results.md
 
-      - name: Build JAR
-        run: mvn -B -DskipTests package
+      - name: Install browser for UI tests
+        run: ./target/frontend/node/node node_modules/playwright/cli.js install --with-deps chromium
+
+      - name: Verify browser interactions and responsive layouts
+        run: ./target/frontend/node/node node_modules/playwright/cli.js test
+
+      - name: Upload browser screenshots and failure traces
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: browser-test-results
+          path: test-results/
+          if-no-files-found: ignore

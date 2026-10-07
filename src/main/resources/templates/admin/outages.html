@@ -1,103 +1,74 @@
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="dark"
+<html lang="en" data-theme="light"
       xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" th:href="@{/img/kairos.png}" type="image/png">
     <title>Outages - Kairos Admin</title>
-    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
-    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/font/bootstrap-icons.min.css}">
-    <link rel="stylesheet" th:href="@{/css/kairos.css}">
+    <th:block th:replace="~{layout :: assets}"></th:block>
     <th:block th:utext="${customHeadersHtml}"></th:block>
 </head>
-<body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom">
-    <div class="container-fluid">
-        <a class="navbar-brand fw-bold d-flex align-items-center" th:href="@{/}"><img th:src="@{/img/kairos.png}" alt="Kairos" height="28" class="me-2"><span>Kairos</span></a>
-        <div class="collapse navbar-collapse">
-            <ul class="navbar-nav ms-auto align-items-center">
-                <li class="nav-item"><a class="nav-link" th:href="@{/}"><i class="bi bi-house me-1"></i>Dashboard</a></li>
-                <li class="nav-item">
-                    <form th:action="@{/logout}" method="post" class="d-inline">
-                        <button type="submit" class="btn btn-link nav-link"><i class="bi bi-box-arrow-right me-1"></i>Logout</button>
-                    </form>
-                </li>
-                <li class="nav-item ms-2">
-                    <button class="btn btn-outline-secondary btn-sm" onclick="toggleDarkMode()"><i class="bi bi-moon-stars-fill"></i></button>
-                </li>
-            </ul>
-        </div>
-    </div>
-</nav>
+<body class="admin-page" x-data="{ navOpen: false }">
+<nav th:replace="~{admin/layout :: adminNavbar}"></nav>
 
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-md-2 min-vh-100 border-end py-3 bg-dark-subtle">
-            <div th:replace="~{admin/layout :: adminSidebar}"></div>
-        </div>
-        <div class="col-md-10 py-4 px-4">
-            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show">
-                <span th:text="${successMessage}">Success</span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show">
-                <span th:text="${errorMessage}">Error</span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
+<div class="admin-shell">
+    <div class="admin-frame">
+        <aside th:replace="~{admin/layout :: adminSidebar}"></aside>
+        <div class="admin-content" id="main-content">
+            <th:block th:replace="~{layout :: feedback}"></th:block>
 
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h2 class="h4 mb-0"><i class="bi bi-exclamation-octagon me-2"></i>Outages</h2>
+            <div class="flex justify-between items-center mb-4">
+                <h1 class="heading-md mb-0"><i class="me-2" data-icon="octagon-alert" aria-hidden="true"></i>Outages</h1>
                 <small class="text-muted" th:text="${#lists.size(outages)} + ' shown (max 500)'">0 shown</small>
             </div>
 
-            <div class="card mb-4">
-                <div class="card-header"><i class="bi bi-funnel me-2"></i>Filters</div>
-                <div class="card-body">
-                    <form method="get" th:action="@{/admin/outages}" class="row g-3 align-items-end">
-                        <div class="col-md-3">
-                            <label for="status" class="form-label">Status</label>
-                            <select id="status" name="status" class="form-select">
+            <div class="ui-card mb-6">
+                <div class="ui-card-header"><i class="me-2" data-icon="list-filter" aria-hidden="true"></i>Filters</div>
+                <div class="ui-card-body">
+                    <form method="get" th:action="@{/admin/outages}" class="ui-grid gap-4 items-end">
+                        <div class="md:col-span-3">
+                            <label for="status" class="ui-form-label">Status</label>
+                            <select id="status" name="status" class="ui-form-select">
                                 <option value="all" th:selected="${selectedStatus == 'all'}">All</option>
                                 <option value="active" th:selected="${selectedStatus == 'active'}">Active</option>
                                 <option value="resolved" th:selected="${selectedStatus == 'resolved'}">Resolved</option>
                             </select>
                         </div>
-                        <div class="col-md-5">
-                            <label for="q" class="form-label">Search</label>
-                            <input id="q" type="text" name="q" class="form-control" placeholder="Outage ID or resource name"
+                        <div class="md:col-span-5">
+                            <label for="q" class="ui-form-label">Search</label>
+                            <input id="q" type="text" name="q" class="ui-form-control" placeholder="Outage ID or resource name"
                                    th:value="${searchQuery}">
                         </div>
-                        <div class="col-md-4 d-flex gap-2">
-                            <button type="submit" class="btn btn-primary"><i class="bi bi-search me-1"></i>Apply</button>
-                            <a th:href="@{/admin/outages}" class="btn btn-outline-secondary">Reset</a>
+                        <div class="md:col-span-4 flex gap-2">
+                            <button type="submit" class="ui-btn ui-btn-primary"><i class="me-1" data-icon="search" aria-hidden="true"></i>Apply</button>
+                            <a th:href="@{/admin/outages}" class="ui-btn ui-btn-outline-secondary">Reset</a>
                         </div>
                     </form>
                 </div>
             </div>
 
-            <div class="card mb-4">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <span><i class="bi bi-trash3 me-2"></i>Manual Cleanup</span>
+            <div class="ui-card mb-6">
+                <div class="ui-card-header flex justify-between items-center">
+                    <span><i class="me-2" data-icon="trash-2" aria-hidden="true"></i>Manual Cleanup</span>
                     <form method="post" th:action="@{/admin/outages/delete-resolved}"
                           onsubmit="return confirm('Delete all resolved outages? This cannot be undone.');">
                         <input type="hidden" name="status" th:value="${selectedStatus}">
                         <input type="hidden" name="q" th:value="${searchQuery}">
-                        <button type="submit" class="btn btn-sm btn-outline-danger">
-                            <i class="bi bi-trash3 me-1"></i>Delete All Resolved
+                        <button type="submit" class="ui-btn ui-btn-sm ui-btn-outline-danger">
+                            <i class="me-1" data-icon="trash-2" aria-hidden="true"></i>Delete All Resolved
                         </button>
                     </form>
                 </div>
-                <div class="card-body p-0">
-                    <div th:if="${#lists.size(outages) == 0}" class="p-3 text-muted">No outages match the selected filters.</div>
+                <div class="ui-card-body p-0">
+                    <div th:if="${#lists.size(outages) == 0}" class="p-4 text-muted">No outages match the selected filters.</div>
 
                     <form th:unless="${#lists.size(outages) == 0}" method="post" th:action="@{/admin/outages/delete-selected}"
                           onsubmit="return confirm('Delete selected outages? This cannot be undone.');">
                         <input type="hidden" name="status" th:value="${selectedStatus}">
                         <input type="hidden" name="q" th:value="${searchQuery}">
-                        <div class="table-responsive">
-                            <table class="table table-sm table-hover align-middle mb-0">
+                        <div class="ui-table-responsive">
+                            <div class="ui-table-responsive"><table class="ui-table ui-table-sm ui-table-hover align-middle mb-0">
                                 <thead>
                                 <tr>
                                     <th style="width: 40px;"><input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)"></th>
@@ -111,40 +82,40 @@
                                 </thead>
                                 <tbody>
                                 <tr th:each="outage : ${outages}">
-                                    <td><input class="form-check-input outage-checkbox" type="checkbox" name="outageIds" th:value="${outage.id}"></td>
+                                    <td><input class="ui-form-check-input outage-checkbox" type="checkbox" name="outageIds" th:value="${outage.id}"></td>
                                     <td th:text="${outage.id}">1</td>
                                     <td>
                                         <span th:if="${outage.resource != null}" th:text="${outage.resource.name}">Resource</span>
-                                        <span th:unless="${outage.resource != null}" class="text-muted fst-italic">Deleted resource</span>
+                                        <span th:unless="${outage.resource != null}" class="text-muted italic">Deleted resource</span>
                                     </td>
                                     <td>
-                                        <span th:if="${outage.active}" class="badge bg-danger">Active</span>
-                                        <span th:unless="${outage.active}" class="badge bg-success">Resolved</span>
+                                        <span th:if="${outage.active}" class="ui-badge tone-danger">Active</span>
+                                        <span th:unless="${outage.active}" class="ui-badge tone-success">Resolved</span>
                                     </td>
                                     <td th:text="${@kairosTime.format(outage.startDate, 'yyyy-MM-dd HH:mm:ss')}">-</td>
                                     <td>
                                         <span th:if="${outage.endDate != null}" th:text="${@kairosTime.format(outage.endDate, 'yyyy-MM-dd HH:mm:ss')}">-</span>
-                                        <span th:unless="${outage.endDate != null}" class="text-muted fst-italic">ongoing</span>
+                                        <span th:unless="${outage.endDate != null}" class="text-muted italic">ongoing</span>
                                     </td>
                                     <td class="text-center">
                                         <button type="submit"
-                                                class="btn btn-sm btn-outline-danger"
+                                                class="ui-btn ui-btn-sm ui-btn-outline-danger"
                                                 title="Delete outage"
                                                 th:formaction="@{/admin/outages/delete/{id}(id=${outage.id})}"
                                                 formmethod="post"
                                                 onclick="return confirm('Delete this outage? This cannot be undone.');">
-                                            <i class="bi bi-trash3"></i>
+                                            <i class="" data-icon="trash-2" aria-hidden="true"></i>
                                         </button>
                                     </td>
                                 </tr>
                                 </tbody>
-                            </table>
+                            </table></div>
                         </div>
 
-                        <div class="p-3 border-top d-flex justify-content-between align-items-center">
+                        <div class="p-4 border-top flex justify-between items-center">
                             <small class="text-muted">Tip: select one or more outages and use bulk delete.</small>
-                            <button type="submit" class="btn btn-danger">
-                                <i class="bi bi-trash3 me-1"></i>Delete Selected
+                            <button type="submit" class="ui-btn ui-btn-danger">
+                                <i class="me-1" data-icon="trash-2" aria-hidden="true"></i>Delete Selected
                             </button>
                         </div>
                     </form>
@@ -154,7 +125,6 @@
     </div>
 </div>
 
-<script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
 <script th:src="@{/js/kairos.js}"></script>
 <script>
     function toggleSelectAll(toggle) {

@@ -1,61 +1,32 @@
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="dark"
+<html lang="en" data-theme="light"
       xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" th:href="@{/img/kairos.png}" type="image/png">
     <title>Users - Kairos Admin</title>
-    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
-    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/font/bootstrap-icons.min.css}">
-    <link rel="stylesheet" th:href="@{/css/kairos.css}">
+    <th:block th:replace="~{layout :: assets}"></th:block>
     <th:block th:utext="${customHeadersHtml}"></th:block>
 </head>
-<body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom">
-    <div class="container-fluid">
-        <a class="navbar-brand fw-bold d-flex align-items-center" th:href="@{/}"><img th:src="@{/img/kairos.png}" alt="Kairos" height="28" class="me-2"><span>Kairos</span></a>
-        <div class="collapse navbar-collapse">
-            <ul class="navbar-nav ms-auto align-items-center">
-                <li class="nav-item"><a class="nav-link" th:href="@{/}"><i class="bi bi-house me-1"></i>Dashboard</a></li>
-                <li class="nav-item">
-                    <form th:action="@{/logout}" method="post" class="d-inline">
-                        <button type="submit" class="btn btn-link nav-link"><i class="bi bi-box-arrow-right me-1"></i>Logout</button>
-                    </form>
-                </li>
-                <li class="nav-item ms-2">
-                    <button class="btn btn-outline-secondary btn-sm" onclick="toggleDarkMode()"><i class="bi bi-moon-stars-fill"></i></button>
-                </li>
-            </ul>
-        </div>
-    </div>
-</nav>
+<body class="admin-page" x-data="{ navOpen: false }">
+<nav th:replace="~{admin/layout :: adminNavbar}"></nav>
 
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-md-2 min-vh-100 border-end py-3 bg-dark-subtle">
-            <div th:replace="~{admin/layout :: adminSidebar}"></div>
-        </div>
-        <div class="col-md-10 py-4 px-4">
-            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show">
-                <span th:text="${successMessage}">Success</span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show">
-                <span th:text="${errorMessage}">Error</span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
+<div class="admin-shell">
+    <div class="admin-frame">
+        <aside th:replace="~{admin/layout :: adminSidebar}"></aside>
+        <div class="admin-content" id="main-content">
+            <th:block th:replace="~{layout :: feedback}"></th:block>
 
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="h4 mb-0"><i class="bi bi-people me-2"></i>User Management</h2>
-                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
-                    <i class="bi bi-person-plus me-1"></i>Add User
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="heading-md mb-0"><i class="me-2" data-icon="users" aria-hidden="true"></i>User Management</h1>
+                <button class="ui-btn ui-btn-primary" data-ui-toggle="modal" data-ui-target="#addUserModal">
+                    <i class="me-1" data-icon="user-plus" aria-hidden="true"></i>Add User
                 </button>
             </div>
 
-            <div class="card">
-                <div class="card-body p-0">
-                    <table class="table table-hover mb-0">
+            <div class="ui-card">
+                <div class="ui-card-body p-0">
+                    <div class="ui-table-responsive"><table class="ui-table ui-table-hover mb-0">
                         <thead>
                             <tr>
                                 <th>Email</th>
@@ -70,40 +41,40 @@
                             <tr th:each="user : ${users}">
                                 <td th:text="${user.email}">email</td>
                                 <td>
-                                    <div class="d-flex flex-column gap-2">
-                                        <span th:class="'badge align-self-start ' + (${user.role.name == 'ADMIN'} ? 'bg-warning text-dark' : 'bg-primary')"
+                                    <div class="flex flex-col gap-2">
+                                        <span th:class="'ui-badge align-self-start' + (${user.role.name == 'ADMIN'} ? 'tone-warning text-ink' : 'tone-primary')"
                                               th:text="${user.role}">ROLE</span>
                                         <form th:action="@{/admin/users/update-role/{id}(id=${user.id})}" method="post"
-                                              class="d-flex gap-2 align-items-center flex-wrap">
-                                            <select class="form-select form-select-sm" name="role" style="max-width: 160px;">
+                                              class="flex gap-2 items-center flex-wrap">
+                                            <select class="ui-form-select ui-form-select-sm" name="role" style="max-width: 160px;">
                                                 <option th:each="roleOption : ${userRoles}"
                                                         th:value="${roleOption.name()}"
                                                         th:text="${roleOption.name()}"
                                                         th:selected="${user.role == roleOption}">ROLE</option>
                                             </select>
-                                            <button type="submit" class="btn btn-outline-primary btn-sm">
-                                                <i class="bi bi-save me-1"></i>Save
+                                            <button type="submit" class="ui-btn ui-btn-outline-primary ui-btn-sm">
+                                                <i class="me-1" data-icon="save" aria-hidden="true"></i>Save
                                             </button>
                                         </form>
                                     </div>
                                 </td>
                                 <td>
-                                    <span th:class="'badge ' + (${user.provider.name == 'OIDC'} ? 'bg-info text-dark' : 'bg-secondary')"
+                                    <span th:class="'ui-badge' + (${user.provider.name == 'OIDC'} ? 'tone-info text-ink' : 'tone-secondary')"
                                           th:text="${user.provider}">PROVIDER</span>
                                 </td>
                                 <td th:text="${user.lastLoginAt != null} ? ${@kairosTime.format(user.lastLoginAt, 'yyyy-MM-dd HH:mm')} : 'Never'">date</td>
                                 <td th:text="${user.createdAt != null} ? ${@kairosTime.format(user.createdAt, 'yyyy-MM-dd')} : '-'">date</td>
                                 <td>
-                                    <form th:action="@{/admin/users/delete/{id}(id=${user.id})}" method="post" class="d-inline"
+                                    <form th:action="@{/admin/users/delete/{id}(id=${user.id})}" method="post" class="inline"
                                           onsubmit="return confirm('Delete this user?')">
-                                        <button type="submit" class="btn btn-danger btn-sm">
-                                            <i class="bi bi-trash"></i>
+                                        <button type="submit" class="ui-btn ui-btn-danger ui-btn-sm" aria-label="Delete">
+                                            <i class="" data-icon="trash-2" aria-hidden="true"></i>
                                         </button>
                                     </form>
                                 </td>
                             </tr>
                         </tbody>
-                    </table>
+                    </table></div>
                 </div>
             </div>
         </div>
@@ -111,41 +82,40 @@
 </div>
 
 <!-- Add User Modal -->
-<div class="modal fade" id="addUserModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title"><i class="bi bi-person-plus me-2"></i>Add Local User</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+<div class="ui-modal" id="addUserModal" tabindex="-1" role="dialog" aria-modal="true" x-data="dialog" x-show="open" x-cloak x-trap.inert.noscroll="open" @keydown.escape.window="hide()" @click.self="hide()" @kairos-dialog.window="if ($event.detail.id === $el.id) open = $event.detail.open">
+    <div class="ui-modal-dialog">
+        <div class="ui-modal-content">
+            <div class="ui-modal-header">
+                <h5 class="ui-modal-title"><i class="me-2" data-icon="user-plus" aria-hidden="true"></i>Add Local User</h5>
+                <button type="button" class="ui-btn-close" data-ui-dismiss="modal" aria-label="Close"></button>
             </div>
             <form th:action="@{/admin/users/add}" method="post">
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Email</label>
-                        <input type="email" class="form-control" name="email" required>
+                <div class="ui-modal-body">
+                    <div class="mb-4">
+                        <label class="ui-form-label">Email</label>
+                        <input type="email" class="ui-form-control" name="email" required>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Password</label>
-                        <input type="password" class="form-control" name="password" required>
+                    <div class="mb-4">
+                        <label class="ui-form-label">Password</label>
+                        <input type="password" class="ui-form-control" name="password" required>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Role</label>
-                        <select class="form-select" name="role">
+                    <div class="mb-4">
+                        <label class="ui-form-label">Role</label>
+                        <select class="ui-form-select" name="role">
                             <option value="USER">USER</option>
                             <option value="ADMIN">ADMIN</option>
                         </select>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary"><i class="bi bi-person-plus me-1"></i>Add User</button>
+                <div class="ui-modal-footer">
+                    <button type="button" class="ui-btn ui-btn-secondary" data-ui-dismiss="modal">Cancel</button>
+                    <button type="submit" class="ui-btn ui-btn-primary"><i class="me-1" data-icon="user-plus" aria-hidden="true"></i>Add User</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-<script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
 <script th:src="@{/js/kairos.js}"></script>
 </body>
 </html>

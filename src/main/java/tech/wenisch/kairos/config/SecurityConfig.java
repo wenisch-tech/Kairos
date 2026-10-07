@@ -138,7 +138,7 @@ public class SecurityConfig {
             ApiKeyAuthenticationFilter apiKeyAuthenticationFilter) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/login", "/error", "/css/**", "/js/**", "/img/**", "/webjars/**").permitAll()
+            .requestMatchers("/login", "/error", "/css/**", "/js/**", "/img/**").permitAll()
             .requestMatchers("/embed/**").permitAll()
             .requestMatchers("/groups/**").permitAll()
             .requestMatchers("/", "/announcements", "/outages", "/resources/**", "/instant-check", "/actuator/prometheus", "/actuator/health", "/actuator/health/**", "/h2-console/**",

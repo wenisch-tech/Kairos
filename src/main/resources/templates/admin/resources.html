@@ -1,76 +1,47 @@
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="dark"
+<html lang="en" data-theme="light"
       xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" th:href="@{/img/kairos.png}" type="image/png">
     <title>Resources - Kairos Admin</title>
-    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
-    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/font/bootstrap-icons.min.css}">
-    <link rel="stylesheet" th:href="@{/css/kairos.css}">
+    <th:block th:replace="~{layout :: assets}"></th:block>
     <th:block th:utext="${customHeadersHtml}"></th:block>
 </head>
-<body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom">
-    <div class="container-fluid">
-        <a class="navbar-brand fw-bold d-flex align-items-center" th:href="@{/}"><img th:src="@{/img/kairos.png}" alt="Kairos" height="28" class="me-2"><span>Kairos</span></a>
-        <div class="collapse navbar-collapse">
-            <ul class="navbar-nav ms-auto align-items-center">
-                <li class="nav-item"><a class="nav-link" th:href="@{/}"><i class="bi bi-house me-1"></i>Dashboard</a></li>
-                <li class="nav-item">
-                    <form th:action="@{/logout}" method="post" class="d-inline">
-                        <button type="submit" class="btn btn-link nav-link"><i class="bi bi-box-arrow-right me-1"></i>Logout</button>
-                    </form>
-                </li>
-                <li class="nav-item ms-2">
-                    <button class="btn btn-outline-secondary btn-sm" onclick="toggleDarkMode()"><i class="bi bi-moon-stars-fill"></i></button>
-                </li>
-            </ul>
-        </div>
-    </div>
-</nav>
+<body class="admin-page" x-data="{ navOpen: false }">
+<nav th:replace="~{admin/layout :: adminNavbar}"></nav>
 
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-md-2 min-vh-100 border-end py-3 bg-dark-subtle">
-            <div th:replace="~{admin/layout :: adminSidebar}"></div>
-        </div>
-        <div class="col-md-10 py-4 px-4">
-            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show">
-                <span th:text="${successMessage}">Success</span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show">
-                <span th:text="${errorMessage}">Error</span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
+<div class="admin-shell">
+    <div class="admin-frame">
+        <aside th:replace="~{admin/layout :: adminSidebar}"></aside>
+        <div class="admin-content" id="main-content">
+            <th:block th:replace="~{layout :: feedback}"></th:block>
 
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="h4 mb-0"><i class="bi bi-hdd-network me-2"></i>Manage Resources</h2>
-                <div class="d-flex gap-2">
-                    <a class="btn btn-outline-info" th:href="@{/admin/resources/export}">
-                        <i class="bi bi-download me-1"></i>Export YAML
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="heading-md mb-0"><i class="me-2" data-icon="server" aria-hidden="true"></i>Manage Resources</h1>
+                <div class="flex gap-2">
+                    <a class="ui-btn ui-btn-outline-info" th:href="@{/admin/resources/export}">
+                        <i class="me-1" data-icon="download" aria-hidden="true"></i>Export YAML
                     </a>
-                    <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#importResourcesModal">
-                        <i class="bi bi-upload me-1"></i>Import YAML
+                    <button class="ui-btn ui-btn-outline-secondary" data-ui-toggle="modal" data-ui-target="#importResourcesModal">
+                        <i class="me-1" data-icon="upload" aria-hidden="true"></i>Import YAML
                     </button>
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addResourceModal">
-                        <i class="bi bi-plus-circle me-1"></i>Add Resource
+                    <button class="ui-btn ui-btn-primary" data-ui-toggle="modal" data-ui-target="#addResourceModal">
+                        <i class="me-1" data-icon="circle-plus" aria-hidden="true"></i>Add Resource
                     </button>
                 </div>
             </div>
 
-            <div class="card mb-4">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h3 class="h6 mb-0"><i class="bi bi-collection me-2"></i>Resource Groups</h3>
-                    <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addGroupModal">
-                        <i class="bi bi-folder-plus me-1"></i>Add Group
+            <div class="ui-card mb-6">
+                <div class="ui-card-header flex justify-between items-center">
+                    <h3 class="heading-xs mb-0"><i class="me-2" data-icon="layers" aria-hidden="true"></i>Resource Groups</h3>
+                    <button class="ui-btn ui-btn-sm ui-btn-primary" data-ui-toggle="modal" data-ui-target="#addGroupModal">
+                        <i class="me-1" data-icon="folder-plus" aria-hidden="true"></i>Add Group
                     </button>
                 </div>
-                <div class="card-body p-0">
-                    <div th:if="${#lists.size(resourceGroups) == 0}" class="p-3 text-muted">No groups configured.</div>
-                    <table class="table table-hover mb-0" th:unless="${#lists.size(resourceGroups) == 0}">
+                <div class="ui-card-body p-0">
+                    <div th:if="${#lists.size(resourceGroups) == 0}" class="p-4 text-muted">No groups configured.</div>
+                    <div class="ui-table-responsive"><table class="ui-table ui-table-hover mb-0" th:unless="${#lists.size(resourceGroups) == 0}">
                         <thead>
                         <tr>
                             <th>Name</th>
@@ -82,16 +53,16 @@
                         <tbody>
                         <tr th:each="group : ${resourceGroups}">
                             <td>
-                                <form class="row g-2 align-items-center" method="post" th:id="${'group-update-' + group.id}"
+                                <form class="ui-grid gap-2 items-center" method="post" th:id="${'group-update-' + group.id}"
                                       th:action="@{/admin/resource-groups/update/{id}(id=${group.id})}">
-                                    <div class="col-12">
-                                        <input type="text" name="name" class="form-control form-control-sm"
+                                    <div class="col-span-12">
+                                        <input type="text" name="name" class="ui-form-control ui-form-control-sm"
                                                th:value="${group.name}" required maxlength="255">
                                     </div>
                                 </form>
                             </td>
                             <td>
-                                <select class="form-select form-select-sm" name="visibility" th:attr="form=${'group-update-' + group.id}">
+                                <select class="ui-form-select ui-form-select-sm" name="visibility" th:attr="form=${'group-update-' + group.id}">
                                     <option th:each="visibility : ${groupVisibilityOptions}"
                                             th:value="${visibility}"
                                             th:selected="${group.visibilityOrDefault == visibility}"
@@ -99,117 +70,117 @@
                                 </select>
                             </td>
                             <td>
-                                <input type="number" name="displayOrder" class="form-control form-control-sm"
+                                <input type="number" name="displayOrder" class="ui-form-control ui-form-control-sm"
                                        th:value="${group.displayOrder}" step="1" th:attr="form=${'group-update-' + group.id}">
                             </td>
                             <td>
-                                <button type="submit" class="btn btn-sm btn-outline-primary" th:attr="form=${'group-update-' + group.id}" title="Save group">
-                                    <i class="bi bi-check2"></i>
+                                <button type="submit" class="ui-btn ui-btn-sm ui-btn-outline-primary" th:attr="form=${'group-update-' + group.id}" title="Save group">
+                                    <i class="" data-icon="check" aria-hidden="true"></i>
                                 </button>
-                                <form method="post" th:action="@{/admin/resource-groups/delete/{id}(id=${group.id})}" class="d-inline"
+                                <form method="post" th:action="@{/admin/resource-groups/delete/{id}(id=${group.id})}" class="inline"
                                       onsubmit="return confirm('Delete this group? Resources will become ungrouped.')">
-                                    <button type="submit" class="btn btn-danger btn-sm">
-                                        <i class="bi bi-trash"></i>
+                                    <button type="submit" class="ui-btn ui-btn-danger ui-btn-sm" aria-label="Delete">
+                                        <i class="" data-icon="trash-2" aria-hidden="true"></i>
                                     </button>
                                 </form>
                             </td>
                         </tr>
                         </tbody>
-                    </table>
+                    </table></div>
                 </div>
             </div>
 
-            <div th:if="${#lists.size(resources) == 0}" class="card p-3 text-muted">No resources configured.</div>
+            <div th:if="${#lists.size(resources) == 0}" class="ui-card p-4 text-muted">No resources configured.</div>
 
-            <div class="vstack gap-3" th:unless="${#lists.size(resources) == 0}">
-                <div class="card" th:each="groupVm : ${adminResourceGroups}">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h3 class="h6 mb-0">
-                            <i class="bi" th:classappend="${groupVm.ungrouped} ? ' bi-inboxes-fill me-2' : ' bi-folder2-open me-2'"></i>
+            <div class="ui-stack gap-4" th:unless="${#lists.size(resources) == 0}">
+                <div class="ui-card" th:each="groupVm : ${adminResourceGroups}">
+                    <div class="ui-card-header flex justify-between items-center">
+                        <h3 class="heading-xs mb-0">
+                            <i class="me-2" aria-hidden="true" th:attr="data-icon=${groupVm.ungrouped} ? 'inbox' : 'folder-open'"></i>
                             <span th:text="${groupVm.groupName}">Group</span>
                         </h3>
-                        <div class="d-flex align-items-center gap-2">
-                            <div th:if="${groupVm.resourceDiscovery != null}" class="d-flex align-items-center gap-2">
-                                <span class="badge text-bg-info">Discovery Service</span>
-                                <a class="btn btn-outline-secondary btn-sm"
+                        <div class="flex items-center gap-2">
+                            <div th:if="${groupVm.resourceDiscovery != null}" class="flex items-center gap-2">
+                                <span class="ui-badge tone-info">Discovery Service</span>
+                                <a class="ui-btn ui-btn-outline-secondary ui-btn-sm"
                                    th:href="@{/admin/resource-discovery/edit/{id}(id=${groupVm.resourceDiscovery.id})}"
                                    title="Edit Discovery Service">
-                                    <i class="bi bi-pencil"></i>
+                                    <i class="" data-icon="pencil" aria-hidden="true"></i>
                                 </a>
-                                <form th:action="@{/admin/resource-discovery/delete/{id}(id=${groupVm.resourceDiscovery.id})}" method="post" class="d-inline"
+                                <form th:action="@{/admin/resource-discovery/delete/{id}(id=${groupVm.resourceDiscovery.id})}" method="post" class="inline"
                                       onsubmit="return confirm('Delete this discovery service and all managed Docker resources?')">
-                                    <button type="submit" class="btn btn-danger btn-sm" title="Delete Discovery Service">
-                                        <i class="bi bi-trash"></i>
+                                    <button type="submit" class="ui-btn ui-btn-danger ui-btn-sm" title="Delete Discovery Service">
+                                        <i class="" data-icon="trash-2" aria-hidden="true"></i>
                                     </button>
                                 </form>
-                                <form th:action="@{/admin/resource-discovery/sync/{id}(id=${groupVm.resourceDiscovery.id})}" method="post" class="d-inline">
-                                    <button type="submit" class="btn btn-outline-primary btn-sm" title="Sync now">
-                                        <i class="bi bi-arrow-repeat"></i>
+                                <form th:action="@{/admin/resource-discovery/sync/{id}(id=${groupVm.resourceDiscovery.id})}" method="post" class="inline">
+                                    <button type="submit" class="ui-btn ui-btn-outline-primary ui-btn-sm" title="Sync now">
+                                        <i class="" data-icon="refresh-cw" aria-hidden="true"></i>
                                     </button>
                                 </form>
                             </div>
 
-                            <form class="d-flex align-items-center gap-2" method="post" th:action="@{/admin/resources/reorder}">
+                            <form class="flex items-center gap-2" method="post" th:action="@{/admin/resources/reorder}">
                                 <input type="hidden" name="groupId" th:if="${!groupVm.ungrouped}" th:value="${groupVm.groupId}">
                                 <input type="hidden" name="orderedResourceIds" class="ordered-resource-ids">
-                                <button type="submit" class="btn btn-sm btn-outline-primary"
+                                <button type="submit" class="ui-btn ui-btn-sm ui-btn-outline-primary"
                                         th:attr="data-save-order-for-group=${groupVm.ungrouped} ? 'ungrouped' : ${groupVm.groupId}">
-                                    <i class="bi bi-save me-1"></i>Save Order
+                                    <i class="me-1" data-icon="save" aria-hidden="true"></i>Save Order
                                 </button>
                             </form>
                         </div>
                     </div>
-                    <div class="card-body p-0">
-                        <div class="list-group list-group-flush resource-sort-list"
+                    <div class="ui-card-body p-0">
+                        <div class="ui-list-group ui-list-group-flush resource-sort-list"
                              th:attr="data-group-id=${groupVm.ungrouped} ? 'ungrouped' : ${groupVm.groupId}">
-                           <div class="list-group-item text-muted small empty-drop-hint"
+                           <div class="ui-list-group-item text-muted text-sm empty-drop-hint"
                                th:if="${#lists.size(groupVm.resources) == 0}">
                               No resources in this group yet. Drag resources here to assign them.
                            </div>
-                            <div class="list-group-item resource-sort-item"
+                            <div class="ui-list-group-item resource-sort-item"
                                  th:each="resource : ${groupVm.resources}"
                                  th:attr="data-resource-id=${resource.id}" draggable="true"
                                  th:with="formId='resource-update-' + ${resource.id}">
-                                <div class="row g-2 align-items-center">
-                                    <div class="col-lg-1 text-muted drag-handle" title="Drag to reorder">
-                                        <i class="bi bi-grip-vertical"></i>
+                                <div class="ui-grid gap-2 items-center">
+                                    <div class="lg:col-span-1 text-muted drag-handle" title="Drag to reorder">
+                                        <i class="" data-icon="grip-vertical" aria-hidden="true"></i>
                                     </div>
-                                    <div class="col-lg-3">
+                                    <div class="lg:col-span-3">
                                         <a th:href="@{/resources/{id}(id=${resource.id})}" th:text="${resource.name}">Name</a>
-                                        <div class="small text-muted" th:text="${resource.resourceType}">TYPE</div>
+                                        <div class="text-sm text-muted" th:text="${resource.resourceType}">TYPE</div>
                                     </div>
-                                    <div class="col-lg-3">
-                                        <code class="small" th:text="${resource.target}">target</code>
+                                    <div class="lg:col-span-3">
+                                        <code class="text-sm" th:text="${resource.target}">target</code>
                                     </div>
-                                    <div class="col-lg-2">
-                                        <select class="form-select form-select-sm" name="groupIds" multiple
+                                    <div class="lg:col-span-2">
+                                        <select class="ui-form-select ui-form-select-sm" name="groupIds" multiple
                                                 th:attr="form=${formId}" size="3">
                                             <option th:each="group : ${resourceGroups}"
                                                     th:value="${group.id}"
                                                     th:selected="${resource.groups != null and #lists.contains(resource.groups.![id], group.id)}"
                                                     th:text="${group.name}">Group</option>
                                         </select>
-                                        <div class="form-text small">Hold Ctrl/⌘ to select multiple</div>
+                                        <div class="ui-form-text text-sm">Hold Ctrl/⌘ to select multiple</div>
                                     </div>
-                                    <div class="col-lg-1">
-                                        <input type="number" class="form-control form-control-sm" name="displayOrder"
+                                    <div class="lg:col-span-1">
+                                        <input type="number" class="ui-form-control ui-form-control-sm" name="displayOrder"
                                                th:value="${resource.displayOrder}" step="1" th:attr="form=${formId}">
                                     </div>
-                                    <div class="col-lg-2 text-end">
-                                        <form th:action="@{/admin/resources/update/{id}(id=${resource.id})}" method="post" class="d-inline"
+                                    <div class="lg:col-span-2 text-right">
+                                        <form th:action="@{/admin/resources/update/{id}(id=${resource.id})}" method="post" class="inline"
                                               th:id="${formId}"></form>
-                                        <a class="btn btn-outline-secondary btn-sm"
+                                        <a class="ui-btn ui-btn-outline-secondary ui-btn-sm"
                                            th:href="@{/admin/resources/edit/{id}(id=${resource.id})}"
                                            title="Edit resource">
-                                            <i class="bi bi-pencil"></i>
+                                            <i class="" data-icon="pencil" aria-hidden="true"></i>
                                         </a>
-                                        <button type="submit" class="btn btn-outline-primary btn-sm" th:attr="form=${formId}" title="Save resource changes">
-                                            <i class="bi bi-check2"></i>
+                                        <button type="submit" class="ui-btn ui-btn-outline-primary ui-btn-sm" th:attr="form=${formId}" title="Save resource changes">
+                                            <i class="" data-icon="check" aria-hidden="true"></i>
                                         </button>
-                                        <form th:action="@{/admin/resources/delete/{id}(id=${resource.id})}" method="post" class="d-inline"
+                                        <form th:action="@{/admin/resources/delete/{id}(id=${resource.id})}" method="post" class="inline"
                                               onsubmit="return confirm('Delete this resource?')">
-                                            <button type="submit" class="btn btn-danger btn-sm">
-                                                <i class="bi bi-trash"></i>
+                                            <button type="submit" class="ui-btn ui-btn-danger ui-btn-sm" aria-label="Delete">
+                                                <i class="" data-icon="trash-2" aria-hidden="true"></i>
                                             </button>
                                         </form>
                                     </div>
@@ -220,7 +191,7 @@
                 </div>
             </div>
 
-            <div class="small text-muted">
+            <div class="text-sm text-muted">
                 Drag resources within a group to reorder them, or drag across groups to reassign them.
                 Use Save Order in each affected group to persist changes.
             </div>
@@ -229,27 +200,27 @@
 </div>
 
 <!-- Import Resources Modal -->
-<div class="modal fade" id="importResourcesModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title"><i class="bi bi-upload me-2"></i>Import Resources (YAML)</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+<div class="ui-modal" id="importResourcesModal" tabindex="-1" role="dialog" aria-modal="true" x-data="dialog" x-show="open" x-cloak x-trap.inert.noscroll="open" @keydown.escape.window="hide()" @click.self="hide()" @kairos-dialog.window="if ($event.detail.id === $el.id) open = $event.detail.open">
+    <div class="ui-modal-dialog">
+        <div class="ui-modal-content">
+            <div class="ui-modal-header">
+                <h5 class="ui-modal-title"><i class="me-2" data-icon="upload" aria-hidden="true"></i>Import Resources (YAML)</h5>
+                <button type="button" class="ui-btn-close" data-ui-dismiss="modal" aria-label="Close"></button>
             </div>
             <form th:action="@{/admin/resources/import}" method="post" enctype="multipart/form-data">
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="resourceImportFile" class="form-label">YAML File</label>
-                        <input id="resourceImportFile" type="file" name="file" class="form-control"
+                <div class="ui-modal-body">
+                    <div class="mb-4">
+                        <label for="resourceImportFile" class="ui-form-label">YAML File</label>
+                        <input id="resourceImportFile" type="file" name="file" class="ui-form-control"
                                accept=".yaml,.yml,text/yaml,application/x-yaml" required>
                     </div>
-                    <div class="form-text">
+                    <div class="ui-form-text">
                         Supports versioned export files and older list-based YAML files.
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary"><i class="bi bi-upload me-1"></i>Import</button>
+                <div class="ui-modal-footer">
+                    <button type="button" class="ui-btn ui-btn-secondary" data-ui-dismiss="modal">Cancel</button>
+                    <button type="submit" class="ui-btn ui-btn-primary"><i class="me-1" data-icon="upload" aria-hidden="true"></i>Import</button>
                 </div>
             </form>
         </div>
@@ -257,61 +228,61 @@
 </div>
 
 <!-- Add Resource Modal -->
-<div class="modal fade" id="addResourceModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title"><i class="bi bi-plus-circle me-2"></i>Add Resource</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+<div class="ui-modal" id="addResourceModal" tabindex="-1" role="dialog" aria-modal="true" x-data="dialog" x-show="open" x-cloak x-trap.inert.noscroll="open" @keydown.escape.window="hide()" @click.self="hide()" @kairos-dialog.window="if ($event.detail.id === $el.id) open = $event.detail.open">
+    <div class="ui-modal-dialog">
+        <div class="ui-modal-content">
+            <div class="ui-modal-header">
+                <h5 class="ui-modal-title"><i class="me-2" data-icon="circle-plus" aria-hidden="true"></i>Add Resource</h5>
+                <button type="button" class="ui-btn-close" data-ui-dismiss="modal" aria-label="Close"></button>
             </div>
             <form th:action="@{/admin/resources/add}" method="post">
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Name</label>
-                        <input type="text" class="form-control" name="name" required placeholder="My Website">
+                <div class="ui-modal-body">
+                    <div class="mb-4">
+                        <label class="ui-form-label">Name</label>
+                        <input type="text" class="ui-form-control" name="name" required placeholder="My Website">
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Type</label>
-                        <select class="form-select" name="resourceType" required>
+                    <div class="mb-4">
+                        <label class="ui-form-label">Type</label>
+                        <select class="ui-form-select" name="resourceType" required>
                             <option th:each="type : ${resourceTypes}" th:value="${type}" th:text="${type}">TYPE</option>
                         </select>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Target</label>
-                        <input type="text" class="form-control" name="target" required
+                    <div class="mb-4">
+                        <label class="ui-form-label">Target</label>
+                        <input type="text" class="ui-form-control" name="target" required
                                placeholder="https://example.com, nginx:latest, or ghcr.io/jfwenisch">
-                           <div class="form-text">URL or Docker image name.</div>
+                           <div class="ui-form-text">URL or Docker image name.</div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Groups</label>
-                        <select class="form-select" name="groupIds" multiple size="4">
+                    <div class="mb-4">
+                        <label class="ui-form-label">Groups</label>
+                        <select class="ui-form-select" name="groupIds" multiple size="4">
                             <option th:each="group : ${resourceGroups}" th:value="${group.id}" th:text="${group.name}">Group</option>
                         </select>
-                        <div class="form-text">Hold Ctrl/⌘ to select multiple groups. Leave empty to leave ungrouped.</div>
+                        <div class="ui-form-text">Hold Ctrl/⌘ to select multiple groups. Leave empty to leave ungrouped.</div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Order</label>
-                        <input type="number" class="form-control" name="displayOrder" value="0" step="1">
-                        <div class="form-text">Lower numbers are shown first.</div>
+                    <div class="mb-4">
+                        <label class="ui-form-label">Order</label>
+                        <input type="number" class="ui-form-control" name="displayOrder" value="0" step="1">
+                        <div class="ui-form-text">Lower numbers are shown first.</div>
                     </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="skipTLS" name="skipTLS" value="true">
-                        <label class="form-check-label" for="skipTLS">
+                    <div class="ui-form-check">
+                        <input class="ui-form-check-input" type="checkbox" id="skipTLS" name="skipTLS" value="true">
+                        <label class="ui-form-check-label" for="skipTLS">
                             Ignore TLS certificate and hostname errors
                         </label>
-                        <div class="form-text">Used for HTTPS connections (HTTP checks and Docker registry checks).</div>
+                        <div class="ui-form-text">Used for HTTPS connections (HTTP checks and Docker registry checks).</div>
                     </div>
-                    <div class="form-check mt-3">
-                        <input class="form-check-input" type="checkbox" id="recursive" name="recursive" value="true">
-                        <label class="form-check-label" for="recursive">
+                    <div class="ui-form-check mt-4">
+                        <input class="ui-form-check-input" type="checkbox" id="recursive" name="recursive" value="true">
+                        <label class="ui-form-check-label" for="recursive">
                             Recursive
                         </label>
-                        <div class="form-text">Used by resource types that support recursive checks.</div>
+                        <div class="ui-form-text">Used by resource types that support recursive checks.</div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary"><i class="bi bi-plus me-1"></i>Add</button>
+                <div class="ui-modal-footer">
+                    <button type="button" class="ui-btn ui-btn-secondary" data-ui-dismiss="modal">Cancel</button>
+                    <button type="submit" class="ui-btn ui-btn-primary"><i class="me-1" data-icon="plus" aria-hidden="true"></i>Add</button>
                 </div>
             </form>
         </div>
@@ -319,45 +290,44 @@
 </div>
 
 <!-- Add Group Modal -->
-<div class="modal fade" id="addGroupModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title"><i class="bi bi-folder-plus me-2"></i>Add Resource Group</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+<div class="ui-modal" id="addGroupModal" tabindex="-1" role="dialog" aria-modal="true" x-data="dialog" x-show="open" x-cloak x-trap.inert.noscroll="open" @keydown.escape.window="hide()" @click.self="hide()" @kairos-dialog.window="if ($event.detail.id === $el.id) open = $event.detail.open">
+    <div class="ui-modal-dialog">
+        <div class="ui-modal-content">
+            <div class="ui-modal-header">
+                <h5 class="ui-modal-title"><i class="me-2" data-icon="folder-plus" aria-hidden="true"></i>Add Resource Group</h5>
+                <button type="button" class="ui-btn-close" data-ui-dismiss="modal" aria-label="Close"></button>
             </div>
             <form th:action="@{/admin/resource-groups/add}" method="post">
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Group Name</label>
-                        <input type="text" class="form-control" name="name" maxlength="255" required>
+                <div class="ui-modal-body">
+                    <div class="mb-4">
+                        <label class="ui-form-label">Group Name</label>
+                        <input type="text" class="ui-form-control" name="name" maxlength="255" required>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Group Order</label>
-                        <input type="number" class="form-control" name="displayOrder" value="0" step="1">
-                        <div class="form-text">Lower numbers are shown first on the landing page.</div>
+                    <div class="mb-4">
+                        <label class="ui-form-label">Group Order</label>
+                        <input type="number" class="ui-form-control" name="displayOrder" value="0" step="1">
+                        <div class="ui-form-text">Lower numbers are shown first on the landing page.</div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Visibility</label>
-                        <select class="form-select" name="visibility">
+                    <div class="mb-4">
+                        <label class="ui-form-label">Visibility</label>
+                        <select class="ui-form-select" name="visibility">
                             <option th:each="visibility : ${groupVisibilityOptions}"
                                     th:value="${visibility}"
                                     th:text="${visibility}"
                                     th:selected="${visibility.name == 'PUBLIC'}">PUBLIC</option>
                         </select>
-                        <div class="form-text">PUBLIC shows for everyone, AUTHENTICATED shows only to signed-in users, HIDDEN hides this group from dashboard and public API views.</div>
+                        <div class="ui-form-text">PUBLIC shows for everyone, AUTHENTICATED shows only to signed-in users, HIDDEN hides this group from dashboard and public API views.</div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary"><i class="bi bi-plus me-1"></i>Add Group</button>
+                <div class="ui-modal-footer">
+                    <button type="button" class="ui-btn ui-btn-secondary" data-ui-dismiss="modal">Cancel</button>
+                    <button type="submit" class="ui-btn ui-btn-primary"><i class="me-1" data-icon="plus" aria-hidden="true"></i>Add Group</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-<script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
 <script th:src="@{/js/kairos.js}"></script>
 </body>
 </html>

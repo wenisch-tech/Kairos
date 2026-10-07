@@ -1,58 +1,29 @@
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="dark"
+<html lang="en" data-theme="light"
       xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" th:href="@{/img/kairos.png}" type="image/png">
     <title>Resource Discovery - Kairos Admin</title>
-    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
-    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/font/bootstrap-icons.min.css}">
-    <link rel="stylesheet" th:href="@{/css/kairos.css}">
+    <th:block th:replace="~{layout :: assets}"></th:block>
     <th:block th:utext="${customHeadersHtml}"></th:block>
 </head>
-<body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom">
-    <div class="container-fluid">
-        <a class="navbar-brand fw-bold d-flex align-items-center" th:href="@{/}"><img th:src="@{/img/kairos.png}" alt="Kairos" height="28" class="me-2"><span>Kairos</span></a>
-        <div class="collapse navbar-collapse">
-            <ul class="navbar-nav ms-auto align-items-center">
-                <li class="nav-item"><a class="nav-link" th:href="@{/}"><i class="bi bi-house me-1"></i>Dashboard</a></li>
-                <li class="nav-item">
-                    <form th:action="@{/logout}" method="post" class="d-inline">
-                        <button type="submit" class="btn btn-link nav-link"><i class="bi bi-box-arrow-right me-1"></i>Logout</button>
-                    </form>
-                </li>
-                <li class="nav-item ms-2">
-                    <button class="btn btn-outline-secondary btn-sm" onclick="toggleDarkMode()"><i class="bi bi-moon-stars-fill"></i></button>
-                </li>
-            </ul>
-        </div>
-    </div>
-</nav>
+<body class="admin-page" x-data="{ navOpen: false }">
+<nav th:replace="~{admin/layout :: adminNavbar}"></nav>
 
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-md-2 min-vh-100 border-end py-3 bg-dark-subtle">
-            <div th:replace="~{admin/layout :: adminSidebar}"></div>
-        </div>
-        <div class="col-md-10 py-4 px-4">
-            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show">
-                <span th:text="${successMessage}">Success</span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show">
-                <span th:text="${errorMessage}">Error</span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
+<div class="admin-shell">
+    <div class="admin-frame">
+        <aside th:replace="~{admin/layout :: adminSidebar}"></aside>
+        <div class="admin-content" id="main-content">
+            <th:block th:replace="~{layout :: feedback}"></th:block>
 
-            <h2 class="h4 mb-4"><i class="bi bi-search me-2"></i>Resource Discovery Services</h2>
+            <h1 class="heading-md mb-6"><i class="me-2" data-icon="search" aria-hidden="true"></i>Resource Discovery Services</h1>
 
-            <div class="card mb-4">
-                <div class="card-header"><strong>Configured Services</strong></div>
-                <div class="card-body p-0">
-                    <div th:if="${#lists.size(discoveryServices) == 0}" class="p-3 text-muted">No discovery services configured.</div>
-                    <table class="table table-hover mb-0" th:unless="${#lists.size(discoveryServices) == 0}">
+            <div class="ui-card mb-6">
+                <div class="ui-card-header"><strong>Configured Services</strong></div>
+                <div class="ui-card-body p-0">
+                    <div th:if="${#lists.size(discoveryServices) == 0}" class="p-4 text-muted">No discovery services configured.</div>
+                    <div class="ui-table-responsive"><table class="ui-table ui-table-hover mb-0" th:unless="${#lists.size(discoveryServices) == 0}">
                         <thead>
                         <tr>
                             <th>Name</th>
@@ -68,104 +39,104 @@
                             <td th:text="${discovery.type}">TYPE</td>
                             <td><code th:text="${discovery.target}"></code></td>
                             <td>
-                                <span class="badge" th:classappend="${discovery.active} ? ' text-bg-success' : ' text-bg-secondary'"
+                                <span class="ui-badge" th:classappend="${discovery.active} ? 'tone-success' : 'tone-secondary'"
                                       th:text="${discovery.active} ? 'Active' : 'Inactive'">Active</span>
                             </td>
                             <td>
-                                <a class="btn btn-outline-secondary btn-sm" th:href="@{/admin/resource-discovery/edit/{id}(id=${discovery.id})}">
-                                    <i class="bi bi-pencil"></i>
+                                <a class="ui-btn ui-btn-outline-secondary ui-btn-sm" th:href="@{/admin/resource-discovery/edit/{id}(id=${discovery.id})}">
+                                    <i class="" data-icon="pencil" aria-hidden="true"></i>
                                 </a>
-                                <form th:action="@{/admin/resource-discovery/sync/{id}(id=${discovery.id})}" method="post" class="d-inline">
-                                    <button type="submit" class="btn btn-outline-primary btn-sm"><i class="bi bi-arrow-repeat"></i></button>
+                                <form th:action="@{/admin/resource-discovery/sync/{id}(id=${discovery.id})}" method="post" class="inline">
+                                    <button type="submit" class="ui-btn ui-btn-outline-primary ui-btn-sm" aria-label="Refresh cw"><i class="" data-icon="refresh-cw" aria-hidden="true"></i></button>
                                 </form>
-                                <form th:action="@{/admin/resource-discovery/delete/{id}(id=${discovery.id})}" method="post" class="d-inline"
+                                <form th:action="@{/admin/resource-discovery/delete/{id}(id=${discovery.id})}" method="post" class="inline"
                                       onsubmit="return confirm('Delete this discovery service and all managed Docker resources?')">
-                                    <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash"></i></button>
+                                    <button type="submit" class="ui-btn ui-btn-danger ui-btn-sm" aria-label="Delete"><i class="" data-icon="trash-2" aria-hidden="true"></i></button>
                                 </form>
                             </td>
                         </tr>
                         </tbody>
-                    </table>
+                    </table></div>
                 </div>
             </div>
 
-            <div class="card mb-4">
-                <div class="card-header"><strong>Add Discovery Service</strong></div>
-                <div class="card-body">
+            <div class="ui-card mb-6">
+                <div class="ui-card-header"><strong>Add Discovery Service</strong></div>
+                <div class="ui-card-body">
                     <form th:action="@{/admin/resource-discovery/add}" method="post">
-                        <div class="row g-3">
-                            <div class="col-md-3">
-                                <label class="form-label">Name</label>
-                                <input type="text" class="form-control" name="name" required>
+                        <div class="ui-grid gap-4">
+                            <div class="md:col-span-3">
+                                <label class="ui-form-label">Name</label>
+                                <input type="text" class="ui-form-control" name="name" required>
                             </div>
-                            <div class="col-md-3">
-                                <label class="form-label">Type</label>
-                                <select class="form-select" name="type" required>
+                            <div class="md:col-span-3">
+                                <label class="ui-form-label">Type</label>
+                                <select class="ui-form-select" name="type" required>
                                     <option th:each="type : ${discoveryServiceTypes}" th:value="${type}" th:text="${type}">TYPE</option>
                                 </select>
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Target</label>
-                                <input type="text" class="form-control" name="target" placeholder="ghcr.io/owner" required>
+                            <div class="md:col-span-6">
+                                <label class="ui-form-label">Target</label>
+                                <input type="text" class="ui-form-control" name="target" placeholder="ghcr.io/owner" required>
                             </div>
-                            <div class="col-md-12 d-flex gap-4">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="addSkipTls" name="skipTLS" value="true">
-                                    <label class="form-check-label" for="addSkipTls">Ignore TLS errors</label>
+                            <div class="md:col-span-12 flex flex-wrap gap-4 discovery-options">
+                                <div class="ui-form-check">
+                                    <input class="ui-form-check-input" type="checkbox" id="addSkipTls" name="skipTLS" value="true">
+                                    <label class="ui-form-check-label" for="addSkipTls">Ignore TLS errors</label>
                                 </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="addRecursive" name="recursive" value="true">
-                                    <label class="form-check-label" for="addRecursive">Recursive discovery</label>
+                                <div class="ui-form-check">
+                                    <input class="ui-form-check-input" type="checkbox" id="addRecursive" name="recursive" value="true">
+                                    <label class="ui-form-check-label" for="addRecursive">Recursive discovery</label>
                                 </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="addOnlyTaggedResources" name="onlyTaggedResources" value="true">
-                                    <label class="form-check-label" for="addOnlyTaggedResources">Only scrape tagged resources</label>
+                                <div class="ui-form-check">
+                                    <input class="ui-form-check-input" type="checkbox" id="addOnlyTaggedResources" name="onlyTaggedResources" value="true">
+                                    <label class="ui-form-check-label" for="addOnlyTaggedResources">Only scrape tagged resources</label>
                                 </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="addLatestTagOnly" name="latestTagOnly" value="true">
-                                    <label class="form-check-label" for="addLatestTagOnly">Only discover 'latest' tag</label>
+                                <div class="ui-form-check">
+                                    <input class="ui-form-check-input" type="checkbox" id="addLatestTagOnly" name="latestTagOnly" value="true">
+                                    <label class="ui-form-check-label" for="addLatestTagOnly">Only discover 'latest' tag</label>
                                 </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="addActive" name="active" value="true" checked>
-                                    <label class="form-check-label" for="addActive">Active</label>
+                                <div class="ui-form-check">
+                                    <input class="ui-form-check-input" type="checkbox" id="addActive" name="active" value="true" checked>
+                                    <label class="ui-form-check-label" for="addActive">Active</label>
                                 </div>
                             </div>
-                            <div class="col-md-12">
-                                <button type="submit" class="btn btn-primary"><i class="bi bi-plus me-1"></i>Add Service</button>
+                            <div class="md:col-span-12">
+                                <button type="submit" class="ui-btn ui-btn-primary"><i class="me-1" data-icon="plus" aria-hidden="true"></i>Add Service</button>
                             </div>
                         </div>
                     </form>
                 </div>
             </div>
 
-            <div th:each="config : ${configs}" class="card mb-3">
-                <div class="card-header"><strong th:text="${config.typeName}">TYPE</strong></div>
-                <div class="card-body">
+            <div th:each="config : ${configs}" class="ui-card mb-4">
+                <div class="ui-card-header"><strong th:text="${config.typeName}">TYPE</strong></div>
+                <div class="ui-card-body">
                     <form th:action="@{/admin/resource-discovery/config/update}" method="post">
                         <input type="hidden" name="id" th:value="${config.id}">
-                        <div class="row g-3 align-items-end">
-                            <div class="col-md-4">
-                                <label class="form-label">Sync Interval (minutes)</label>
-                                <input type="number" class="form-control" name="syncIntervalMinutes" min="1"
+                        <div class="ui-grid gap-4 items-end">
+                            <div class="md:col-span-4">
+                                <label class="ui-form-label">Sync Interval (minutes)</label>
+                                <input type="number" class="ui-form-control" name="syncIntervalMinutes" min="1"
                                        th:value="${config.syncIntervalMinutes}" required>
                             </div>
-                            <div class="col-md-4">
-                                <label class="form-label">Parallelism (threads)</label>
-                                <input type="number" class="form-control" name="parallelism" min="1" max="20"
+                            <div class="md:col-span-4">
+                                <label class="ui-form-label">Parallelism (threads)</label>
+                                <input type="number" class="ui-form-control" name="parallelism" min="1" max="20"
                                        th:value="${config.parallelism}" required>
                             </div>
-                            <div class="col-md-4">
-                                <button type="submit" class="btn btn-primary"><i class="bi bi-save me-1"></i>Update</button>
+                            <div class="md:col-span-4">
+                                <button type="submit" class="ui-btn ui-btn-primary"><i class="me-1" data-icon="save" aria-hidden="true"></i>Update</button>
                             </div>
                         </div>
                     </form>
 
-                    <hr class="my-3">
-                    <h6 class="mb-3"><i class="bi bi-shield-lock me-2"></i>Authentication Credentials</h6>
+                    <hr class="my-4">
+                    <h6 class="mb-4"><i class="me-2" data-icon="shield-check" aria-hidden="true"></i>Authentication Credentials</h6>
 
-                    <div th:if="${#lists.size(config.authentications) > 0}" class="mb-3">
-                        <table class="table table-sm table-bordered align-middle">
-                            <thead class="table-dark">
+                    <div th:if="${#lists.size(config.authentications) > 0}" class="mb-4">
+                        <div class="ui-table-responsive"><table class="ui-table ui-table-sm ui-table-bordered align-middle">
+                            <thead class="ui-table-dark">
                             <tr>
                                 <th>Name</th>
                                 <th>Type</th>
@@ -177,51 +148,51 @@
                             <tbody>
                             <tr th:each="auth : ${config.authentications}">
                                 <td th:text="${auth.name}"></td>
-                                <td><span class="badge bg-secondary" th:text="${auth.authType}">BASIC</span></td>
+                                <td><span class="ui-badge tone-secondary" th:text="${auth.authType}">BASIC</span></td>
                                 <td><code th:text="${auth.urlPattern}"></code></td>
                                 <td th:text="${auth.username}"></td>
                                 <td>
-                                    <form th:action="@{'/admin/resource-discovery/auth/delete/' + ${auth.id}}" method="post" class="d-inline">
-                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Delete this authentication?')">
-                                            <i class="bi bi-trash"></i>
+                                    <form th:action="@{'/admin/resource-discovery/auth/delete/' + ${auth.id}}" method="post" class="inline">
+                                        <button type="submit" class="ui-btn ui-btn-danger ui-btn-sm" onclick="return confirm('Delete this authentication?')" aria-label="Delete">
+                                            <i class="" data-icon="trash-2" aria-hidden="true"></i>
                                         </button>
                                     </form>
                                 </td>
                             </tr>
                             </tbody>
-                        </table>
+                        </table></div>
                     </div>
-                    <p th:if="${#lists.size(config.authentications) == 0}" class="text-muted small">No authentication credentials configured.</p>
+                    <p th:if="${#lists.size(config.authentications) == 0}" class="text-muted text-sm">No authentication credentials configured.</p>
 
-                    <form th:action="@{'/admin/resource-discovery/' + ${config.id} + '/auth/add'}" method="post" class="row g-2">
-                        <div class="col-md-3">
-                            <label class="form-label">Name</label>
-                            <input type="text" class="form-control form-control-sm" name="name" required>
+                    <form th:action="@{'/admin/resource-discovery/' + ${config.id} + '/auth/add'}" method="post" class="ui-grid gap-2">
+                        <div class="md:col-span-3">
+                            <label class="ui-form-label">Name</label>
+                            <input type="text" class="ui-form-control ui-form-control-sm" name="name" required>
                         </div>
-                        <div class="col-md-3">
-                            <label class="form-label">URL / Target Pattern</label>
-                            <input type="text" class="form-control form-control-sm" name="urlPattern" placeholder="https://example.com*" required>
+                        <div class="md:col-span-3">
+                            <label class="ui-form-label">URL / Target Pattern</label>
+                            <input type="text" class="ui-form-control ui-form-control-sm" name="urlPattern" placeholder="https://example.com*" required>
                         </div>
-                        <div class="col-md-2">
-                            <label class="form-label">Type</label>
-                            <select class="form-select form-select-sm" name="authType">
+                        <div class="md:col-span-2">
+                            <label class="ui-form-label">Type</label>
+                            <select class="ui-form-select ui-form-select-sm" name="authType">
                                 <option value="BASIC">BASIC</option>
                                 <option value="BEARER">BEARER</option>
                             </select>
                         </div>
-                        <div class="col-md-2">
-                            <label class="form-label">Username</label>
-                            <input type="text" class="form-control form-control-sm" name="username" autocomplete="off">
+                        <div class="md:col-span-2">
+                            <label class="ui-form-label">Username</label>
+                            <input type="text" class="ui-form-control ui-form-control-sm" name="username" autocomplete="off">
                         </div>
-                        <div class="col-md-2">
-                            <label class="form-label">Password / Token</label>
-                            <input type="password" class="form-control form-control-sm" name="password" autocomplete="new-password" required>
+                        <div class="md:col-span-2">
+                            <label class="ui-form-label">Password / Token</label>
+                            <input type="password" class="ui-form-control ui-form-control-sm" name="password" autocomplete="new-password" required>
                         </div>
-                        <div class="col-md-12">
-                            <div class="form-text mt-0">For OpenShift tokens, choose BEARER and leave Username empty.</div>
+                        <div class="md:col-span-12">
+                            <div class="ui-form-text mt-0">For OpenShift tokens, choose BEARER and leave Username empty.</div>
                         </div>
-                        <div class="col-md-2 d-flex align-items-end">
-                            <button type="submit" class="btn btn-success btn-sm w-100"><i class="bi bi-check-lg me-1"></i>Save</button>
+                        <div class="md:col-span-2 flex items-end">
+                            <button type="submit" class="ui-btn ui-btn-success ui-btn-sm w-full"><i class="me-1" data-icon="check" aria-hidden="true"></i>Save</button>
                         </div>
                     </form>
                 </div>
@@ -230,7 +201,6 @@
     </div>
 </div>
 
-<script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
 <script th:src="@{/js/kairos.js}"></script>
 </body>
 </html>

@@ -1,107 +1,78 @@
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="dark"
+<html lang="en" data-theme="light"
       xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" th:href="@{/img/kairos.png}" type="image/png">
     <title>Embed Status Widget - Kairos Admin</title>
-    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
-    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/font/bootstrap-icons.min.css}">
-    <link rel="stylesheet" th:href="@{/css/kairos.css}">
+    <th:block th:replace="~{layout :: assets}"></th:block>
     <th:block th:utext="${customHeadersHtml}"></th:block>
 </head>
-<body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom">
-    <div class="container-fluid">
-        <a class="navbar-brand fw-bold d-flex align-items-center" th:href="@{/}"><img th:src="@{/img/kairos.png}" alt="Kairos" height="28" class="me-2"><span>Kairos</span></a>
-        <div class="collapse navbar-collapse">
-            <ul class="navbar-nav ms-auto align-items-center">
-                <li class="nav-item"><a class="nav-link" th:href="@{/}"><i class="bi bi-house me-1"></i>Dashboard</a></li>
-                <li class="nav-item">
-                    <form th:action="@{/logout}" method="post" class="d-inline">
-                        <button type="submit" class="btn btn-link nav-link"><i class="bi bi-box-arrow-right me-1"></i>Logout</button>
-                    </form>
-                </li>
-                <li class="nav-item ms-2">
-                    <button class="btn btn-outline-secondary btn-sm" onclick="toggleDarkMode()"><i class="bi bi-moon-stars-fill"></i></button>
-                </li>
-            </ul>
-        </div>
-    </div>
-</nav>
+<body class="admin-page" x-data="{ navOpen: false }">
+<nav th:replace="~{admin/layout :: adminNavbar}"></nav>
 
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-md-2 min-vh-100 border-end py-3 bg-dark-subtle">
-            <div th:replace="~{admin/layout :: adminSidebar}"></div>
-        </div>
-        <div class="col-md-10 py-4 px-4">
-            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show">
-                <span th:text="${successMessage}">Success</span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show">
-                <span th:text="${errorMessage}">Error</span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
+<div class="admin-shell">
+    <div class="admin-frame">
+        <aside th:replace="~{admin/layout :: adminSidebar}"></aside>
+        <div class="admin-content" id="main-content">
+            <th:block th:replace="~{layout :: feedback}"></th:block>
 
-            <h2 class="h4 mb-4"><i class="bi bi-badge-ad me-2"></i>Embed Status Widget</h2>
+            <h1 class="heading-md mb-6"><i class="me-2" data-icon="panel-top" aria-hidden="true"></i>Embed Status Widget</h1>
 
-            <div class="card mb-4">
-                <div class="card-header">Embed Snippet</div>
-                <div class="card-body">
-                    <div class="row g-3 mb-3">
-                        <div class="col-md-3">
-                            <label for="embedScope" class="form-label">Widget scope</label>
-                            <select id="embedScope" class="form-select" onchange="updateEmbedGenerator()">
+            <div class="ui-card mb-6">
+                <div class="ui-card-header">Embed Snippet</div>
+                <div class="ui-card-body">
+                    <div class="ui-grid gap-4 mb-4">
+                        <div class="md:col-span-3">
+                            <label for="embedScope" class="ui-form-label">Widget scope</label>
+                            <select id="embedScope" class="ui-form-select" onchange="updateEmbedGenerator()">
                                 <option value="">All resources</option>
                                 <option th:each="group : ${resourceGroups}" th:value="${group.id}" th:text="${group.name}">Group</option>
                             </select>
                         </div>
-                        <div class="col-md-3">
-                            <label class="form-label d-block">Scope label</label>
-                            <div class="form-check form-switch pt-1">
-                                <input id="embedShowScope" class="form-check-input" type="checkbox" onchange="updateEmbedGenerator()">
-                                <label class="form-check-label" for="embedShowScope">Display widget scope</label>
+                        <div class="md:col-span-3">
+                            <label class="ui-form-label block">Scope label</label>
+                            <div class="ui-form-check ui-form-switch pt-1">
+                                <input id="embedShowScope" class="ui-form-check-input" type="checkbox" onchange="updateEmbedGenerator()">
+                                <label class="ui-form-check-label" for="embedShowScope">Display widget scope</label>
                             </div>
                         </div>
-                        <div class="col-md-3">
-                            <label for="embedMode" class="form-label">Mode</label>
-                            <select id="embedMode" class="form-select" onchange="updateEmbedGenerator()">
+                        <div class="md:col-span-3">
+                            <label for="embedMode" class="ui-form-label">Mode</label>
+                            <select id="embedMode" class="ui-form-select" onchange="updateEmbedGenerator()">
                                 <option value="light" selected>Light</option>
                                 <option value="dark">Dark</option>
                             </select>
                         </div>
-                        <div class="col-md-3">
-                            <label for="embedFontSize" class="form-label">Font size (px)</label>
+                        <div class="md:col-span-3">
+                            <label for="embedFontSize" class="ui-form-label">Font size (px)</label>
                             <input id="embedFontSize" type="number" min="6" max="32" step="1" value="15"
-                                   class="form-control" oninput="updateEmbedGenerator()">
+                                   class="ui-form-control" oninput="updateEmbedGenerator()">
                         </div>
-                        <div class="col-md-3">
-                            <label for="embedFontColor" class="form-label">Font color (hex)</label>
-                            <input id="embedFontColor" type="text" class="form-control" placeholder="#ffffff" maxlength="7" oninput="updateEmbedGenerator()">
+                        <div class="md:col-span-3">
+                            <label for="embedFontColor" class="ui-form-label">Font color (hex)</label>
+                            <input id="embedFontColor" type="text" class="ui-form-control" placeholder="#ffffff" maxlength="7" oninput="updateEmbedGenerator()">
                         </div>
-                        <div class="col-md-3">
-                            <label for="embedRefresh" class="form-label">Refresh (seconds)</label>
+                        <div class="md:col-span-3">
+                            <label for="embedRefresh" class="ui-form-label">Refresh (seconds)</label>
                             <input id="embedRefresh" type="number" min="10" max="3600" step="1" value="30"
-                                   class="form-control" oninput="updateEmbedGenerator()">
+                                   class="ui-form-control" oninput="updateEmbedGenerator()">
                         </div>
                     </div>
-                    <div class="d-flex align-items-center justify-content-between mb-2">
-                        <p class="text-muted small mb-0">Copy this snippet into any external HTML page.</p>
-                        <button id="copyEmbedSnippetButton" type="button" class="btn btn-sm btn-outline-light" onclick="copyEmbedSnippet()">
-                            <i class="bi bi-clipboard me-1"></i>Copy
+                    <div class="flex items-center justify-between mb-2">
+                        <p class="text-muted text-sm mb-0">Copy this snippet into any external HTML page.</p>
+                        <button id="copyEmbedSnippetButton" type="button" class="ui-btn ui-btn-sm ui-btn-outline-light" onclick="copyEmbedSnippet()">
+                            <i class="me-1" data-icon="clipboard" aria-hidden="true"></i>Copy
                         </button>
                     </div>
                     <pre class="mb-0"><code id="embedSnippetCode">snippet</code></pre>
                 </div>
             </div>
 
-            <div class="card mb-4">
-                <div class="card-header">Preview</div>
-                <div class="card-body">
-                    <p class="text-muted small mb-3">Live preview of the embedded widget using the current policy and status data.</p>
+            <div class="ui-card mb-6">
+                <div class="ui-card-header">Preview</div>
+                <div class="ui-card-body">
+                    <p class="text-muted text-sm mb-4">Live preview of the embedded widget using the current policy and status data.</p>
                     <iframe
                             id="embedPreviewIframe"
                             th:src="@{/embed/status(refresh=30,mode='light',fontSize=15)}"
@@ -114,40 +85,40 @@
                 </div>
             </div>
 
-            <div class="card mb-4">
-                <div class="card-header">Embed Access Policy</div>
-                <div class="card-body">
+            <div class="ui-card mb-6">
+                <div class="ui-card-header">Embed Access Policy</div>
+                <div class="ui-card-body">
                     <form th:action="@{/admin/embed/policy}" method="post">
-                        <div class="form-check mb-2">
-                            <input class="form-check-input" type="radio" name="embedPolicy" id="embedDisabled" value="DISABLED"
+                        <div class="ui-form-check mb-2">
+                            <input class="ui-form-check-input" type="radio" name="embedPolicy" id="embedDisabled" value="DISABLED"
                                    th:checked="${embedPolicy == 'DISABLED'}">
-                            <label class="form-check-label" for="embedDisabled">Disable embed widget</label>
-                            <div class="form-text">Requests to the embed endpoint are blocked.</div>
+                            <label class="ui-form-check-label" for="embedDisabled">Disable embed widget</label>
+                            <div class="ui-form-text">Requests to the embed endpoint are blocked.</div>
                         </div>
-                        <div class="form-check mb-2">
-                            <input class="form-check-input" type="radio" name="embedPolicy" id="embedAllowAll" value="ALLOW_ALL"
+                        <div class="ui-form-check mb-2">
+                            <input class="ui-form-check-input" type="radio" name="embedPolicy" id="embedAllowAll" value="ALLOW_ALL"
                                    th:checked="${embedPolicy == 'ALLOW_ALL'}">
-                            <label class="form-check-label" for="embedAllowAll">Allow from all sources</label>
-                            <div class="form-text">Any site can embed the widget iframe.</div>
+                            <label class="ui-form-check-label" for="embedAllowAll">Allow from all sources</label>
+                            <div class="ui-form-text">Any site can embed the widget iframe.</div>
                         </div>
-                        <div class="form-check mb-3">
-                            <input class="form-check-input" type="radio" name="embedPolicy" id="embedAllowList" value="ALLOW_LIST"
+                        <div class="ui-form-check mb-4">
+                            <input class="ui-form-check-input" type="radio" name="embedPolicy" id="embedAllowList" value="ALLOW_LIST"
                                    th:checked="${embedPolicy == 'ALLOW_LIST'}">
-                            <label class="form-check-label" for="embedAllowList">Allow only selected domains</label>
-                            <div class="form-text">Only origins listed below may embed the widget.</div>
+                            <label class="ui-form-check-label" for="embedAllowList">Allow only selected domains</label>
+                            <div class="ui-form-text">Only origins listed below may embed the widget.</div>
                         </div>
-                        <button type="submit" class="btn btn-primary"><i class="bi bi-save me-1"></i>Save Embed Policy</button>
+                        <button type="submit" class="ui-btn ui-btn-primary"><i class="me-1" data-icon="save" aria-hidden="true"></i>Save Embed Policy</button>
                     </form>
                 </div>
             </div>
 
-            <div class="card mb-4">
-                <div class="card-header"><i class="bi bi-globe me-2"></i>Allowed Embed Origins</div>
-                <div class="card-body">
-                    <p class="text-muted small mb-3">Only used when policy is set to Allow only selected domains.</p>
+            <div class="ui-card mb-6">
+                <div class="ui-card-header"><i class="me-2" data-icon="globe" aria-hidden="true"></i>Allowed Embed Origins</div>
+                <div class="ui-card-body">
+                    <p class="text-muted text-sm mb-4">Only used when policy is set to Allow only selected domains.</p>
 
-                    <div th:if="${#lists.size(embedAllowedOrigins) > 0}" class="mb-3">
-                        <table class="table table-sm table-bordered align-middle">
+                    <div th:if="${#lists.size(embedAllowedOrigins) > 0}" class="mb-4">
+                        <div class="ui-table-responsive"><table class="ui-table ui-table-sm ui-table-bordered align-middle">
                             <thead>
                             <tr>
                                 <th>Origin</th>
@@ -159,20 +130,20 @@
                                 <td><code th:text="${embedOrigin.origin}"></code></td>
                                 <td class="text-center">
                                     <form th:action="@{/admin/embed/origins/remove/{id}(id=${embedOrigin.id})}" method="post">
-                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Remove"><i class="bi bi-trash3"></i></button>
+                                        <button type="submit" class="ui-btn ui-btn-sm ui-btn-outline-danger" title="Remove"><i class="" data-icon="trash-2" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>
                             </tbody>
-                        </table>
+                        </table></div>
                     </div>
-                    <div th:if="${#lists.size(embedAllowedOrigins) == 0}" class="alert alert-secondary mb-3">
+                    <div th:if="${#lists.size(embedAllowedOrigins) == 0}" class="ui-alert ui-alert-secondary mb-4">
                         No embed origins configured.
                     </div>
 
-                    <form th:action="@{/admin/embed/origins/add}" method="post" class="d-flex gap-2">
-                        <input type="text" name="origin" class="form-control" placeholder="https://example.com" required>
-                        <button type="submit" class="btn btn-primary text-nowrap"><i class="bi bi-plus-lg me-1"></i>Add Origin</button>
+                    <form th:action="@{/admin/embed/origins/add}" method="post" class="flex gap-2">
+                        <input type="text" name="origin" class="ui-form-control" placeholder="https://example.com" required>
+                        <button type="submit" class="ui-btn ui-btn-primary whitespace-nowrap"><i class="me-1" data-icon="plus" aria-hidden="true"></i>Add Origin</button>
                     </form>
                 </div>
             </div>
@@ -180,13 +151,12 @@
     </div>
 </div>
 
-<script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
 <script th:src="@{/js/kairos.js}"></script>
 <script th:inline="javascript">
     const embedPath = /*[[@{/embed/status}]]*/ '/embed/status';
 
     function getCurrentThemeMode() {
-        const value = document.documentElement.getAttribute('data-bs-theme');
+        const value = document.documentElement.getAttribute('data-theme');
         return value === 'light' ? 'light' : 'dark';
     }
 
@@ -425,9 +395,9 @@
 
         navigator.clipboard.writeText(snippetElement.textContent || '')
             .then(() => {
-                buttonElement.innerHTML = '<i class="bi bi-check2 me-1"></i>Copied';
+                buttonElement.innerHTML = '<i class="me-1" data-icon="check" aria-hidden="true"></i>Copied';
                 window.setTimeout(() => {
-                    buttonElement.innerHTML = '<i class="bi bi-clipboard me-1"></i>Copy';
+                    buttonElement.innerHTML = '<i class="me-1" data-icon="clipboard" aria-hidden="true"></i>Copy';
                 }, 1600);
             });
     }

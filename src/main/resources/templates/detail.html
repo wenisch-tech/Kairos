@@ -1,55 +1,49 @@
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="dark"
+<html lang="en" data-theme="light"
       xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="kairos-time-zone" th:content="${timeZoneId}">
-    <meta name="kairos-availability-decimals" th:content="${availabilityPercentageScale}">
-    <link rel="icon" th:href="@{/img/kairos.png}" type="image/png">
     <title th:text="${vm.resource.name} + ' - Kairos'">Resource - Kairos</title>
-    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
-    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/font/bootstrap-icons.min.css}">
-    <link rel="stylesheet" th:href="@{/css/kairos.css}">
+    <th:block th:replace="~{layout :: assets}"></th:block>
     <th:block th:utext="${customHeadersHtml}"></th:block>
 </head>
 <body class="detail-modern">
 <nav th:replace="~{layout :: navbar}"></nav>
 
-<div class="container-fluid py-4 resource-detail detail-shell" th:attr="data-resource-id=${vm.resource.id}">
-    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+<div id="main-content" tabindex="-1" class="page-container py-6 resource-detail detail-shell" th:attr="data-resource-id=${vm.resource.id}">
+    <div th:if="${successMessage}" class="ui-alert ui-alert-success ui-alert-dismissible is-open" role="alert">
         <span th:text="${successMessage}">Check started immediately.</span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <button type="button" class="ui-btn-close" data-ui-dismiss="alert" aria-label="Close"></button>
     </div>
-    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+    <div th:if="${errorMessage}" class="ui-alert ui-alert-danger ui-alert-dismissible is-open" role="alert">
         <span th:text="${errorMessage}">Could not start check.</span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <button type="button" class="ui-btn-close" data-ui-dismiss="alert" aria-label="Close"></button>
     </div>
 
-    <div class="mb-3">
-        <div class="d-flex gap-2 align-items-center">
-            <a th:href="@{/}" class="btn btn-outline-secondary btn-sm detail-back-btn">
-                <i class="bi bi-arrow-left me-1"></i>Back to Dashboard
+    <div class="mb-4">
+        <div class="flex gap-2 items-center">
+            <a th:href="@{/}" class="ui-btn ui-btn-outline-secondary ui-btn-sm detail-back-btn">
+                <i class="me-1" data-icon="arrow-left" aria-hidden="true"></i>Back to Dashboard
             </a>
             <form th:action="@{/resources/{id}/check(id=${vm.resource.id})}" method="post" th:if="${allowCheckNow}">
-                <button type="submit" class="btn btn-primary btn-sm">
-                    <i class="bi bi-lightning-charge me-1"></i>Run Check Now
+                <button type="submit" class="ui-btn ui-btn-primary ui-btn-sm">
+                    <i class="me-1" data-icon="zap" aria-hidden="true"></i>Run Check Now
                 </button>
             </form>
         </div>
     </div>
 
-    <div class="row mb-4">
-        <div class="col">
-            <div class="d-flex align-items-center detail-hero">
+    <div class="ui-grid mb-6">
+        <div class="col-span-12">
+            <div class="flex items-center detail-hero">
                 <div>
                     <p class="detail-kicker mb-2">RESOURCE DETAIL</p>
-                    <h1 class="h2 mb-0 detail-title d-flex align-items-center gap-2">
+                    <h1 class="heading-lg mb-0 detail-title flex items-center gap-2">
                         <span data-role="status-dot" th:class="'status-dot me-1 status-' + ${vm.currentStatus}"></span>
-                        <span class="badge detail-type-badge d-inline-flex align-items-center gap-1">
-                            <i class="bi" aria-hidden="true"
-                               th:classappend="${vm.resource.resourceType.name == 'HTTP'} ? ' bi-globe2' : (${vm.resource.resourceType.name == 'DOCKER'} ? ' bi-box-seam' : (${vm.resource.resourceType.name == 'TCP'} ? ' bi-hdd-network' : ' bi-boxes'))"></i>
+                        <span class="ui-badge detail-type-badge inline-flex items-center gap-1">
+                            <i class="me-2" aria-hidden="true" th:attr="data-icon=${vm.resource.resourceType.name == 'HTTP'} ? 'globe' : (${vm.resource.resourceType.name == 'DOCKER'} ? 'box' : (${vm.resource.resourceType.name == 'TCP'} ? 'server' : 'boxes'))"></i>
                             <span th:text="${vm.resource.resourceType}">TYPE</span>
                         </span>
                         <span th:text="${vm.resource.name}">Resource Name</span>
@@ -57,15 +51,15 @@
                     <p class="text-muted mb-0 detail-subline">
                         <code th:if="${showResourceUrl}" th:text="${vm.resource.target}">target</code>
                     </p>
-                    <div th:if="${#lists.size(vm.resource.groups) > 0}" class="d-flex flex-wrap align-items-center gap-2 mt-2">
-                        <small class="text-muted d-inline-flex align-items-center gap-1">Is part of:</small>
+                    <div th:if="${#lists.size(vm.resource.groups) > 0}" class="flex flex-wrap items-center gap-2 mt-2">
+                        <small class="text-muted inline-flex items-center gap-1">Is part of:</small>
                         <span class="detail-group-item" th:each="group : ${vm.resource.groups}"
                               th:with="summary=${groupStatusSummaries[group.id]}">
-                            <a class="badge detail-group-badge text-decoration-none d-inline-flex align-items-center gap-1"
+                            <a class="ui-badge detail-group-badge no-underline inline-flex items-center gap-1"
                                th:href="@{/groups/{id}(id=${group.id})}">
-                                <i class="bi bi-diagram-3" aria-hidden="true"></i>
+                                <i class="" data-icon="network" aria-hidden="true"></i>
                                 <span th:text="${group.name}">Group</span>
-                                <span class="detail-group-status d-inline-flex align-items-center gap-1 ms-1">
+                                <span class="detail-group-status inline-flex items-center gap-1 ms-1">
                                     <span class="detail-group-counter detail-group-counter-available" th:text="${summary != null ? summary.available : 0}">0</span>
                                     <span class="detail-group-counter detail-group-counter-down" th:text="${summary != null ? summary.down : 0}">0</span>
                                     <span class="detail-group-counter detail-group-counter-unknown" th:text="${summary != null ? summary.unknown : 0}">0</span>
@@ -73,7 +67,7 @@
                             </a>
                         </span>
                     </div>
-                    <div class="detail-summary mt-3" th:if="${detailSummaryText != null && !#strings.isEmpty(detailSummaryText)}">
+                    <div class="detail-summary mt-4" th:if="${detailSummaryText != null && !#strings.isEmpty(detailSummaryText)}">
                         <p class="mb-0" th:text="${detailSummaryText}">Resource summary text</p>
                     </div>
                 </div>
@@ -82,8 +76,8 @@
     </div>
 
     <!-- Active Outage Banner -->
-    <div th:if="${activeOutage != null}" class="alert alert-danger d-flex align-items-center gap-3 mb-4" role="alert">
-        <i class="bi bi-exclamation-triangle-fill fs-4 flex-shrink-0"></i>
+    <div th:if="${activeOutage != null}" class="ui-alert ui-alert-danger flex items-center gap-4 mb-6" role="alert">
+        <i class="text-xl shrink-0" data-icon="triangle-alert" aria-hidden="true"></i>
         <div>
             <strong>Active Outage</strong> — This resource has been unavailable since
             <strong th:text="${activeOutageStartedAt}">-</strong>
@@ -96,12 +90,12 @@
     </div>
 
     <!-- Availability Stats -->
-    <div class="row mb-4">
-        <div class="col-md-4">
-            <div class="card text-center detail-stat-card">
-                <div class="card-body">
-                    <h5 class="card-title">Last 24 Hours</h5>
-                    <div class="display-6 fw-bold resource-uptime"
+    <div class="ui-grid mb-6">
+        <div class="md:col-span-4">
+            <div class="ui-card text-center detail-stat-card">
+                <div class="ui-card-body">
+                    <h5 class="ui-card-title">Last 24 Hours</h5>
+                    <div class="text-4xl font-semibold resource-uptime"
                          th:text="${#numbers.formatDecimal(uptime24h, 1, availabilityPercentageScale)} + '%'"
                          th:classappend="${uptime24h >= 99} ? 'text-success' : (${uptime24h >= 95} ? 'text-warning' : 'text-danger')">
                         99.9%
@@ -109,11 +103,11 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card text-center detail-stat-card">
-                <div class="card-body">
-                    <h5 class="card-title">Last 7 Days</h5>
-                    <div class="display-6 fw-bold"
+        <div class="md:col-span-4">
+            <div class="ui-card text-center detail-stat-card">
+                <div class="ui-card-body">
+                    <h5 class="ui-card-title">Last 7 Days</h5>
+                    <div class="text-4xl font-semibold"
                          th:text="${#numbers.formatDecimal(uptime7d, 1, availabilityPercentageScale)} + '%'"
                          th:classappend="${uptime7d >= 99} ? 'text-success' : (${uptime7d >= 95} ? 'text-warning' : 'text-danger')">
                         99.9%
@@ -121,11 +115,11 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card text-center detail-stat-card">
-                <div class="card-body">
-                    <h5 class="card-title">Last 30 Days</h5>
-                    <div class="display-6 fw-bold"
+        <div class="md:col-span-4">
+            <div class="ui-card text-center detail-stat-card">
+                <div class="ui-card-body">
+                    <h5 class="ui-card-title">Last 30 Days</h5>
+                    <div class="text-4xl font-semibold"
                          th:text="${#numbers.formatDecimal(uptime30d, 1, availabilityPercentageScale)} + '%'"
                          th:classappend="${uptime30d >= 99} ? 'text-success' : (${uptime30d >= 95} ? 'text-warning' : 'text-danger')">
                         99.9%
@@ -136,43 +130,43 @@
     </div>
 
     <!-- Timeline -->
-    <div class="card mb-4 detail-card">
-        <div class="card-header detail-card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
-            <h5 class="mb-0"><i class="bi bi-bar-chart-line me-2"></i>Timeline</h5>
-            <div class="d-flex flex-wrap align-items-center gap-2">
+    <div class="ui-card mb-6 detail-card">
+        <div class="ui-card-header detail-card-header flex flex-wrap justify-between items-center gap-2">
+            <h5 class="mb-0"><i class="me-2" data-icon="chart-line" aria-hidden="true"></i>Timeline</h5>
+            <div class="flex flex-wrap items-center gap-2">
                 <small class="text-muted" data-role="timeline-range-label">Last 24 hours</small>
-                <div class="btn-group btn-group-sm timeline-range-group" role="group" aria-label="Timeline range"
+                <div class="ui-btn-group ui-btn-group-sm timeline-range-group" role="group" aria-label="Timeline range"
                      data-role="timeline-range-controls">
-                    <button type="button" class="btn btn-outline-info active" data-timeline-hours="24" aria-pressed="true">24h</button>
-                    <button type="button" class="btn btn-outline-info" data-timeline-hours="168" aria-pressed="false">7d</button>
-                    <button type="button" class="btn btn-outline-info" data-timeline-hours="720" aria-pressed="false">30d</button>
+                    <button type="button" class="ui-btn ui-btn-outline-info active" data-timeline-hours="24" aria-pressed="true">24h</button>
+                    <button type="button" class="ui-btn ui-btn-outline-info" data-timeline-hours="168" aria-pressed="false">7d</button>
+                    <button type="button" class="ui-btn ui-btn-outline-info" data-timeline-hours="720" aria-pressed="false">30d</button>
                 </div>
                 <span class="timeline-loading-indicator text-muted" data-role="timeline-loading-indicator" hidden>
-                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    <span class="ui-spinner ui-spinner-sm" role="status" aria-hidden="true"></span>
                     Loading timeline...
                 </span>
             </div>
         </div>
-        <div class="card-body">
+        <div class="ui-card-body">
             <div class="timeline-wrapper">
                 <div class="timeline-container">
                     <span th:each="block : ${vm.timelineBlocks}"
-                          th:class="'timeline-block ' + ${block.status}"
+                          th:class="'timeline-block' + ${block.status}"
                           th:attr="data-latency-ms=${block.latencyMs},data-dns-latency-ms=${block.dnsResolutionMs},data-connect-latency-ms=${block.connectMs},data-tls-latency-ms=${block.tlsHandshakeMs}"
                           th:title="${block.status + ' · ' + @kairosTime.format(block.timestamp, 'yyyy-MM-dd HH:mm:ss')}"></span>
                 </div>
-                <div class="timeline-labels d-flex justify-content-between align-items-center">
+                <div class="timeline-labels flex justify-between items-center">
                     <small class="text-muted timeline-label-start" data-role="timeline-range-start" data-hours="24">--:--</small>
                     <small class="text-muted timeline-label-end">--:--</small>
                 </div>
                 <div class="latency-panel" data-role="latency-panel">
-                    <div class="latency-panel-header d-flex justify-content-between align-items-center">
+                    <div class="latency-panel-header flex justify-between items-center">
                         <small class="text-muted">Latency trend (ms)</small>
-                        <div class="d-flex align-items-center gap-2">
-                            <div class="btn-group btn-group-sm latency-zoom-controls" role="group" aria-label="Zoom controls">
-                                <button type="button" class="btn btn-outline-secondary" data-role="latency-zoom-out" title="Zoom out" disabled>&#8722;</button>
-                                <button type="button" class="btn btn-outline-secondary" data-role="latency-zoom-reset" title="Reset zoom">&#8962;</button>
-                                <button type="button" class="btn btn-outline-secondary" data-role="latency-zoom-in" title="Zoom in">+</button>
+                        <div class="flex items-center gap-2">
+                            <div class="ui-btn-group ui-btn-group-sm latency-zoom-controls" role="group" aria-label="Zoom controls">
+                                <button type="button" class="ui-btn ui-btn-outline-secondary" data-role="latency-zoom-out" title="Zoom out" disabled>&#8722;</button>
+                                <button type="button" class="ui-btn ui-btn-outline-secondary" data-role="latency-zoom-reset" title="Reset zoom">&#8962;</button>
+                                <button type="button" class="ui-btn ui-btn-outline-secondary" data-role="latency-zoom-in" title="Zoom in">+</button>
                             </div>
                             <small class="text-muted" data-role="latency-summary">No latency samples yet</small>
                         </div>
@@ -192,7 +186,7 @@
                         <div class="latency-tooltip" data-role="latency-tooltip" hidden></div>
                         <div class="latency-time-axis" data-role="latency-time-axis"></div>
                     </div>
-                    <div class="latency-scale d-flex justify-content-between align-items-center">
+                    <div class="latency-scale flex justify-between items-center">
                         <small class="text-muted" data-role="latency-min">0 ms</small>
                         <small class="text-muted" data-role="latency-max">0 ms</small>
                     </div>
@@ -202,36 +196,36 @@
     </div>
 
     <!-- Resource Outages -->
-    <div class="card mb-4 detail-card">
-        <div class="card-header detail-card-header">
-            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
-                <h5 class="mb-0"><i class="bi bi-exclamation-triangle me-2"></i>Outages</h5>
+    <div class="ui-card mb-6 detail-card">
+        <div class="ui-card-header detail-card-header">
+            <div class="flex flex-wrap justify-between items-center gap-2">
+                <h5 class="mb-0"><i class="me-2" data-icon="triangle-alert" aria-hidden="true"></i>Outages</h5>
                 <small class="text-muted" th:text="'Showing ' + ${outageFrom} + '-' + ${outageTo} + ' of ' + ${resourceOutagePage.totalElements} + ' entries'">
                     Showing 0-0 of 0 entries
                 </small>
             </div>
         </div>
-        <div class="card-body border-bottom detail-history-toolbar">
-            <form class="row g-2 align-items-end" method="get" th:action="@{/resources/{id}(id=${vm.resource.id})}">
-                <div class="col-12 col-md-3">
-                    <label class="form-label mb-1" for="outage-status">Status</label>
-                    <select id="outage-status" name="outageStatus" class="form-select form-select-sm">
+        <div class="ui-card-body border-bottom detail-history-toolbar">
+            <form class="ui-grid gap-2 items-end" method="get" th:action="@{/resources/{id}(id=${vm.resource.id})}">
+                <div class="col-span-12 md:col-span-3">
+                    <label class="ui-form-label mb-1" for="outage-status">Status</label>
+                    <select id="outage-status" name="outageStatus" class="ui-form-select ui-form-select-sm">
                         <option value="all" th:selected="${outageFilterStatus == 'all'}">All</option>
                         <option value="active" th:selected="${outageFilterStatus == 'active'}">Active</option>
                         <option value="resolved" th:selected="${outageFilterStatus == 'resolved'}">Resolved</option>
                     </select>
                 </div>
-                <div class="col-12 col-md-3">
-                    <label class="form-label mb-1" for="outage-range">Timespan</label>
-                    <select id="outage-range" name="outageRange" class="form-select form-select-sm">
+                <div class="col-span-12 md:col-span-3">
+                    <label class="ui-form-label mb-1" for="outage-range">Timespan</label>
+                    <select id="outage-range" name="outageRange" class="ui-form-select ui-form-select-sm">
                         <option value="24h" th:selected="${outageFilterRange == '24h'}">24 hours</option>
                         <option value="7d" th:selected="${outageFilterRange == '7d'}">7 days</option>
                         <option value="30d" th:selected="${outageFilterRange == '30d'}">30 days</option>
                     </select>
                 </div>
-                <div class="col-6 col-md-2">
-                    <label class="form-label mb-1" for="outage-size">Rows</label>
-                    <select id="outage-size" name="outageSize" class="form-select form-select-sm">
+                <div class="col-span-6 md:col-span-2">
+                    <label class="ui-form-label mb-1" for="outage-size">Rows</label>
+                    <select id="outage-size" name="outageSize" class="ui-form-select ui-form-select-sm">
                         <option value="5" th:selected="${outageFilterSize == 5}">5</option>
                         <option value="10" th:selected="${outageFilterSize == 10}">10</option>
                         <option value="20" th:selected="${outageFilterSize == 20}">20</option>
@@ -244,18 +238,18 @@
                 <input type="hidden" name="status" th:value="${historyStatus}">
                 <input type="hidden" name="code" th:value="${historyCode}">
                 <input type="hidden" name="message" th:value="${historyMessage}">
-                <div class="col-6 col-md-4 d-flex gap-2">
-                    <button type="submit" class="btn btn-sm btn-primary w-100">Apply</button>
-                    <a class="btn btn-sm btn-outline-secondary"
+                <div class="col-span-6 md:col-span-4 flex gap-2">
+                    <button type="submit" class="ui-btn ui-btn-sm ui-btn-primary w-full">Apply</button>
+                    <a class="ui-btn ui-btn-sm ui-btn-outline-secondary"
                        th:href="@{/resources/{id}(id=${vm.resource.id}, page=${historyPage.number}, size=${historySize}, status=${historyStatus}, code=${historyCode}, message=${historyMessage}, outagePage=0, outageSize=10, outageStatus='all', outageRange='30d')}">Reset</a>
                 </div>
             </form>
         </div>
-        <div class="card-body p-0">
-            <div th:if="${#lists.size(resourceOutages) == 0}" class="p-3 text-muted">
+        <div class="ui-card-body p-0">
+            <div th:if="${#lists.size(resourceOutages) == 0}" class="p-4 text-muted">
                 No outages found for this resource and filter selection.
             </div>
-            <table class="table table-sm mb-0 detail-history-table" th:unless="${#lists.size(resourceOutages) == 0}">
+            <div class="ui-table-responsive"><table class="ui-table ui-table-sm mb-0 detail-history-table" th:unless="${#lists.size(resourceOutages) == 0}">
                 <thead>
                     <tr>
                         <th>Start</th>
@@ -270,11 +264,11 @@
                         <td>
                             <span th:if="${outage.endDate != null}"
                                   th:text="${@kairosTime.format(outage.endDate, 'yyyy-MM-dd HH:mm:ss')}">-</span>
-                            <span th:unless="${outage.endDate != null}" class="text-muted fst-italic">ongoing</span>
+                            <span th:unless="${outage.endDate != null}" class="text-muted italic">ongoing</span>
                         </td>
                         <td>
-                            <span th:if="${outage.active}" class="badge bg-danger">Active</span>
-                            <span th:unless="${outage.active}" class="badge bg-success">Resolved</span>
+                            <span th:if="${outage.active}" class="ui-badge tone-danger">Active</span>
+                            <span th:unless="${outage.active}" class="ui-badge tone-success">Resolved</span>
                         </td>
                         <td>
                             <span th:text="${outageDurations[outage.id]}">0m</span>
@@ -282,25 +276,25 @@
                         </td>
                     </tr>
                 </tbody>
-            </table>
+            </table></div>
         </div>
-        <div class="card-footer bg-transparent border-0 pt-3" th:if="${resourceOutagePage.totalPages > 1}">
+        <div class="ui-card-footer bg-transparent border-0 pt-4" th:if="${resourceOutagePage.totalPages > 1}">
             <nav aria-label="Outage pagination">
-                <ul class="pagination pagination-sm mb-0 justify-content-end">
-                    <li class="page-item" th:classappend="${resourceOutagePage.first} ? ' disabled'">
-                        <a class="page-link"
+                <ul class="ui-pagination ui-pagination-sm mb-0 justify-end">
+                    <li class="ui-page-item" th:classappend="${resourceOutagePage.first} ? 'disabled'">
+                        <a class="ui-page-link"
                            th:href="@{/resources/{id}(id=${vm.resource.id}, outagePage=${resourceOutagePage.number - 1}, outageSize=${outageFilterSize}, outageStatus=${outageFilterStatus}, outageRange=${outageFilterRange}, page=${historyPage.number}, size=${historySize}, status=${historyStatus}, code=${historyCode}, message=${historyMessage})}">Prev</a>
                     </li>
-                    <li class="page-item"
+                    <li class="ui-page-item"
                         th:each="pageNumber : ${#numbers.sequence(0, resourceOutagePage.totalPages - 1)}"
                         th:if="${pageNumber >= resourceOutagePage.number - 2 and pageNumber <= resourceOutagePage.number + 2}"
-                        th:classappend="${pageNumber == resourceOutagePage.number} ? ' active'">
-                        <a class="page-link"
+                        th:classappend="${pageNumber == resourceOutagePage.number} ? 'active'">
+                        <a class="ui-page-link"
                            th:text="${pageNumber + 1}"
                            th:href="@{/resources/{id}(id=${vm.resource.id}, outagePage=${pageNumber}, outageSize=${outageFilterSize}, outageStatus=${outageFilterStatus}, outageRange=${outageFilterRange}, page=${historyPage.number}, size=${historySize}, status=${historyStatus}, code=${historyCode}, message=${historyMessage})}">1</a>
                     </li>
-                    <li class="page-item" th:classappend="${resourceOutagePage.last} ? ' disabled'">
-                        <a class="page-link"
+                    <li class="ui-page-item" th:classappend="${resourceOutagePage.last} ? 'disabled'">
+                        <a class="ui-page-link"
                            th:href="@{/resources/{id}(id=${vm.resource.id}, outagePage=${resourceOutagePage.number + 1}, outageSize=${outageFilterSize}, outageStatus=${outageFilterStatus}, outageRange=${outageFilterRange}, page=${historyPage.number}, size=${historySize}, status=${historyStatus}, code=${historyCode}, message=${historyMessage})}">Next</a>
                     </li>
                 </ul>
@@ -309,39 +303,39 @@
     </div>
 
     <!-- Recent History -->
-    <div class="card detail-card">
-        <div class="card-header detail-card-header">
-            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
-                <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i>Recent Check History</h5>
+    <div class="ui-card detail-card">
+        <div class="ui-card-header detail-card-header">
+            <div class="flex flex-wrap justify-between items-center gap-2">
+                <h5 class="mb-0"><i class="me-2" data-icon="history" aria-hidden="true"></i>Recent Check History</h5>
                 <small class="text-muted" th:text="'Showing ' + ${historyFrom} + '-' + ${historyTo} + ' of ' + ${historyPage.totalElements} + ' entries'">
                     Showing 0-0 of 0 entries
                 </small>
             </div>
         </div>
-        <div class="card-body border-bottom detail-history-toolbar">
-            <form class="row g-2 align-items-end" method="get" th:action="@{/resources/{id}(id=${vm.resource.id})}">
-                <div class="col-12 col-md-2">
-                    <label class="form-label mb-1" for="history-status">Status</label>
-                    <select id="history-status" name="status" class="form-select form-select-sm">
+        <div class="ui-card-body border-bottom detail-history-toolbar">
+            <form class="ui-grid gap-2 items-end" method="get" th:action="@{/resources/{id}(id=${vm.resource.id})}">
+                <div class="col-span-12 md:col-span-2">
+                    <label class="ui-form-label mb-1" for="history-status">Status</label>
+                    <select id="history-status" name="status" class="ui-form-select ui-form-select-sm">
                         <option value="" th:selected="${historyStatus == ''}">All</option>
                         <option value="AVAILABLE" th:selected="${historyStatus == 'AVAILABLE'}">AVAILABLE</option>
                         <option value="NOT_AVAILABLE" th:selected="${historyStatus == 'NOT_AVAILABLE'}">NOT_AVAILABLE</option>
                         <option value="UNKNOWN" th:selected="${historyStatus == 'UNKNOWN'}">UNKNOWN</option>
                     </select>
                 </div>
-                <div class="col-12 col-md-3">
-                    <label class="form-label mb-1" for="history-code">Code</label>
-                    <input id="history-code" name="code" type="text" class="form-control form-control-sm"
+                <div class="col-span-12 md:col-span-3">
+                    <label class="ui-form-label mb-1" for="history-code">Code</label>
+                    <input id="history-code" name="code" type="text" class="ui-form-control ui-form-control-sm"
                            placeholder="e.g. 500 or CONNECTION_ERROR" th:value="${historyCode}">
                 </div>
-                <div class="col-12 col-md-4">
-                    <label class="form-label mb-1" for="history-message">Message</label>
-                    <input id="history-message" name="message" type="text" class="form-control form-control-sm"
+                <div class="col-span-12 md:col-span-4">
+                    <label class="ui-form-label mb-1" for="history-message">Message</label>
+                    <input id="history-message" name="message" type="text" class="ui-form-control ui-form-control-sm"
                            placeholder="Search in message..." th:value="${historyMessage}">
                 </div>
-                <div class="col-6 col-md-1">
-                    <label class="form-label mb-1" for="history-size">Rows</label>
-                    <select id="history-size" name="size" class="form-select form-select-sm">
+                <div class="col-span-6 md:col-span-1">
+                    <label class="ui-form-label mb-1" for="history-size">Rows</label>
+                    <select id="history-size" name="size" class="ui-form-select ui-form-select-sm">
                         <option value="10" th:selected="${historySize == 10}">10</option>
                         <option value="20" th:selected="${historySize == 20}">20</option>
                         <option value="50" th:selected="${historySize == 50}">50</option>
@@ -352,18 +346,18 @@
                 <input type="hidden" name="outageSize" th:value="${outageFilterSize}">
                 <input type="hidden" name="outageStatus" th:value="${outageFilterStatus}">
                 <input type="hidden" name="outageRange" th:value="${outageFilterRange}">
-                <div class="col-6 col-md-2 d-flex gap-2">
-                    <button type="submit" class="btn btn-sm btn-primary w-100">Apply</button>
-                    <a class="btn btn-sm btn-outline-secondary"
+                <div class="col-span-6 md:col-span-2 flex gap-2">
+                    <button type="submit" class="ui-btn ui-btn-sm ui-btn-primary w-full">Apply</button>
+                    <a class="ui-btn ui-btn-sm ui-btn-outline-secondary"
                        th:href="@{/resources/{id}(id=${vm.resource.id}, outagePage=${resourceOutagePage.number}, outageSize=${outageFilterSize}, outageStatus=${outageFilterStatus}, outageRange=${outageFilterRange})}">Reset</a>
                 </div>
             </form>
         </div>
-        <div class="card-body p-0">
-            <div th:if="${#lists.size(recentHistory) == 0}" class="p-3 text-muted">
+        <div class="ui-card-body p-0">
+            <div th:if="${#lists.size(recentHistory) == 0}" class="p-4 text-muted">
                 No check history available yet.
             </div>
-            <table class="table table-sm mb-0 detail-history-table" th:unless="${#lists.size(recentHistory) == 0}">
+            <div class="ui-table-responsive"><table class="ui-table ui-table-sm mb-0 detail-history-table" th:unless="${#lists.size(recentHistory) == 0}">
                 <thead>
                     <tr>
                         <th>Time</th>
@@ -377,33 +371,33 @@
                     <tr th:each="result : ${recentHistory}">
                         <td th:text="${@kairosTime.format(result.checkedAt, 'yyyy-MM-dd HH:mm:ss')}">time</td>
                         <td>
-                            <span th:class="'badge ' + (${result.status.name == 'AVAILABLE'} ? 'bg-success' : (${result.status.name == 'NOT_AVAILABLE'} ? 'bg-danger' : 'bg-secondary'))"
+                            <span th:class="'ui-badge' + (${result.status.name == 'AVAILABLE'} ? 'tone-success' : (${result.status.name == 'NOT_AVAILABLE'} ? 'tone-danger' : 'tone-secondary'))"
                                   th:text="${result.status}">STATUS</span>
                         </td>
-                        <td class="text-nowrap"
+                        <td class="whitespace-nowrap"
                             th:text="${result.latencyMs != null ? result.latencyMs + ' ms' : '—'}">—</td>
                         <td th:text="${result.message}">message</td>
                         <td th:text="${result.errorCode}">code</td>
                     </tr>
                 </tbody>
-            </table>
+            </table></div>
         </div>
-        <div class="card-footer bg-transparent border-0 pt-3" th:if="${historyPage.totalPages > 1}">
+        <div class="ui-card-footer bg-transparent border-0 pt-4" th:if="${historyPage.totalPages > 1}">
             <nav aria-label="History pagination">
-                <ul class="pagination pagination-sm mb-0 justify-content-end">
-                    <li class="page-item" th:classappend="${historyPage.first} ? ' disabled'">
-                        <a class="page-link" th:href="@{/resources/{id}(id=${vm.resource.id}, page=${historyPage.number - 1}, size=${historySize}, status=${historyStatus}, code=${historyCode}, message=${historyMessage}, outagePage=${resourceOutagePage.number}, outageSize=${outageFilterSize}, outageStatus=${outageFilterStatus}, outageRange=${outageFilterRange})}">Prev</a>
+                <ul class="ui-pagination ui-pagination-sm mb-0 justify-end">
+                    <li class="ui-page-item" th:classappend="${historyPage.first} ? 'disabled'">
+                        <a class="ui-page-link" th:href="@{/resources/{id}(id=${vm.resource.id}, page=${historyPage.number - 1}, size=${historySize}, status=${historyStatus}, code=${historyCode}, message=${historyMessage}, outagePage=${resourceOutagePage.number}, outageSize=${outageFilterSize}, outageStatus=${outageFilterStatus}, outageRange=${outageFilterRange})}">Prev</a>
                     </li>
-                    <li class="page-item"
+                    <li class="ui-page-item"
                         th:each="pageNumber : ${#numbers.sequence(0, historyPage.totalPages - 1)}"
                         th:if="${pageNumber >= historyPage.number - 2 and pageNumber <= historyPage.number + 2}"
-                        th:classappend="${pageNumber == historyPage.number} ? ' active'">
-                        <a class="page-link"
+                        th:classappend="${pageNumber == historyPage.number} ? 'active'">
+                        <a class="ui-page-link"
                            th:text="${pageNumber + 1}"
                            th:href="@{/resources/{id}(id=${vm.resource.id}, page=${pageNumber}, size=${historySize}, status=${historyStatus}, code=${historyCode}, message=${historyMessage}, outagePage=${resourceOutagePage.number}, outageSize=${outageFilterSize}, outageStatus=${outageFilterStatus}, outageRange=${outageFilterRange})}">1</a>
                     </li>
-                    <li class="page-item" th:classappend="${historyPage.last} ? ' disabled'">
-                        <a class="page-link" th:href="@{/resources/{id}(id=${vm.resource.id}, page=${historyPage.number + 1}, size=${historySize}, status=${historyStatus}, code=${historyCode}, message=${historyMessage}, outagePage=${resourceOutagePage.number}, outageSize=${outageFilterSize}, outageStatus=${outageFilterStatus}, outageRange=${outageFilterRange})}">Next</a>
+                    <li class="ui-page-item" th:classappend="${historyPage.last} ? 'disabled'">
+                        <a class="ui-page-link" th:href="@{/resources/{id}(id=${vm.resource.id}, page=${historyPage.number + 1}, size=${historySize}, status=${historyStatus}, code=${historyCode}, message=${historyMessage}, outagePage=${resourceOutagePage.number}, outageSize=${outageFilterSize}, outageStatus=${outageFilterStatus}, outageRange=${outageFilterRange})}">Next</a>
                     </li>
                 </ul>
             </nav>
@@ -411,7 +405,6 @@
     </div>
 </div>
 
-<script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
 <script th:src="@{/js/kairos.js}"></script>
 </body>
 </html>

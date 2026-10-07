@@ -1,74 +1,71 @@
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="dark"
+<html lang="en" data-theme="light"
       xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" th:href="@{/img/kairos.png}" type="image/png">
     <title>Login - Kairos</title>
-    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
-    <link rel="stylesheet" th:href="@{/css/kairos.css}">
+    <th:block th:replace="~{layout :: assets}"></th:block>
     <th:block th:utext="${customHeadersHtml}"></th:block>
 </head>
 <body class="login-modern">
-<div class="container">
-    <div class="row justify-content-center align-items-center min-vh-100">
-        <div class="col-md-4">
-            <div class="card shadow">
-                <div class="card-body p-4">
-                    <div class="text-center mb-4">
-                        <h2 class="fw-bold d-flex align-items-center justify-content-center">
-                            <img th:src="@{/img/kairos.png}" alt="Kairos" height="40" class="me-2">
+<div id="main-content" tabindex="-1" class="page-container">
+    <div class="ui-grid justify-center items-center min-h-screen">
+        <div class="md:col-span-4">
+            <div class="ui-card shadow">
+                <div class="ui-card-body p-6">
+                    <div class="text-center mb-6">
+                        <h2 class="font-semibold flex items-center justify-center">
+                            <img th:src="@{/img/kairos.png}" alt="Kairos" width="40" height="40" class="login-logo me-2">
                             <span>Kairos</span>
                         </h2>
                         <p class="text-muted">Availability Monitor</p>
                     </div>
 
-                    <div th:if="${param.oidcError}" class="alert alert-danger">
+                    <div th:if="${param.oidcError}" class="ui-alert ui-alert-danger">
                         OIDC sign-in failed. Please verify your identity provider configuration and try again.
                     </div>
-                    <div th:if="${param.error}" class="alert alert-danger">
+                    <div th:if="${param.error}" class="ui-alert ui-alert-danger">
                         Invalid email or password.
                     </div>
-                    <div th:if="${param.logout}" class="alert alert-info">
+                    <div th:if="${param.logout}" class="ui-alert ui-alert-info">
                         You have been logged out.
                     </div>
 
                     <form th:action="@{/login}" method="post">
-                        <div class="mb-3">
-                            <label for="username" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="username" name="username"
+                        <div class="mb-4">
+                            <label for="username" class="ui-form-label">Email</label>
+                            <input type="email" class="ui-form-control" id="username" name="username"
                                    placeholder="admin@kairos.local" required autofocus>
                         </div>
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="password" name="password" required>
+                        <div class="mb-4">
+                            <label for="password" class="ui-form-label">Password</label>
+                            <input type="password" class="ui-form-control" id="password" name="password" required>
                         </div>
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-box-arrow-in-right me-1"></i>Sign In
+                        <div class="grid">
+                            <button type="submit" class="ui-btn ui-btn-primary">
+                                <i class="me-1" data-icon="log-in" aria-hidden="true"></i>Sign In
                             </button>
                         </div>
                     </form>
 
                     <th:block th:if="${oidcLoginEnabled}">
-                        <hr class="my-4">
-                        <div class="d-grid">
-                            <a th:href="@{/oauth2/authorization/oidc}" class="btn btn-outline-secondary">
+                        <hr class="my-6">
+                        <div class="grid">
+                            <a th:href="@{/oauth2/authorization/oidc}" class="ui-btn ui-btn-outline-secondary">
                                 Login with OIDC
                             </a>
                         </div>
                     </th:block>
 
-                    <div class="text-center mt-3">
-                        <a th:href="@{/}" class="text-muted small">Back to Dashboard</a>
+                    <div class="text-center mt-4">
+                        <a th:href="@{/}" class="text-muted text-sm">Back to Dashboard</a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-<script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
 <script th:src="@{/js/kairos.js}"></script>
 </body>
 </html>

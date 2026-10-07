@@ -1,59 +1,54 @@
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="dark"
+<html lang="en" data-theme="light"
       xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="kairos-time-zone" th:content="${timeZoneId}">
-    <link rel="icon" th:href="@{/img/kairos.png}" type="image/png">
     <title>Kairos - Announcements</title>
-    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
-    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/font/bootstrap-icons.min.css}">
-    <link rel="stylesheet" th:href="@{/css/kairos.css}">
+    <th:block th:replace="~{layout :: assets}"></th:block>
     <th:block th:utext="${customHeadersHtml}"></th:block>
 </head>
 <body>
 <nav th:replace="~{layout :: navbar}"></nav>
 
-<div class="container-fluid py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3 mb-0"><i class="bi bi-megaphone me-2"></i>Announcements</h1>
+<div id="main-content" tabindex="-1" class="page-container py-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="heading-lg mb-0"><i class="me-2" data-icon="megaphone" aria-hidden="true"></i>Announcements</h1>
         <small class="text-muted">Sorted by created date</small>
     </div>
 
-    <div th:if="${#lists.size(announcements) == 0}" class="text-center py-5">
-        <i class="bi bi-chat-left-text display-1 text-muted"></i>
-        <p class="text-muted mt-3">No announcements available.</p>
+    <div th:if="${#lists.size(announcements) == 0}" class="text-center py-12">
+        <i class="text-7xl text-muted" data-icon="message-square" aria-hidden="true"></i>
+        <p class="text-muted mt-4">No announcements available.</p>
     </div>
 
-    <div th:unless="${#lists.size(announcements) == 0}" class="vstack gap-3">
+    <div th:unless="${#lists.size(announcements) == 0}" class="ui-stack gap-4">
         <div th:each="announcement : ${announcements}"
-             class="announcement-card p-3 rounded border"
-             th:classappend="${announcement.kind.name == 'INFORMATION'} ? ' announcement-information' : (${announcement.kind.name == 'WARNING'} ? ' announcement-warning' : ' announcement-problem')">
-            <div class="d-flex justify-content-between align-items-start mb-2 gap-3">
+             class="announcement-card p-4 rounded border"
+             th:classappend="${announcement.kind.name == 'INFORMATION'} ? 'announcement-information' : (${announcement.kind.name == 'WARNING'} ? 'announcement-warning' : 'announcement-problem')">
+            <div class="flex justify-between items-start mb-2 gap-4">
                 <div>
-                    <span class="badge"
-                          th:classappend="${announcement.kind.name == 'INFORMATION'} ? ' bg-info text-dark' : (${announcement.kind.name == 'WARNING'} ? ' bg-warning text-dark' : ' bg-danger')"
+                    <span class="ui-badge"
+                          th:classappend="${announcement.kind.name == 'INFORMATION'} ? 'tone-info text-ink' : (${announcement.kind.name == 'WARNING'} ? 'tone-warning text-ink' : 'tone-danger')"
                           th:text="${announcement.kind}">INFORMATION</span>
-                    <span class="badge ms-2" th:classappend="${announcement.active} ? ' bg-success' : ' bg-secondary'"
+                    <span class="ui-badge ms-2" th:classappend="${announcement.active} ? 'tone-success' : 'tone-secondary'"
                           th:text="${announcement.active} ? 'ACTIVE' : 'INACTIVE'">ACTIVE</span>
                 </div>
                 <small class="text-muted">
                     by <span th:text="${announcement.createdBy != null && !#strings.isEmpty(announcement.createdBy)} ? ${announcement.createdBy} : 'Unknown'">Unknown</span>
-                    Â·
+                    ·
                     <span th:text="${announcement.createdAt != null} ? ${@kairosTime.format(announcement.createdAt, 'yyyy-MM-dd HH:mm')} : '-'">-</span>
                 </small>
             </div>
             <div class="announcement-content" th:utext="${announcement.content}"></div>
-            <small class="text-muted d-block mt-3" th:if="${announcement.activeUntil != null}">
+            <small class="text-muted block mt-4" th:if="${announcement.activeUntil != null}">
                 Active until <span th:text="${@kairosTime.format(announcement.activeUntil, 'yyyy-MM-dd HH:mm')}">-</span>
             </small>
         </div>
     </div>
 </div>
 
-<script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
 <script th:src="@{/js/kairos.js}"></script>
 </body>
 </html>

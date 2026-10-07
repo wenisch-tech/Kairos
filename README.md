@@ -287,3 +287,32 @@ java -jar target/kairos.jar
 ## License
 Licensed under 
 [AGPL v3.0](LICENSE.md) by  [Jean-Fabian Wenisch](https://github.com/jfwenisch) / wenisch.tech [wenisch.tech](https://wenisch.tech) 
+
+
+### Frontend development
+
+Kairos uses server-rendered Thymeleaf pages styled with Tailwind CSS. Alpine.js
+provides navigation, disclosures, and accessible dialogs; Lucide supplies SVG icons.
+All assets, including the announcement editor, are served locally.
+
+`mvn verify` installs pinned Node/npm versions into `target/frontend`, runs `npm ci`
+and `npm run build`, then packages the generated assets with the application.
+Node is not required in the runtime container. The native Docker build uses the same
+asset pipeline.
+
+Frontend sources live in `src/main/frontend`. Compiled files are generated under
+`target/generated-resources/static` and must not be committed. With a local Node.js
+installation, run `npm ci` followed by `npm run build` (or `npm run watch`). For
+Spring Boot development, run `mvn spring-boot:run` after building resources; restart
+or copy the generated resources into `target/classes/static` after asset changes.
+Use complete utility class names in templates and JavaScript so Tailwind can detect
+every state.
+
+Run `mvn verify`, then `npx playwright install chromium` and `npm run test:e2e` for
+browser checks. The tests launch the packaged JAR on port 18080 using an isolated,
+in-memory H2 database and the default development administrator. Do not point this
+suite at a production instance. Screenshots and failure traces are written to
+`test-results/`; CI uploads them as build artifacts.
+
+The default theme is light. Existing `theme` localStorage/cookie preferences remain
+supported, along with embed color parameters and the `kairos:themechange` event.

@@ -1,87 +1,58 @@
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="dark"
+<html lang="en" data-theme="light"
       xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" th:href="@{/img/kairos.png}" type="image/png">
     <title>API Keys - Kairos Admin</title>
-    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
-    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/font/bootstrap-icons.min.css}">
-    <link rel="stylesheet" th:href="@{/css/kairos.css}">
+    <th:block th:replace="~{layout :: assets}"></th:block>
     <th:block th:utext="${customHeadersHtml}"></th:block>
 </head>
-<body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom">
-    <div class="container-fluid">
-        <a class="navbar-brand fw-bold d-flex align-items-center" th:href="@{/}"><img th:src="@{/img/kairos.png}" alt="Kairos" height="28" class="me-2"><span>Kairos</span></a>
-        <div class="collapse navbar-collapse">
-            <ul class="navbar-nav ms-auto align-items-center">
-                <li class="nav-item"><a class="nav-link" th:href="@{/}"><i class="bi bi-house me-1"></i>Dashboard</a></li>
-                <li class="nav-item">
-                    <form th:action="@{/logout}" method="post" class="d-inline">
-                        <button type="submit" class="btn btn-link nav-link"><i class="bi bi-box-arrow-right me-1"></i>Logout</button>
-                    </form>
-                </li>
-                <li class="nav-item ms-2">
-                    <button class="btn btn-outline-secondary btn-sm" onclick="toggleDarkMode()"><i class="bi bi-moon-stars-fill"></i></button>
-                </li>
-            </ul>
-        </div>
-    </div>
-</nav>
+<body class="admin-page" x-data="{ navOpen: false }">
+<nav th:replace="~{admin/layout :: adminNavbar}"></nav>
 
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-md-2 min-vh-100 border-end py-3 bg-dark-subtle">
-            <div th:replace="~{admin/layout :: adminSidebar}"></div>
-        </div>
-        <div class="col-md-10 py-4 px-4">
-            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show">
-                <span th:text="${successMessage}">Success</span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show">
-                <span th:text="${errorMessage}">Error</span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
+<div class="admin-shell">
+    <div class="admin-frame">
+        <aside th:replace="~{admin/layout :: adminSidebar}"></aside>
+        <div class="admin-content" id="main-content">
+            <th:block th:replace="~{layout :: feedback}"></th:block>
 
-            <div th:if="${newApiKeyToken}" class="alert alert-warning">
-                <h6 class="fw-bold mb-2"><i class="bi bi-shield-lock me-1"></i>Copy this API key now</h6>
+            <div th:if="${newApiKeyToken}" class="ui-alert ui-alert-warning">
+                <h6 class="font-semibold mb-2"><i class="me-1" data-icon="shield-check" aria-hidden="true"></i>Copy this API key now</h6>
                 <p class="mb-2">This token is shown only once and cannot be retrieved again after you leave this page.</p>
-                <div class="input-group">
-                    <input id="new-api-key-token" type="text" class="form-control font-monospace" th:value="${newApiKeyToken}" readonly>
-                    <button type="button" class="btn btn-outline-light" onclick="copyApiKeyToken()">
-                        <i class="bi bi-clipboard me-1"></i>Copy
+                <div class="ui-input-group">
+                    <input id="new-api-key-token" type="text" class="ui-form-control font-mono" th:value="${newApiKeyToken}" readonly>
+                    <button type="button" class="ui-btn ui-btn-outline-light" onclick="copyApiKeyToken()">
+                        <i class="me-1" data-icon="clipboard" aria-hidden="true"></i>Copy
                     </button>
                 </div>
             </div>
 
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="h4 mb-0"><i class="bi bi-key me-2"></i>API Key Management</h2>
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="heading-md mb-0"><i class="me-2" data-icon="key-round" aria-hidden="true"></i>API Key Management</h1>
             </div>
 
-            <div class="card mb-4">
-                <div class="card-body">
-                    <h5 class="card-title">Create API key</h5>
-                    <form th:action="@{/admin/api-keys/add}" method="post" class="row g-3 align-items-end">
-                        <div class="col-md-8">
-                            <label class="form-label">Name</label>
-                            <input type="text" class="form-control" name="name" maxlength="120" placeholder="e.g. CI Deploy Token" required>
+            <div class="ui-card mb-6">
+                <div class="ui-card-body">
+                    <h5 class="ui-card-title">Create API key</h5>
+                    <form th:action="@{/admin/api-keys/add}" method="post" class="ui-grid gap-4 items-end">
+                        <div class="md:col-span-8">
+                            <label class="ui-form-label">Name</label>
+                            <input type="text" class="ui-form-control" name="name" maxlength="120" placeholder="e.g. CI Deploy Token" required>
                         </div>
-                        <div class="col-md-4">
-                            <button type="submit" class="btn btn-primary w-100">
-                                <i class="bi bi-plus-circle me-1"></i>Create API Key
+                        <div class="md:col-span-4">
+                            <button type="submit" class="ui-btn ui-btn-primary w-full">
+                                <i class="me-1" data-icon="circle-plus" aria-hidden="true"></i>Create API Key
                             </button>
                         </div>
                     </form>
                 </div>
             </div>
 
-            <div class="card">
-                <div class="card-body p-0">
-                    <div th:if="${#lists.size(apiKeys) == 0}" class="p-3 text-muted">No API keys configured.</div>
-                    <table class="table table-hover mb-0" th:unless="${#lists.size(apiKeys) == 0}">
+            <div class="ui-card">
+                <div class="ui-card-body p-0">
+                    <div th:if="${#lists.size(apiKeys) == 0}" class="p-4 text-muted">No API keys configured.</div>
+                    <div class="ui-table-responsive"><table class="ui-table ui-table-hover mb-0" th:unless="${#lists.size(apiKeys) == 0}">
                         <thead>
                         <tr>
                             <th>Name</th>
@@ -98,23 +69,22 @@
                             <td th:text="${apiKey.createdAt != null} ? ${@kairosTime.format(apiKey.createdAt, 'yyyy-MM-dd HH:mm')} : '-'">date</td>
                             <td><code th:text="${apiKey.keyId}">id</code></td>
                             <td>
-                                <form th:action="@{/admin/api-keys/delete/{id}(id=${apiKey.id})}" method="post" class="d-inline"
+                                <form th:action="@{/admin/api-keys/delete/{id}(id=${apiKey.id})}" method="post" class="inline"
                                       onsubmit="return confirm('Delete this API key? Clients using it will lose access immediately.')">
-                                    <button type="submit" class="btn btn-danger btn-sm">
-                                        <i class="bi bi-trash"></i>
+                                    <button type="submit" class="ui-btn ui-btn-danger ui-btn-sm" aria-label="Delete">
+                                        <i class="" data-icon="trash-2" aria-hidden="true"></i>
                                     </button>
                                 </form>
                             </td>
                         </tr>
                         </tbody>
-                    </table>
+                    </table></div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
 <script th:src="@{/js/kairos.js}"></script>
 <script>
     function copyApiKeyToken() {

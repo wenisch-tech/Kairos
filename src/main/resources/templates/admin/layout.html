@@ -1,166 +1,49 @@
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="dark"
-      xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<head th:fragment="adminHead(title)">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="kairos-time-zone" th:content="${timeZoneId}">
-    <link rel="icon" th:href="@{/img/kairos.png}" type="image/png">
-    <title th:text="${title} + ' - Kairos Admin'">Admin - Kairos</title>
-    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
-    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/font/bootstrap-icons.min.css}">
-    <link rel="stylesheet" th:href="@{/css/kairos.css}">
-</head>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <body>
-<div th:fragment="adminSidebar" class="d-flex flex-column">
-    <h6 class="text-uppercase text-muted fw-bold mb-3 px-2">Admin Panel</h6>
-    <a th:href="@{/admin/settings}"
-       th:classappend="${currentRequestUri != null and #strings.contains(currentRequestUri, '/settings')} ? 'active' : ''"
-       class="nav-link px-2 py-2 rounded mb-1">
-        <i class="bi bi-sliders me-2"></i>General Settings
-    </a>
-
-    <a th:href="@{/admin/announcements}"
-       th:classappend="${currentRequestUri != null and #strings.contains(currentRequestUri, '/announcements')} ? 'active' : ''"
-       class="nav-link px-2 py-2 rounded mb-1">
-        <i class="bi bi-megaphone me-2"></i>Announcements
-    </a>
-    <a th:href="@{/admin/resources}"
-       th:classappend="${currentRequestUri != null and #strings.contains(currentRequestUri, '/admin/resources')} ? 'active' : ''"
-       class="nav-link px-2 py-2 rounded mb-1">
-        <i class="bi bi-hdd-network me-2"></i>Manage Resources
-    </a>
-    <a th:href="@{/admin/outages}"
-       th:classappend="${currentRequestUri != null and #strings.contains(currentRequestUri, '/admin/outages')} ? 'active' : ''"
-       class="nav-link px-2 py-2 rounded mb-1">
-        <i class="bi bi-exclamation-octagon me-2"></i>Outages
-    </a>
-    <a th:href="@{/admin/resource-types}"
-       th:classappend="${currentRequestUri != null and #strings.contains(currentRequestUri, '/resource-types')} ? 'active' : ''"
-       class="nav-link px-2 py-2 rounded mb-1">
-        <i class="bi bi-grid-3x3-gap me-2"></i>Resource Types
-    </a>
-    <a th:href="@{/admin/resource-discovery}"
-       th:classappend="${currentRequestUri != null and #strings.contains(currentRequestUri, '/resource-discovery')} ? 'active' : ''"
-       class="nav-link px-2 py-2 rounded mb-1">
-        <i class="bi bi-search me-2"></i>Resource Discovery
-    </a>
-        <a th:href="@{/admin/proxy-config}"
-       th:classappend="${currentRequestUri != null and #strings.contains(currentRequestUri, '/proxy-config')} ? 'active' : ''"
-       class="nav-link px-2 py-2 rounded mb-1">
-        <i class="bi bi-globe2 me-2"></i>Proxy Configuration
-    </a>
-    <hr class="border-secondary my-2">
-
-    <a th:href="@{/admin/notification-providers}"
-       th:classappend="${currentRequestUri != null and #strings.contains(currentRequestUri, '/notification-provider')} ? 'active' : ''"
-       class="nav-link px-2 py-2 rounded mb-1">
-        <i class="bi bi-bell me-2"></i>Notification Providers
-    </a>
-    <a th:href="@{/admin/notification-policies}"
-       th:classappend="${currentRequestUri != null and #strings.contains(currentRequestUri, '/notification-polic')} ? 'active' : ''"
-       class="nav-link px-2 py-2 rounded mb-1">
-        <i class="bi bi-bell-fill me-2"></i>Notification Policies
-    </a>
-    <hr class="border-secondary my-2">
-        <a th:href="@{/admin/check-history}"
-       th:classappend="${currentRequestUri != null and #strings.contains(currentRequestUri, '/check-history')} ? 'active' : ''"
-       class="nav-link px-2 py-2 rounded mb-1">
-        <i class="bi bi-journal-check me-2"></i>Check History
-    </a>
-     <hr class="border-secondary my-2">
-
-    <a th:href="@{/admin/users}"
-       th:classappend="${currentRequestUri != null and #strings.contains(currentRequestUri, '/users')} ? 'active' : ''"
-       class="nav-link px-2 py-2 rounded mb-1">
-        <i class="bi bi-people me-2"></i>Users
-    </a>
-    <a th:href="@{/admin/api-keys}"
-       th:classappend="${currentRequestUri != null and #strings.contains(currentRequestUri, '/api-keys')} ? 'active' : ''"
-       class="nav-link px-2 py-2 rounded mb-1">
-        <i class="bi bi-key me-2"></i>API Keys
-    </a>
-
-    <hr class="border-secondary my-2">
-    <a th:href="@{/admin/custom-headers}"
-       th:classappend="${currentRequestUri != null and #strings.contains(currentRequestUri, '/custom-headers')} ? 'active' : ''"
-       class="nav-link px-2 py-2 rounded mb-1">
-        <i class="bi bi-code-square me-2"></i>Custom Headers
-    </a>
-
-    <a th:href="@{/admin/embed}"
-       th:classappend="${currentRequestUri != null and #strings.contains(currentRequestUri, '/admin/embed')} ? 'active' : ''"
-       class="nav-link px-2 py-2 rounded mb-1">
-        <i class="bi bi-badge-ad me-2"></i>Embed Widget
-    </a>
-    <hr class="border-secondary my-2">
-    <a th:href="@{/api}"
-       class="nav-link px-2 py-2 rounded mb-1">
-        <i class="bi bi-braces me-2"></i>API Docs
-    </a>
-    <a th:href="@{/admin/about}"
-       th:classappend="${currentRequestUri != null and #strings.contains(currentRequestUri, '/admin/about')} ? 'active' : ''"
-       class="nav-link px-2 py-2 rounded mb-1">
-        <i class="bi bi-info-circle me-2"></i>About
-    </a>
-    <div class="mt-auto pt-2">
-        <hr class="border-secondary my-2">
-        <div class="px-2" style="font-size:.75rem">
-            <a th:href="'https://github.com/wenisch-tech/Kairos/releases/tag/v' + ${appVersion}"
-               th:text="'v' + ${appVersion}"
-               target="_blank" rel="noopener"
-               class="text-muted text-decoration-none">version</a>
-        </div>
+<nav th:fragment="adminNavbar" class="admin-topbar" aria-label="Admin navigation">
+    <a href="#main-content" class="skip-link">Skip to content</a>
+    <div class="flex items-center gap-4">
+        <button class="ui-btn mobile-menu" type="button" @click="navOpen = !navOpen" :aria-expanded="navOpen" aria-controls="admin-sidebar" aria-label="Toggle admin navigation"><i data-icon="menu" aria-hidden="true"></i></button>
+        <a class="brand" th:href="@{/}"><img th:src="@{/img/kairos.png}" alt="" width="30" height="30"><span>Kairos</span></a>
+        <span class="admin-label">WORKSPACE</span>
     </div>
-</div>
-
-<div th:fragment="adminLayout(title, content)">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom">
-        <div class="container-fluid">
-            <a class="navbar-brand fw-bold d-flex align-items-center" th:href="@{/}">
-                <img th:src="@{/img/kairos.png}" alt="Kairos" height="28" class="me-2">
-                <span>Kairos</span>
-            </a>
-            <div class="collapse navbar-collapse">
-                <ul class="navbar-nav ms-auto align-items-center">
-                    <li class="nav-item">
-                        <a class="nav-link" th:href="@{/}"><i class="bi bi-house me-1"></i>Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                        <form th:action="@{/logout}" method="post" class="d-inline">
-                            <button type="submit" class="btn btn-link nav-link"><i class="bi bi-box-arrow-right me-1"></i>Logout</button>
-                        </form>
-                    </li>
-                    <li class="nav-item ms-2">
-                        <button class="btn btn-outline-secondary btn-sm" onclick="toggleDarkMode()">
-                            <i class="bi bi-moon-stars-fill"></i>
-                        </button>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-2 min-vh-100 border-end py-3 bg-dark-subtle">
-                <div th:replace="~{admin/layout :: adminSidebar}"></div>
-            </div>
-
-            <div class="col-md-10 py-4 px-4">
-                <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show">
-                    <span th:text="${successMessage}">Success</span>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-                <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show">
-                    <span th:text="${errorMessage}">Error</span>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-                <div th:replace="${content}"></div>
-            </div>
-        </div>
+    <div class="flex items-center gap-2">
+        <a class="ui-btn ui-btn-link" th:href="@{/}"><span>View status page</span><i data-icon="arrow-up-right" aria-hidden="true"></i></a>
+        <button class="ui-btn theme-toggle" type="button" onclick="toggleDarkMode()" aria-label="Toggle color theme"><i data-icon="sun-moon" aria-hidden="true"></i></button>
+        <form th:action="@{/logout}" method="post"><button type="submit" class="ui-btn" aria-label="Sign out"><i data-icon="log-out" aria-hidden="true"></i></button></form>
     </div>
-</div>
+</nav>
+<aside th:fragment="adminSidebar" id="admin-sidebar" class="admin-sidebar" :class="{ 'mobile-open': navOpen }" @keydown.escape.window="navOpen = false" x-trap.inert.noscroll="navOpen" aria-label="Administration">
+    <button class="ui-btn mobile-menu sidebar-close" type="button" @click="navOpen = false" aria-label="Close navigation"><i data-icon="x" aria-hidden="true"></i></button>
+    <div class="sidebar-intro"><span class="workspace-icon"><i data-icon="activity" aria-hidden="true"></i></span><div><strong>Administration</strong><small>Your monitoring workspace</small></div></div>
+    <div class="nav-section"><h2>Monitoring</h2>
+        <a class="ui-nav-link" th:href="@{/admin/resources}" th:classappend="${currentRequestUri != null and (#strings.startsWith(currentRequestUri, '/admin/resources') or #strings.startsWith(currentRequestUri, '/admin/resource-edit'))} ? 'active'" th:attr="aria-current=${currentRequestUri != null and (#strings.startsWith(currentRequestUri, '/admin/resources') or #strings.startsWith(currentRequestUri, '/admin/resource-edit'))} ? 'page' : null"><i data-icon="server" aria-hidden="true"></i>Resources</a>
+        <a class="ui-nav-link" th:href="@{/admin/outages}" th:classappend="${currentRequestUri != null and #strings.startsWith(currentRequestUri, '/admin/outages')} ? 'active'" th:attr="aria-current=${currentRequestUri != null and #strings.startsWith(currentRequestUri, '/admin/outages')} ? 'page' : null"><i data-icon="triangle-alert" aria-hidden="true"></i>Outages</a>
+        <a class="ui-nav-link" th:href="@{/admin/check-history}" th:classappend="${currentRequestUri != null and #strings.startsWith(currentRequestUri, '/admin/check-history')} ? 'active'" th:attr="aria-current=${currentRequestUri != null and #strings.startsWith(currentRequestUri, '/admin/check-history')} ? 'page' : null"><i data-icon="history" aria-hidden="true"></i>Check history</a>
+        <a class="ui-nav-link" th:href="@{/admin/resource-types}" th:classappend="${currentRequestUri != null and #strings.startsWith(currentRequestUri, '/admin/resource-types')} ? 'active'" th:attr="aria-current=${currentRequestUri != null and #strings.startsWith(currentRequestUri, '/admin/resource-types')} ? 'page' : null"><i data-icon="layers" aria-hidden="true"></i>Resource types</a>
+        <a class="ui-nav-link" th:href="@{/admin/resource-discovery}" th:classappend="${currentRequestUri != null and #strings.startsWith(currentRequestUri, '/admin/resource-discovery')} ? 'active'" th:attr="aria-current=${currentRequestUri != null and #strings.startsWith(currentRequestUri, '/admin/resource-discovery')} ? 'page' : null"><i data-icon="radar" aria-hidden="true"></i>Discovery</a>
+    </div>
+    <div class="nav-section"><h2>Notifications</h2>
+        <a class="ui-nav-link" th:href="@{/admin/announcements}" th:classappend="${currentRequestUri != null and #strings.startsWith(currentRequestUri, '/admin/announcement')} ? 'active'" th:attr="aria-current=${currentRequestUri != null and #strings.startsWith(currentRequestUri, '/admin/announcement')} ? 'page' : null"><i data-icon="megaphone" aria-hidden="true"></i>Announcements</a>
+        <a class="ui-nav-link" th:href="@{/admin/notification-providers}" th:classappend="${currentRequestUri != null and #strings.startsWith(currentRequestUri, '/admin/notification-provider')} ? 'active'" th:attr="aria-current=${currentRequestUri != null and #strings.startsWith(currentRequestUri, '/admin/notification-provider')} ? 'page' : null"><i data-icon="bell" aria-hidden="true"></i>Providers</a>
+        <a class="ui-nav-link" th:href="@{/admin/notification-policies}" th:classappend="${currentRequestUri != null and #strings.startsWith(currentRequestUri, '/admin/notification-polic')} ? 'active'" th:attr="aria-current=${currentRequestUri != null and #strings.startsWith(currentRequestUri, '/admin/notification-polic')} ? 'page' : null"><i data-icon="list-checks" aria-hidden="true"></i>Policies</a>
+    </div>
+    <div class="nav-section"><h2>Access</h2>
+        <a class="ui-nav-link" th:href="@{/admin/users}" th:classappend="${currentRequestUri != null and #strings.startsWith(currentRequestUri, '/admin/users')} ? 'active'" th:attr="aria-current=${currentRequestUri != null and #strings.startsWith(currentRequestUri, '/admin/users')} ? 'page' : null"><i data-icon="users" aria-hidden="true"></i>Users</a>
+        <a class="ui-nav-link" th:href="@{/admin/api-keys}" th:classappend="${currentRequestUri != null and #strings.startsWith(currentRequestUri, '/admin/api-keys')} ? 'active'" th:attr="aria-current=${currentRequestUri != null and #strings.startsWith(currentRequestUri, '/admin/api-keys')} ? 'page' : null"><i data-icon="key-round" aria-hidden="true"></i>API keys</a>
+    </div>
+    <div class="nav-section"><h2>Configuration</h2>
+        <a class="ui-nav-link" th:href="@{/admin/settings}" th:classappend="${currentRequestUri != null and #strings.startsWith(currentRequestUri, '/admin/settings')} ? 'active'" th:attr="aria-current=${currentRequestUri != null and #strings.startsWith(currentRequestUri, '/admin/settings')} ? 'page' : null"><i data-icon="sliders-horizontal" aria-hidden="true"></i>General settings</a>
+        <a class="ui-nav-link" th:href="@{/admin/proxy-config}" th:classappend="${currentRequestUri != null and #strings.startsWith(currentRequestUri, '/admin/proxy-config')} ? 'active'" th:attr="aria-current=${currentRequestUri != null and #strings.startsWith(currentRequestUri, '/admin/proxy-config')} ? 'page' : null"><i data-icon="globe" aria-hidden="true"></i>Proxy</a>
+        <a class="ui-nav-link" th:href="@{/admin/custom-headers}" th:classappend="${currentRequestUri != null and #strings.startsWith(currentRequestUri, '/admin/custom-headers')} ? 'active'" th:attr="aria-current=${currentRequestUri != null and #strings.startsWith(currentRequestUri, '/admin/custom-headers')} ? 'page' : null"><i data-icon="code" aria-hidden="true"></i>Custom headers</a>
+        <a class="ui-nav-link" th:href="@{/admin/embed}" th:classappend="${currentRequestUri != null and #strings.startsWith(currentRequestUri, '/admin/embed')} ? 'active'" th:attr="aria-current=${currentRequestUri != null and #strings.startsWith(currentRequestUri, '/admin/embed')} ? 'page' : null"><i data-icon="panel-top" aria-hidden="true"></i>Embed widget</a>
+    </div>
+    <div class="sidebar-footer">
+        <a class="ui-nav-link" th:href="@{/api}"><i data-icon="braces" aria-hidden="true"></i>API documentation</a>
+        <a class="ui-nav-link" th:href="@{/admin/about}"><i data-icon="info" aria-hidden="true"></i>About Kairos</a>
+        <a class="version-link" th:href="'https://github.com/wenisch-tech/Kairos/releases/tag/v' + ${appVersion}" th:text="'Kairos v' + ${appVersion}" target="_blank" rel="noopener">Version</a>
+    </div>
+</aside>
 </body>
 </html>

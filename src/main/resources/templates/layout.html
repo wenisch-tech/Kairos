@@ -3,58 +3,38 @@
 <head th:fragment="head(title)">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="kairos-time-zone" th:content="${timeZoneId}">
-    <link rel="icon" th:href="@{/img/kairos.png}" type="image/png">
     <title th:text="${title} + ' - Kairos'">Kairos</title>
-    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
-    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/font/bootstrap-icons.min.css}">
-    <link rel="stylesheet" th:href="@{/css/kairos.css}">
+    <th:block th:replace="~{layout :: assets}"></th:block>
     <th:block th:utext="${customHeadersHtml}"></th:block>
-    <script th:src="@{/js/kairos.js}" defer></script>
 </head>
 <body>
-<nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom">
-    <div class="container-fluid">
-        <a class="navbar-brand fw-bold d-flex align-items-center" th:href="@{/}">
-            <img th:src="@{/img/kairos.png}" alt="Kairos" height="28" class="me-2">
-            <span>Kairos</span>
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto align-items-center">
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/}"><i class="bi bi-house me-1"></i>Dashboard</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/announcements}"><i class="bi bi-megaphone me-1"></i>Announcements</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/outages}"><i class="bi bi-exclamation-triangle me-1"></i>Outages</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/api}"><i class="bi bi-braces me-1"></i>API Docs</a>
-                </li>
-                <li class="nav-item" sec:authorize="hasRole('ADMIN')">
-                    <a class="nav-link" th:href="@{/admin}"><i class="bi bi-gear me-1"></i>Admin</a>
-                </li>
-                <li class="nav-item" sec:authorize="isAuthenticated()">
-                    <form th:action="@{/logout}" method="post" class="d-inline">
-                        <button type="submit" class="btn btn-link nav-link"><i class="bi bi-box-arrow-right me-1"></i>Logout</button>
-                    </form>
-                </li>
-                <li class="nav-item" sec:authorize="!isAuthenticated()">
-                    <a class="nav-link" th:href="@{/login}"><i class="bi bi-person me-1"></i>Login</a>
-                </li>
-                <li class="nav-item ms-2">
-                    <button class="btn btn-outline-secondary btn-sm" onclick="toggleDarkMode()">
-                        <i class="bi bi-moon-stars-fill"></i>
-                    </button>
-                </li>
-            </ul>
+<th:block th:fragment="assets">
+    <meta name="kairos-time-zone" th:content="${timeZoneId}">
+    <meta name="kairos-availability-decimals" th:content="${availabilityPercentageScale != null ? availabilityPercentageScale : availabilityPercentageDecimalPlaces}">
+    <link rel="icon" th:href="@{/img/kairos.png}" type="image/png">
+    <script th:src="@{/js/theme.js}"></script>
+    <link rel="stylesheet" th:href="@{/css/kairos.css}">
+</th:block>
+<nav th:fragment="navbar" class="public-nav" x-data="{ menuOpen: false }" aria-label="Main navigation">
+    <a href="#main-content" class="skip-link">Skip to content</a>
+    <div class="public-nav-inner">
+        <a class="brand" th:href="@{/}"><img th:src="@{/img/kairos.png}" alt="" width="32" height="32"><span>Kairos</span><span class="brand-label">STATUS</span></a>
+        <button type="button" class="ui-btn mobile-menu" @click="menuOpen = !menuOpen" :aria-expanded="menuOpen" aria-controls="public-links" aria-label="Toggle navigation"><i data-icon="menu" aria-hidden="true"></i></button>
+        <div class="public-links" id="public-links" :class="{ 'mobile-open': menuOpen }">
+            <a class="ui-nav-link" th:href="@{/}" th:classappend="${currentRequestUri == '/'} ? 'active'">Overview</a>
+            <a class="ui-nav-link" th:href="@{/announcements}" th:classappend="${currentRequestUri == '/announcements'} ? 'active'">Announcements</a>
+            <a class="ui-nav-link" th:href="@{/outages}" th:classappend="${currentRequestUri == '/outages'} ? 'active'">Outages</a>
+            <a class="ui-nav-link" th:href="@{/api}">API</a>
+            <a class="ui-btn ui-btn-outline-secondary" sec:authorize="hasRole('ADMIN')" th:href="@{/admin}"><i data-icon="settings" aria-hidden="true"></i>Admin</a>
+            <a class="ui-btn ui-btn-outline-secondary" sec:authorize="!isAuthenticated()" th:href="@{/login}">Sign in <i data-icon="arrow-up-right" aria-hidden="true"></i></a>
+            <form sec:authorize="isAuthenticated()" th:action="@{/logout}" method="post"><button class="ui-btn ui-btn-link" type="submit" aria-label="Sign out"><i data-icon="log-out" aria-hidden="true"></i></button></form>
+            <button class="ui-btn theme-toggle" type="button" onclick="toggleDarkMode()" aria-label="Toggle color theme"><i data-icon="sun-moon" aria-hidden="true"></i></button>
         </div>
     </div>
 </nav>
+<th:block th:fragment="feedback">
+    <div th:if="${successMessage}" class="ui-alert ui-alert-success" role="status"><span th:text="${successMessage}"></span><button type="button" class="ui-btn-close" data-ui-dismiss="alert" aria-label="Dismiss message"></button></div>
+    <div th:if="${errorMessage}" class="ui-alert ui-alert-danger" role="alert"><span th:text="${errorMessage}"></span><button type="button" class="ui-btn-close" data-ui-dismiss="alert" aria-label="Dismiss message"></button></div>
+</th:block>
 </body>
 </html>

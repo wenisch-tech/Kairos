@@ -13,7 +13,8 @@ function readThemeCookie() {
 }
 
 function detectPreferredTheme() {
-    const stored = localStorage.getItem('theme');
+    let stored;
+    try { stored = localStorage.getItem('theme'); } catch {}
     if (stored === 'light' || stored === 'dark') {
         return stored;
     }
@@ -21,14 +22,15 @@ function detectPreferredTheme() {
     if (fromCookie) {
         return fromCookie;
     }
-    const attrTheme = document.documentElement.getAttribute('data-bs-theme');
-    return attrTheme === 'light' ? 'light' : 'dark';
+    const attrTheme = document.documentElement.getAttribute('data-theme');
+    return attrTheme === 'dark' ? 'dark' : 'light';
 }
 
 function applyTheme(theme) {
     const normalized = theme === 'light' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-bs-theme', normalized);
-    localStorage.setItem('theme', normalized);
+    document.documentElement.setAttribute('data-theme', normalized);
+    try { localStorage.setItem('theme', normalized); } catch {}
+    document.documentElement.style.colorScheme = normalized;
     document.cookie = 'theme=' + encodeURIComponent(normalized) + '; path=/; max-age=31536000; samesite=lax';
     window.dispatchEvent(new CustomEvent('kairos:themechange', {
         detail: { theme: normalized }
@@ -284,7 +286,8 @@ function initializeViewModeSwitcher() {
         });
     const hasTimelineMode = availableModes.indexOf('timeline') !== -1;
     const defaultMode = hasTimelineMode ? 'timeline' : (availableModes[0] || 'timeline');
-    const savedViewMode = localStorage.getItem(storageKey);
+    let savedViewMode;
+    try { savedViewMode = localStorage.getItem(storageKey); } catch {}
 
     function normalizeViewMode(mode) {
         if (mode && availableModes.indexOf(mode) !== -1) {
@@ -314,7 +317,7 @@ function initializeViewModeSwitcher() {
         });
 
         // Save preference
-        localStorage.setItem(storageKey, normalizedMode);
+        try { localStorage.setItem(storageKey, normalizedMode); } catch {}
         window.dispatchEvent(new CustomEvent('kairos:viewmodechange', {
             detail: { mode: normalizedMode }
         }));
@@ -432,7 +435,7 @@ function initializeOutageSinceCounters() {
 document.addEventListener('DOMContentLoaded', function() {
     applyTheme(detectPreferredTheme());
     initializeInstantCheckForm();
-    initializeBootstrapPopovers();
+    initializeHelpPopovers();
     initializeResourceNameFilter();
     initializeSnapshotStatusFilters();
     syncGroupEmbedWidgetsToTheme();
@@ -485,19 +488,8 @@ function initializeInstantCheckForm() {
                 resourceNameField.value = lastInstantCheckRequest.target;
             }
 
-            const resultModalEl = document.getElementById('instantCheckResultModal');
-            if (resultModalEl && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
-                const resultModal = bootstrap.Modal.getInstance(resultModalEl);
-                if (resultModal) {
-                    resultModal.hide();
-                }
-            }
-
-            const submitModalEl = document.getElementById('publicResourceModal');
-            if (submitModalEl && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
-                const submitModal = bootstrap.Modal.getOrCreateInstance(submitModalEl);
-                submitModal.show();
-            }
+            window.KairosUI.dialog('instantCheckResultModal', false);
+            window.KairosUI.dialog('publicResourceModal', true);
         });
     }
 
@@ -604,13 +596,13 @@ function showInstantCheckResult(result) {
 
     if (status === 'AVAILABLE') {
         iconWrap.classList.add('status-available');
-        iconWrap.innerHTML = '<i class="bi bi-check-circle"></i>';
+        iconWrap.innerHTML = '<i class="" data-icon="circle-check" aria-hidden="true"></i>';
     } else if (status === 'NOT_AVAILABLE') {
         iconWrap.classList.add('status-not-available');
-        iconWrap.innerHTML = '<i class="bi bi-exclamation-octagon"></i>';
+        iconWrap.innerHTML = '<i class="" data-icon="octagon-alert" aria-hidden="true"></i>';
     } else {
         iconWrap.classList.add('status-unknown');
-        iconWrap.innerHTML = '<i class="bi bi-question-circle"></i>';
+        iconWrap.innerHTML = '<i class="" data-icon="circle-help" aria-hidden="true"></i>';
     }
 
     statusElement.textContent = status;
@@ -636,29 +628,12 @@ function showInstantCheckResult(result) {
         timeElement.textContent = formatDateTimeSeconds(new Date());
     }
 
-    if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
-        const modalEl = document.getElementById('instantCheckResultModal');
-        if (!modalEl) {
-            return;
-        }
-        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-        modal.show();
-    }
+    window.KairosUI.icons();
+    window.KairosUI.dialog('instantCheckResultModal', true);
 }
 
-function initializeBootstrapPopovers() {
-    if (typeof bootstrap === 'undefined' || !bootstrap.Popover) {
-        return;
-    }
-
-    document.querySelectorAll('[data-bs-toggle="popover"]').forEach(function(element) {
-        if (!bootstrap.Popover.getInstance(element)) {
-            new bootstrap.Popover(element, {
-                html: true,
-                trigger: 'hover focus'
-            });
-        }
-    });
+function initializeHelpPopovers() {
+    window.KairosUI.help();
 }
 
 function applyModeToEmbedSrc(baseSrc, mode) {
@@ -806,15 +781,15 @@ function initializeGroupEmbedCopyButtons() {
             ].join('\n');
 
             navigator.clipboard.writeText(snippet).then(function() {
-                const icon = button.querySelector('i');
+                const icon = button.querySelector('[data-icon]');
                 if (!icon) {
                     return;
                 }
-                icon.classList.remove('bi-clipboard');
-                icon.classList.add('bi-check2');
+                icon.dataset.icon = 'check';
+                window.KairosUI.icons();
                 window.setTimeout(function() {
-                    icon.classList.remove('bi-check2');
-                    icon.classList.add('bi-clipboard');
+                    icon.dataset.icon = 'clipboard';
+                    window.KairosUI.icons();
                 }, 1400);
             });
         });
@@ -1227,7 +1202,7 @@ function resolveResourceContainerName(container) {
         return directName.trim().toLowerCase();
     }
 
-    const nameElement = container.querySelector('.card-title, a.fw-semibold, .fw-semibold');
+    const nameElement = container.querySelector('.ui-card-title, a.font-semibold, .font-semibold');
     if (!nameElement || typeof nameElement.textContent !== 'string') {
         return '';
     }
@@ -1301,14 +1276,14 @@ function applyResourceStatusFilter() {
         ungroupedCardsGrid.hidden = !visibleCards;
     }
 
-    document.querySelectorAll('#groupedResourceAccordion .accordion-item[data-group-id]').forEach(function(groupItem) {
+    document.querySelectorAll('#groupedResourceAccordion .ui-accordion-item[data-group-id]').forEach(function(groupItem) {
         const groupId = groupItem.getAttribute('data-group-id');
         groupItem.hidden = !visibleRowGroupIds.has(groupId);
     });
 
     const groupedAccordion = document.querySelector('#groupedResourceAccordion');
     if (groupedAccordion) {
-        const hasVisibleGroup = groupedAccordion.querySelector('.accordion-item[data-group-id]:not([hidden])');
+        const hasVisibleGroup = groupedAccordion.querySelector('.ui-accordion-item[data-group-id]:not([hidden])');
         groupedAccordion.hidden = !hasVisibleGroup;
     }
 
@@ -1475,6 +1450,8 @@ function updateStatusDot(row, status) {
 
     dot.classList.remove('status-available', 'status-not-available', 'status-unknown');
     dot.classList.add('status-' + normalizeStatus(status));
+    dot.setAttribute('role', 'img');
+    dot.setAttribute('aria-label', 'Status: ' + normalizeStatus(status).replaceAll('-', ' '));
 }
 
 function updateTimeline(row, timelineBlocks) {
@@ -1775,7 +1752,7 @@ function initializeLatencyChartsFromDom() {
         }
         // Fetch for the currently active range
         var currentHours = 24;
-        var activeBtn = document.querySelector('[data-role="timeline-range-controls"] .btn.active[data-timeline-hours]');
+        var activeBtn = document.querySelector('[data-role="timeline-range-controls"] .ui-btn.active[data-timeline-hours]');
         if (activeBtn) {
             currentHours = parseInt(activeBtn.getAttribute('data-timeline-hours'), 10) || 24;
         }
@@ -2188,7 +2165,7 @@ function syncAllGroupOrderInputs() {
 }
 
 function syncGroupOrderInput(list) {
-    const card = list.closest('.card');
+    const card = list.closest('.ui-card');
     if (!card) {
         return;
     }
@@ -2232,3 +2209,5 @@ function updateEmptyDropHints() {
         placeholder.style.display = resourceCount === 0 ? '' : 'none';
     });
 }
+
+Object.assign(window, { readThemeCookie, detectPreferredTheme, applyTheme, toggleDarkMode, getKairosTimeZone, getAvailabilityPercentageDecimals, formatAvailabilityPercentage, getZoneDateTimeParts, parseDateTimeParts, parseKairosDateTime, formatDateTime, formatDateTimeSeconds, calculateStartDateTime, initializeTimelineLabels, waitForNextRenderStep, isElementViewable, initializeViewportAwareResourceState, initializeViewModeSwitcher, isGroupsViewActive, initializeResourceCardLinks, initializeOutageSinceCounters, initializeInstantCheckForm, showInstantCheckResult, initializeHelpPopovers, applyModeToEmbedSrc, syncGroupEmbedWidgetsToTheme, initializeGroupEmbedCopyButtons, initResourceStatusStream, parseUpdatePayload, scheduleResourceViewRecompute, normalizeResourceFilterStatus, normalizeResourceNameFilter, resolveResourceContainerName, initializeResourceNameFilter, applyResourceStatusFilter, updateSnapshotFilterUi, initializeSnapshotStatusFilters, collectUniqueResourceStatuses, updateResourceRow, applyResourceUpdateToContainer, updateResourceView, setResourceChecking, findResourceContainers, setRowChecking, updateStatusDot, updateTimeline, resolveTimelineBlockStatus, resolveTimelineBlockTimestamp, resolveTimelineBlockLatency, resolveTimelineBlockDnsLatency, resolveTimelineBlockConnectLatency, resolveTimelineBlockTlsLatency, parseLatencyValue, buildTimelineTooltip, formatLatencyMs, formatTimelineTimestamp, updateCardStatus, updateOutageBadge, updateSnapshotCounts, updateUptime, updateLatencyLabel, normalizeStatus, fetchAndRenderLatencySamples, downsampleLatency, initializeLatencyChartsFromDom, initLatencyTooltip, initLatencyZoomControls, initLatencyChartDrag, renderLatencyChart, percentile, formatCheckedAtShort, refreshAllGroupCounters, updateGroupCounterBadge, updateGroupIndicator, getStatusFromDot, initAdminResourceSorting, setupSortableList, getDragAfterElement, syncAllGroupOrderInputs, syncGroupOrderInput, syncDraggedRowGroupSelection, updateEmptyDropHints });

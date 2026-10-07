@@ -1,147 +1,97 @@
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="dark"
+<html lang="en" data-theme="light"
       xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="kairos-time-zone" th:content="${timeZoneId}">
-    <meta name="kairos-availability-decimals" th:content="${availabilityPercentageScale}">
-    <link rel="icon" th:href="@{/img/kairos.png}" type="image/png">
     <title>Kairos - Availability Monitor</title>
-    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
-    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/font/bootstrap-icons.min.css}">
-    <link rel="stylesheet" th:href="@{/css/kairos.css}">
+    <th:block th:replace="~{layout :: assets}"></th:block>
     <th:block th:utext="${customHeadersHtml}"></th:block>
-    <script>window._splashStart = Date.now();</script>
 </head>
 <body class="landing-modern">
 
-<div id="splash-screen" role="status" aria-label="Loading Kairos">
-    <div class="splash-icon-wrap">
-        <img th:src="@{/img/kairos.png}" alt="Kairos">
-    </div>
-    <p class="splash-app-name">Kairos</p>
-    <p class="splash-subtitle">Availability Monitoring</p>
-    <div class="splash-bar-track"><div class="splash-bar-fill"></div></div>
-</div>
 <nav th:replace="~{layout :: navbar}"></nav>
 
-<div class="container-fluid py-4 dashboard-shell">
-    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+<main class="page-container py-6 dashboard-shell" id="main-content">
+    <div th:if="${successMessage}" class="ui-alert ui-alert-success ui-alert-dismissible is-open" role="alert">
         <span th:text="${successMessage}">Resource submitted successfully.</span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <button type="button" class="ui-btn-close" data-ui-dismiss="alert" aria-label="Close"></button>
     </div>
-    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+    <div th:if="${errorMessage}" class="ui-alert ui-alert-danger ui-alert-dismissible is-open" role="alert">
         <span th:text="${errorMessage}">Public resource submission is currently disabled.</span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <button type="button" class="ui-btn-close" data-ui-dismiss="alert" aria-label="Close"></button>
     </div>
 
-    <div class="dashboard-hero mb-4">
+    <div class="dashboard-hero mb-6">
         <div>
-            <p class="dashboard-kicker mb-2">KAIROS AVAILABILITY MONITORING</p>
-            <h1 class="h3 mb-2"><i class="bi bi-activity me-2"></i>Status Dashboard</h1>
+            <p class="dashboard-kicker mb-2">YOUR SYSTEMS, AT A GLANCE</p>
+            <h1 class="heading-lg mb-2"><i class="me-2" data-icon="activity" aria-hidden="true"></i>Service status</h1>
             <p class="text-muted mb-0">Live status, refreshed automatically as checks run.</p>
         </div>
         <div class="dashboard-meta">
             <span class="live-pill"><span class="live-dot"></span>Live</span>
             <small class="text-muted" data-role="timeline-range-label">Last 24 hours</small>
-            <div class="btn-group btn-group-sm timeline-range-group" role="group" aria-label="Timeline range"
+            <div class="ui-btn-group ui-btn-group-sm timeline-range-group" role="group" aria-label="Timeline range"
                  data-role="timeline-range-controls">
-                <button type="button" class="btn btn-outline-info active" data-timeline-hours="24" aria-pressed="true">24h</button>
-                <button type="button" class="btn btn-outline-info" data-timeline-hours="168" aria-pressed="false">7d</button>
-                <button type="button" class="btn btn-outline-info" data-timeline-hours="720" aria-pressed="false">30d</button>
+                <button type="button" class="ui-btn ui-btn-outline-info active" data-timeline-hours="24" aria-pressed="true">24h</button>
+                <button type="button" class="ui-btn ui-btn-outline-info" data-timeline-hours="168" aria-pressed="false">7d</button>
+                <button type="button" class="ui-btn ui-btn-outline-info" data-timeline-hours="720" aria-pressed="false">30d</button>
             </div>
             <span class="timeline-loading-indicator text-muted" data-role="timeline-loading-indicator" hidden>
-                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                <span class="ui-spinner ui-spinner-sm" role="status" aria-hidden="true"></span>
                 Loading timeline...
             </span>
             <span class="cards-loading-indicator text-muted" data-role="cards-loading-indicator" hidden>
-                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                <span class="ui-spinner ui-spinner-sm" role="status" aria-hidden="true"></span>
                 Refreshing cards...
             </span>
-              <div class="btn-group btn-group-sm ms-2 view-mode-group" role="group" aria-label="View mode" data-role="view-mode-switcher" data-view-mode-storage-key="viewMode.dashboard"
+              <div class="ui-btn-group ui-btn-group-sm ms-2 view-mode-group" role="group" aria-label="View mode" data-role="view-mode-switcher" data-view-mode-storage-key="viewMode.dashboard"
                   th:attr="data-initial-view-mode=${initialDashboardViewMode}">
-                <button type="button" class="btn btn-outline-secondary view-mode-btn active" data-view-mode="timeline" aria-pressed="true"
+                <button type="button" class="ui-btn ui-btn-outline-secondary view-mode-btn active" data-view-mode="timeline" aria-pressed="true"
                         title="Timeline view">
-                    <i class="bi bi-bar-chart"></i> Timeline
+                    <i class="" data-icon="chart-no-axes-column" aria-hidden="true"></i> Timeline
                 </button>
-                <button type="button" class="btn btn-outline-secondary view-mode-btn" data-view-mode="cards" aria-pressed="false"
+                <button type="button" class="ui-btn ui-btn-outline-secondary view-mode-btn" data-view-mode="cards" aria-pressed="false"
                         title="Card view">
-                    <i class="bi bi-columns-gap"></i> Cards
+                    <i class="" data-icon="layout-grid" aria-hidden="true"></i> Cards
                 </button>
-                <button type="button" class="btn btn-outline-secondary view-mode-btn" data-view-mode="groups" aria-pressed="false"
+                <button type="button" class="ui-btn ui-btn-outline-secondary view-mode-btn" data-view-mode="groups" aria-pressed="false"
                         title="Groups mode: shows only group headers and status indicators for faster loading.">
-                    <i class="bi bi-diagram-3"></i> Groups
+                    <i class="" data-icon="network" aria-hidden="true"></i> Groups
                 </button>
             </div>
-            <button type="button" class="btn btn-sm btn-primary mt-1" th:if="${allowResourceSubmit}"
-                    data-bs-toggle="modal" data-bs-target="#publicResourceModal">
-                <i class="bi bi-plus-circle me-1"></i>Submit Resource
+            <button type="button" class="ui-btn ui-btn-sm ui-btn-primary mt-1" th:if="${allowResourceSubmit}"
+                    data-ui-toggle="modal" data-ui-target="#publicResourceModal">
+                <i class="me-1" data-icon="circle-plus" aria-hidden="true"></i>Submit Resource
             </button>
         </div>
     </div>
 
-    <div class="instant-check-panel mb-4" th:if="${instantCheckEnabled}">
-        <div class="instant-check-panel-header">
-            <h2 class="h5 mb-1"><i class="bi bi-lightning-charge me-2"></i>Instant Check</h2>
-            <p class="text-muted mb-0">Run an immediate one-off check without creating a resource.</p>
-        </div>
-        <div class="instant-check-inline"
-             th:if="${instantCheckAvailableForCurrentUser}">
-            <form id="instant-check-form" class="instant-check-form" th:action="@{/instant-check}" method="post">
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-                <select id="instant-check-type" name="resourceType" class="form-select form-select-sm" aria-label="Resource type">
-                    <option th:each="resourceType : ${resourceTypes}" th:value="${resourceType}" th:text="${resourceType}">HTTP</option>
-                </select>
-                <input id="instant-check-target"
-                       name="target"
-                       type="text"
-                       class="form-control form-control-sm"
-                       maxlength="1000"
-                       placeholder="https://example.com/health or ghcr.io/org/image:tag"
-                       required>
-                <div class="form-check form-check-inline m-0">
-                    <input class="form-check-input" type="checkbox" id="instant-check-skip-tls" name="skipTLS" value="true">
-                    <label class="form-check-label small" for="instant-check-skip-tls">Skip TLS</label>
-                </div>
-                <button id="instant-check-submit" type="submit" class="btn btn-sm btn-warning">
-                    <span class="instant-check-submit-label"><i class="bi bi-lightning-charge me-1"></i>Instant Check</span>
-                    <span class="instant-check-submit-loading" hidden>
-                        <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-                        Running...
-                    </span>
-                </button>
-            </form>
-        </div>
-        <div class="instant-check-auth-note" th:if="${instantCheckRequiresAuth}">
-            <small class="text-muted">Instant check requires authentication.</small>
-            <a class="btn btn-sm btn-outline-secondary ms-2" th:href="@{/login}">Sign in</a>
-        </div>
-    </div>
 
-    <div class="mb-4" th:if="${#lists.size(announcements) > 0}">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-            <h2 class="h5 mb-0"><i class="bi bi-megaphone me-2"></i>Announcements</h2>
-            <a th:href="@{/announcements}" class="small">View all</a>
+    <div class="mb-6" th:if="${#lists.size(announcements) > 0}">
+        <div class="flex justify-between items-center mb-2">
+            <h2 class="heading-sm mb-0"><i class="me-2" data-icon="megaphone" aria-hidden="true"></i>Announcements</h2>
+            <a th:href="@{/announcements}" class="text-sm">View all</a>
         </div>
-        <div class="vstack gap-2">
+        <div class="ui-stack gap-2">
             <div th:each="announcement : ${announcements}"
-                 class="announcement-card p-3 rounded border"
-                 th:classappend="${announcement.kind.name == 'INFORMATION'} ? ' announcement-information' : (${announcement.kind.name == 'WARNING'} ? ' announcement-warning' : ' announcement-problem')">
+                 class="announcement-card p-4 rounded border"
+                 th:classappend="${announcement.kind.name == 'INFORMATION'} ? 'announcement-information' : (${announcement.kind.name == 'WARNING'} ? 'announcement-warning' : 'announcement-problem')">
                 <div class="announcement-content" th:utext="${announcement.content}"></div>
-                <small class="text-muted d-block mt-2">
+                <small class="text-muted block mt-2">
                     by <span th:text="${announcement.createdBy != null && !#strings.isEmpty(announcement.createdBy)} ? ${announcement.createdBy} : 'Unknown'">Unknown</span>
-                    Â·
+                    ·
                     <span th:text="${announcement.createdAt != null} ? ${@kairosTime.format(announcement.createdAt, 'yyyy-MM-dd HH:mm')} : '-'">-</span>
                 </small>
             </div>
         </div>
     </div>
 
-    <div class="mb-4" th:if="${totalResourceCount > 0}">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-            <h2 class="h5 mb-0"><i class="bi bi-activity me-2"></i>Resource Status</h2>
+
+    <div class="mb-6" th:if="${totalResourceCount > 0}">
+        <div class="flex justify-between items-center mb-2">
+            <h2 class="heading-sm mb-0"><i class="me-2" data-icon="activity" aria-hidden="true"></i>Resource Status</h2>
         </div>
         <div class="status-snapshot" data-role="status-filter-container">
             <div class="snapshot-item active" data-status-filter="all" role="button" tabindex="0" aria-pressed="true" aria-label="Show all resources">
@@ -161,12 +111,12 @@
                 <strong data-role="snapshot-unknown">—</strong>
             </div>
         </div>
-        <div class="d-flex justify-content-end mt-2">
+        <div class="flex justify-end mt-2">
             <div class="resource-filter-search">
-                <label class="visually-hidden" for="resource-name-filter">Filter resources by name</label>
-                <div class="input-group input-group-sm">
-                    <span class="input-group-text"><i class="bi bi-search"></i></span>
-                    <input id="resource-name-filter" type="text" class="form-control"
+                <label class="sr-only" for="resource-name-filter">Filter resources by name</label>
+                <div class="ui-input-group ui-input-group-sm">
+                    <span class="ui-input-group-text"><i class="" data-icon="search" aria-hidden="true"></i></span>
+                    <input id="resource-name-filter" type="text" class="ui-form-control"
                            data-role="resource-name-filter"
                            placeholder="Filter by resource name"
                            aria-label="Filter resources by name">
@@ -175,102 +125,141 @@
         </div>
     </div>
 
-    <div th:if="${#lists.size(ungroupedResources) == 0 and #lists.size(groupedResources) == 0}" class="text-center py-5">
-        <i class="bi bi-emoji-smile display-1 text-muted"></i>
-        <p class="text-muted mt-3">No resources being monitored yet.</p>
-        <button type="button" class="btn btn-primary" th:if="${allowResourceSubmit}"
-                data-bs-toggle="modal" data-bs-target="#publicResourceModal">
-            <i class="bi bi-plus-circle me-1"></i>Submit Resource
+<details class="instant-check-disclosure" th:if="${instantCheckEnabled}"><summary><i data-icon="zap" aria-hidden="true"></i> Run an instant check <span class="text-muted">Check a URL or image on demand</span><i data-icon="chevron-down" aria-hidden="true"></i></summary>
+    <div class="instant-check-panel mb-6" th:if="${instantCheckEnabled}">
+        <div class="instant-check-panel-header">
+            <h2 class="heading-sm mb-1"><i class="me-2" data-icon="zap" aria-hidden="true"></i>Instant Check</h2>
+            <p class="text-muted mb-0">Run an immediate one-off check without creating a resource.</p>
+        </div>
+        <div class="instant-check-inline"
+             th:if="${instantCheckAvailableForCurrentUser}">
+            <form id="instant-check-form" class="instant-check-form" th:action="@{/instant-check}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <select id="instant-check-type" name="resourceType" class="ui-form-select ui-form-select-sm" aria-label="Resource type">
+                    <option th:each="resourceType : ${resourceTypes}" th:value="${resourceType}" th:text="${resourceType}">HTTP</option>
+                </select>
+                <input id="instant-check-target" aria-label="Resource target"
+                       name="target"
+                       type="text"
+                       class="ui-form-control ui-form-control-sm"
+                       maxlength="1000"
+                       placeholder="https://example.com/health or ghcr.io/org/image:tag"
+                       required>
+                <div class="ui-form-check ui-form-check-inline m-0">
+                    <input class="ui-form-check-input" type="checkbox" id="instant-check-skip-tls" name="skipTLS" value="true">
+                    <label class="ui-form-check-label text-sm" for="instant-check-skip-tls">Skip TLS</label>
+                </div>
+                <button id="instant-check-submit" type="submit" class="ui-btn ui-btn-sm ui-btn-warning">
+                    <span class="instant-check-submit-label"><i class="me-1" data-icon="zap" aria-hidden="true"></i>Instant Check</span>
+                    <span class="instant-check-submit-loading" hidden>
+                        <span class="ui-spinner ui-spinner-sm me-1" role="status" aria-hidden="true"></span>
+                        Running...
+                    </span>
+                </button>
+            </form>
+        </div>
+        <div class="instant-check-auth-note" th:if="${instantCheckRequiresAuth}">
+            <small class="text-muted">Instant check requires authentication.</small>
+            <a class="ui-btn ui-btn-sm ui-btn-outline-secondary ms-2" th:href="@{/login}">Sign in</a>
+        </div>
+    </div>
+
+</details>
+
+    <div th:if="${#lists.size(ungroupedResources) == 0 and #lists.size(groupedResources) == 0}" class="text-center py-12">
+        <i class="text-7xl text-muted" data-icon="smile" aria-hidden="true"></i>
+        <p class="text-muted mt-4">No resources being monitored yet.</p>
+        <button type="button" class="ui-btn ui-btn-primary" th:if="${allowResourceSubmit}"
+                data-ui-toggle="modal" data-ui-target="#publicResourceModal">
+            <i class="me-1" data-icon="circle-plus" aria-hidden="true"></i>Submit Resource
         </button>
-        <a th:href="@{/admin/resources}" sec:authorize="hasRole('ADMIN')" class="btn btn-primary">
-            <i class="bi bi-plus-circle me-1"></i>Add Resources
+        <a th:href="@{/admin/resources}" sec:authorize="hasRole('ADMIN')" class="ui-btn ui-btn-primary">
+            <i class="me-1" data-icon="circle-plus" aria-hidden="true"></i>Add Resources
         </a>
     </div>
 
-    <div class="card resource-panel mb-4" th:unless="${#lists.size(ungroupedResources) == 0}" data-view="timeline">
-        <div class="card-body p-0">
-            <div th:each="resource : ${ungroupedResources}" class="resource-row p-3"
+    <div class="ui-card resource-panel mb-6" th:unless="${#lists.size(ungroupedResources) == 0}" data-view="timeline">
+        <div class="ui-card-body p-0">
+            <div th:each="resource : ${ungroupedResources}" class="resource-row p-4"
                  th:attr="data-resource-id=${resource.id},data-group-id='ungrouped'">
-                <div class="row align-items-center">
-                    <div class="col-md-3">
-                        <div class="d-flex align-items-center">
+                <div class="ui-grid items-center">
+                    <div class="md:col-span-3">
+                        <div class="flex items-center">
                             <span data-role="status-dot" class="status-dot me-2 status-unknown"></span>
                             <div>
                                 <a th:href="@{/resources/{id}(id=${resource.id})}"
-                                   class="text-decoration-none fw-semibold"
+                                   class="no-underline font-semibold"
                                    th:text="${resource.name}">Resource Name</a>
                                 <div class="resource-subline">
-                                    <small class="resource-type d-inline-flex align-items-center gap-1">
-                                        <i class="bi" aria-hidden="true"
-                                           th:classappend="${resource.resourceType.name == 'HTTP'} ? ' bi-globe2' : (${resource.resourceType.name == 'DOCKER'} ? ' bi-box-seam' : (${resource.resourceType.name == 'TCP'} ? ' bi-hdd-network' : ' bi-boxes'))"></i>
+                                    <small class="resource-type inline-flex items-center gap-1">
+                                        <i class="me-2" aria-hidden="true" th:attr="data-icon=${resource.resourceType.name == 'HTTP'} ? 'globe' : (${resource.resourceType.name == 'DOCKER'} ? 'box' : (${resource.resourceType.name == 'TCP'} ? 'server' : 'boxes'))"></i>
                                         <span th:text="${resource.resourceType}">TYPE</span>
                                     </small>
-                                     <small th:if="${showResourceUrl}" class="text-muted ms-2 text-truncate d-inline-block" style="max-width:150px;"
+                                     <small th:if="${showResourceUrl}" class="text-muted ms-2 truncate inline-block" style="max-width:150px;"
                                            th:text="${resource.target}">target</small>
                                 </div>
                                 <div class="outage-inline-badge mt-1" hidden data-role="outage-badge">
-                                    <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                                    <i class="me-1" data-icon="triangle-alert" aria-hidden="true"></i>
                                     Active outage since
                                     <span data-role="outage-since-counter" data-outage-start="">0s</span>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-7">
+                    <div class="md:col-span-7">
                         <div class="timeline-wrapper">
                             <div class="timeline-container">
                                 <span class="timeline-block-skeleton"></span>
                             </div>
-                            <div class="timeline-labels d-flex justify-content-between align-items-center">
+                            <div class="timeline-labels flex justify-between items-center">
                                 <small class="text-muted timeline-label-start" data-role="timeline-range-start" data-hours="24">--:--</small>
                                 <small class="text-muted timeline-label-end">--:--</small>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-2 text-end resource-score">
-                        <span class="fw-bold resource-uptime">—</span>
+                    <div class="md:col-span-2 text-right resource-score">
+                        <span class="font-semibold resource-uptime">—</span>
                         <br>
                         <small class="text-muted">availability</small>
-                        <small class="text-muted d-block" data-role="resource-latency"></small>
+                        <small class="text-muted block" data-role="resource-latency"></small>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="row resource-cards-grid resource-cards-grid-ungrouped mb-4 g-4" th:unless="${#lists.size(ungroupedResources) == 0}" data-view="cards" style="display: none;">
-        <div th:each="resource : ${ungroupedResources}" class="col-sm-6 col-lg-4 col-xl-3"
+    <div class="ui-grid resource-cards-grid resource-cards-grid-ungrouped mb-6 gap-6" th:unless="${#lists.size(ungroupedResources) == 0}" data-view="cards" style="display: none;">
+        <div th:each="resource : ${ungroupedResources}" class="sm:col-span-6 lg:col-span-4 xl:col-span-3"
              th:attr="data-resource-id=${resource.id},data-group-id='ungrouped'">
-              <div class="card resource-card h-100 border-0 shadow-sm status-unknown"
+              <div class="ui-card resource-card h-full border-0 shadow-sm status-unknown"
                   th:attr="data-resource-url=@{/resources/{id}(id=${resource.id})}">
-                <div class="card-body d-flex flex-column">
+                <div class="ui-card-body flex flex-col">
                     <div class="resource-card-top mb-2">
                         <div class="resource-title-line">
-                            <small class="resource-type d-inline-flex align-items-center gap-1">
-                                <i class="bi" aria-hidden="true"
-                                   th:classappend="${resource.resourceType.name == 'HTTP'} ? ' bi-globe2' : (${resource.resourceType.name == 'DOCKER'} ? ' bi-box-seam' : (${resource.resourceType.name == 'TCP'} ? ' bi-hdd-network' : ' bi-boxes'))"></i>
+                            <small class="resource-type inline-flex items-center gap-1">
+                                <i class="me-2" aria-hidden="true" th:attr="data-icon=${resource.resourceType.name == 'HTTP'} ? 'globe' : (${resource.resourceType.name == 'DOCKER'} ? 'box' : (${resource.resourceType.name == 'TCP'} ? 'server' : 'boxes'))"></i>
                                 <span th:text="${resource.resourceType}">TYPE</span>
                             </small>
                         </div>
                         <small class="resource-card-state" data-role="card-status">unknown</small>
                     </div>
                     <div class="resource-loading-indicator mb-2" data-role="resource-loading-indicator">
-                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        <span class="ui-spinner ui-spinner-sm" role="status" aria-hidden="true"></span>
                         Loading status...
                     </div>
                     <a th:href="@{/resources/{id}(id=${resource.id})}"
-                       class="text-decoration-none fw-semibold card-title mb-2"
+                       class="no-underline font-semibold ui-card-title mb-2"
                        th:text="${resource.name}">Resource Name</a>
-                        <small th:if="${showResourceUrl}" class="text-muted resource-target mb-3" th:text="${resource.target}">target</small>
-                    <div class="outage-card-indicator mb-3" hidden data-role="outage-badge">
-                        <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                        <small th:if="${showResourceUrl}" class="text-muted resource-target mb-4" th:text="${resource.target}">target</small>
+                    <div class="outage-card-indicator mb-4" hidden data-role="outage-badge">
+                        <i class="me-1" data-icon="triangle-alert" aria-hidden="true"></i>
                         Active outage since <span data-role="outage-since-counter" data-outage-start="">0s</span>
                     </div>
                     <div class="mt-auto">
                         <div class="resource-score text-center py-2">
-                            <div class="fw-bold resource-uptime">—</div>
+                            <div class="font-semibold resource-uptime">—</div>
                             <small class="text-muted">availability</small>
-                            <small class="text-muted d-block" data-role="resource-latency"></small>
+                            <small class="text-muted block" data-role="resource-latency"></small>
                         </div>
                     </div>
                 </div>
@@ -278,76 +267,75 @@
         </div>
     </div>
 
-    <div class="accordion grouped-resource-accordion" id="groupedResourceAccordion" th:unless="${#lists.size(groupedResources) == 0}" data-view="timeline">
-        <div class="accordion-item mb-3" th:each="groupShell : ${groupedResources}"
+    <div class="ui-accordion grouped-resource-accordion" id="groupedResourceAccordion" th:unless="${#lists.size(groupedResources) == 0}" data-view="timeline">
+        <div class="ui-accordion-item mb-4" th:each="groupShell : ${groupedResources}"
              th:attr="data-group-id=${groupShell.group.id}">
-            <h2 class="accordion-header" th:id="'group-heading-' + ${groupShell.group.id}">
-                <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                        th:attr="data-bs-target='#group-collapse-' + ${groupShell.group.id},aria-controls='group-collapse-' + ${groupShell.group.id}">
+            <h2 class="ui-accordion-header" th:id="'group-heading-' + ${groupShell.group.id}">
+                <div class="group-heading-row">
                   <span class="group-header-content">
-                    <span class="fw-semibold me-3">
+                    <span class="font-semibold me-4">
                                 <span class="status-dot me-2 status-unknown" th:attr="data-group-indicator='true',data-group-id=${groupShell.group.id}" aria-hidden="true" title="Group status indicator"></span>
-                        <i class="bi bi-diagram-3 me-2" aria-hidden="true"></i>
-                        <a th:href="@{/groups/{id}(id=${groupShell.group.id})}" class="group-open-link text-decoration-none"
+                        <i class="me-2" data-icon="network" aria-hidden="true"></i>
+                        <a th:href="@{/groups/{id}(id=${groupShell.group.id})}" class="group-open-link no-underline"
                            onclick="event.stopPropagation();"><span th:text="${groupShell.group.name}">Group Name</span></a>
-                        <a th:href="@{/groups/{id}(id=${groupShell.group.id})}" class="group-open-link text-decoration-none ms-1"
-                           onclick="event.stopPropagation();" aria-label="Open group dashboard"><i class="bi bi-arrow-up-right-circle" aria-hidden="true"></i></a>
+                        <a th:href="@{/groups/{id}(id=${groupShell.group.id})}" class="group-open-link no-underline ms-1"
+                           onclick="event.stopPropagation();" aria-label="Open group dashboard"><i class="" data-icon="arrow-up-right" aria-hidden="true"></i></a>
                     </span>
                     <span class="group-status-summary ms-auto">
-                        <span class="badge text-bg-success me-1" th:attr="data-group-counter='available',data-group-id=${groupShell.group.id}">0</span>
-                        <span class="badge text-bg-danger me-1" th:attr="data-group-counter='not-available',data-group-id=${groupShell.group.id}">0</span>
-                        <span class="badge text-bg-secondary" th:attr="data-group-counter='unknown',data-group-id=${groupShell.group.id}">0</span>
+                        <span class="ui-badge tone-success me-1" th:attr="data-group-counter='available',data-group-id=${groupShell.group.id}">0</span>
+                        <span class="ui-badge tone-danger me-1" th:attr="data-group-counter='not-available',data-group-id=${groupShell.group.id}">0</span>
+                        <span class="ui-badge tone-secondary" th:attr="data-group-counter='unknown',data-group-id=${groupShell.group.id}">0</span>
                     </span>
                   </span>
-                </button>
+                <button class="ui-btn ui-btn-link group-toggle" type="button" data-ui-toggle="collapse"
+                        th:attr="data-ui-target='#group-collapse-' + ${groupShell.group.id},aria-controls='group-collapse-' + ${groupShell.group.id}" aria-label="Toggle group resources"><i data-icon="chevron-down" aria-hidden="true"></i></button></div>
             </h2>
-            <div class="accordion-collapse collapse show"
+            <div class="ui-accordion-collapse ui-collapse is-open"
                  th:id="'group-collapse-' + ${groupShell.group.id}"
                  th:attr="aria-labelledby='group-heading-' + ${groupShell.group.id}">
-                <div class="accordion-body p-0">
-                    <div class="resource-row p-3" th:each="resource : ${groupShell.resources}"
+                <div class="ui-accordion-body p-0">
+                    <div class="resource-row p-4" th:each="resource : ${groupShell.resources}"
                          th:attr="data-resource-id=${resource.id},data-group-id=${groupShell.group.id}">
-                        <div class="row align-items-center">
-                            <div class="col-md-3">
-                                <div class="d-flex align-items-center">
+                        <div class="ui-grid items-center">
+                            <div class="md:col-span-3">
+                                <div class="flex items-center">
                                     <span data-role="status-dot" class="status-dot me-2 status-unknown"></span>
                                     <div>
                                         <a th:href="@{/resources/{id}(id=${resource.id})}"
-                                           class="text-decoration-none fw-semibold"
+                                           class="no-underline font-semibold"
                                            th:text="${resource.name}">Resource Name</a>
                                         <div class="resource-subline">
-                                            <small class="resource-type d-inline-flex align-items-center gap-1">
-                                                <i class="bi" aria-hidden="true"
-                                                   th:classappend="${resource.resourceType.name == 'HTTP'} ? ' bi-globe2' : (${resource.resourceType.name == 'DOCKER'} ? ' bi-box-seam' : (${resource.resourceType.name == 'TCP'} ? ' bi-hdd-network' : ' bi-boxes'))"></i>
+                                            <small class="resource-type inline-flex items-center gap-1">
+                                                <i class="me-2" aria-hidden="true" th:attr="data-icon=${resource.resourceType.name == 'HTTP'} ? 'globe' : (${resource.resourceType.name == 'DOCKER'} ? 'box' : (${resource.resourceType.name == 'TCP'} ? 'server' : 'boxes'))"></i>
                                                 <span th:text="${resource.resourceType}">TYPE</span>
                                             </small>
-                                              <small th:if="${showResourceUrl}" class="text-muted ms-2 text-truncate d-inline-block" style="max-width:150px;"
+                                              <small th:if="${showResourceUrl}" class="text-muted ms-2 truncate inline-block" style="max-width:150px;"
                                                    th:text="${resource.target}">target</small>
                                         </div>
                                         <div class="outage-inline-badge mt-1" hidden data-role="outage-badge">
-                                            <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                                            <i class="me-1" data-icon="triangle-alert" aria-hidden="true"></i>
                                             Active outage since
                                             <span data-role="outage-since-counter" data-outage-start="">0s</span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-7">
+                            <div class="md:col-span-7">
                                 <div class="timeline-wrapper">
                                     <div class="timeline-container">
                                         <span class="timeline-block-skeleton"></span>
                                     </div>
-                                    <div class="timeline-labels d-flex justify-content-between align-items-center">
+                                    <div class="timeline-labels flex justify-between items-center">
                                         <small class="text-muted timeline-label-start" data-role="timeline-range-start" data-hours="24">--:--</small>
                                         <small class="text-muted timeline-label-end">--:--</small>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-2 text-end resource-score">
-                                <span class="fw-bold resource-uptime">—</span>
+                            <div class="md:col-span-2 text-right resource-score">
+                                <span class="font-semibold resource-uptime">—</span>
                                 <br>
                                 <small class="text-muted">availability</small>
-                                <small class="text-muted d-block" data-role="resource-latency"></small>
+                                <small class="text-muted block" data-role="resource-latency"></small>
                             </div>
                         </div>
                     </div>
@@ -357,41 +345,40 @@
     </div>
 
     <div th:unless="${#lists.size(groupedResources) == 0}" data-view="cards" style="display: none;">
-        <div th:each="groupShell : ${groupedResources}" class="mb-4 resource-cards-group" th:attr="data-group-id=${groupShell.group.id}">
-            <h5 class="mb-3"><i class="bi bi-diagram-3 me-2" aria-hidden="true"></i><a th:href="@{/groups/{id}(id=${groupShell.group.id})}" class="group-open-link text-decoration-none" th:text="${groupShell.group.name}">Group Name</a><i class="bi bi-arrow-up-right-circle ms-2 text-muted" aria-hidden="true"></i></h5>
-            <div class="row resource-cards-grid resource-cards-grid-grouped g-3">
-                <div th:each="resource : ${groupShell.resources}" class="col-sm-6 col-lg-4 col-xl-3"
+        <div th:each="groupShell : ${groupedResources}" class="mb-6 resource-cards-group" th:attr="data-group-id=${groupShell.group.id}">
+            <h5 class="mb-4"><i class="me-2" data-icon="network" aria-hidden="true"></i><a th:href="@{/groups/{id}(id=${groupShell.group.id})}" class="group-open-link no-underline" th:text="${groupShell.group.name}">Group Name</a><i class="ms-2 text-muted" data-icon="arrow-up-right" aria-hidden="true"></i></h5>
+            <div class="ui-grid resource-cards-grid resource-cards-grid-grouped gap-4">
+                <div th:each="resource : ${groupShell.resources}" class="sm:col-span-6 lg:col-span-4 xl:col-span-3"
                      th:attr="data-resource-id=${resource.id},data-group-id=${groupShell.group.id}">
-                    <div class="card resource-card h-100 border-0 shadow-sm status-unknown"
+                    <div class="ui-card resource-card h-full border-0 shadow-sm status-unknown"
                         th:attr="data-resource-url=@{/resources/{id}(id=${resource.id})}">
-                        <div class="card-body d-flex flex-column">
+                        <div class="ui-card-body flex flex-col">
                             <div class="resource-card-top mb-2">
                                 <div class="resource-title-line">
-                                    <small class="resource-type d-inline-flex align-items-center gap-1">
-                                        <i class="bi" aria-hidden="true"
-                                           th:classappend="${resource.resourceType.name == 'HTTP'} ? ' bi-globe2' : (${resource.resourceType.name == 'DOCKER'} ? ' bi-box-seam' : (${resource.resourceType.name == 'TCP'} ? ' bi-hdd-network' : ' bi-boxes'))"></i>
+                                    <small class="resource-type inline-flex items-center gap-1">
+                                        <i class="me-2" aria-hidden="true" th:attr="data-icon=${resource.resourceType.name == 'HTTP'} ? 'globe' : (${resource.resourceType.name == 'DOCKER'} ? 'box' : (${resource.resourceType.name == 'TCP'} ? 'server' : 'boxes'))"></i>
                                         <span th:text="${resource.resourceType}">TYPE</span>
                                     </small>
                                 </div>
                                 <small class="resource-card-state" data-role="card-status">unknown</small>
                             </div>
                             <div class="resource-loading-indicator mb-2" data-role="resource-loading-indicator">
-                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                <span class="ui-spinner ui-spinner-sm" role="status" aria-hidden="true"></span>
                                 Loading status...
                             </div>
                             <a th:href="@{/resources/{id}(id=${resource.id})}"
-                               class="text-decoration-none fw-semibold card-title mb-2"
+                               class="no-underline font-semibold ui-card-title mb-2"
                                th:text="${resource.name}">Resource Name</a>
-                                    <small th:if="${showResourceUrl}" class="text-muted resource-target mb-3" th:text="${resource.target}">target</small>
-                            <div class="outage-card-indicator mb-3" hidden data-role="outage-badge">
-                                <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                                    <small th:if="${showResourceUrl}" class="text-muted resource-target mb-4" th:text="${resource.target}">target</small>
+                            <div class="outage-card-indicator mb-4" hidden data-role="outage-badge">
+                                <i class="me-1" data-icon="triangle-alert" aria-hidden="true"></i>
                                 Active outage since <span data-role="outage-since-counter" data-outage-start="">0s</span>
                             </div>
                             <div class="mt-auto">
                                 <div class="resource-score text-center py-2">
-                                    <div class="fw-bold resource-uptime">—</div>
+                                    <div class="font-semibold resource-uptime">—</div>
                                     <small class="text-muted">availability</small>
-                                    <small class="text-muted d-block" data-role="resource-latency"></small>
+                                    <small class="text-muted block" data-role="resource-latency"></small>
                                 </div>
                             </div>
                         </div>
@@ -402,47 +389,47 @@
     </div>
 
     <div id="groupedResourceHeaderList" class="group-header-only-list" data-view="groups" style="display: none;">
-        <div class="group-header-only-item mb-3" th:unless="${#lists.size(ungroupedResources) == 0}" data-group-id="ungrouped">
+        <div class="group-header-only-item mb-4" th:unless="${#lists.size(ungroupedResources) == 0}" data-group-id="ungrouped">
             <div class="group-header-only-button">
                 <span class="group-header-content">
-                    <span class="fw-semibold me-3">
+                    <span class="font-semibold me-4">
                         <span class="status-dot me-2 status-unknown" data-group-indicator="true" data-group-id="ungrouped" aria-hidden="true" title="Ungrouped status indicator"></span>
-                        <i class="bi bi-grid me-2" aria-hidden="true"></i>
+                        <i class="me-2" data-icon="grid-2x2" aria-hidden="true"></i>
                         Ungrouped
                     </span>
                     <span class="group-status-summary ms-auto">
-                        <span class="badge text-bg-success me-1" data-group-counter="available" data-group-id="ungrouped">0</span>
-                        <span class="badge text-bg-danger me-1" data-group-counter="not-available" data-group-id="ungrouped">0</span>
-                        <span class="badge text-bg-secondary" data-group-counter="unknown" data-group-id="ungrouped">0</span>
+                        <span class="ui-badge tone-success me-1" data-group-counter="available" data-group-id="ungrouped">0</span>
+                        <span class="ui-badge tone-danger me-1" data-group-counter="not-available" data-group-id="ungrouped">0</span>
+                        <span class="ui-badge tone-secondary" data-group-counter="unknown" data-group-id="ungrouped">0</span>
                     </span>
                 </span>
             </div>
         </div>
-        <div class="group-header-only-item mb-3" th:each="groupShell : ${groupedResources}" th:attr="data-group-id=${groupShell.group.id}">
+        <div class="group-header-only-item mb-4" th:each="groupShell : ${groupedResources}" th:attr="data-group-id=${groupShell.group.id}">
             <div class="group-header-only-button">
                 <span class="group-header-content">
-                    <span class="fw-semibold me-3">
+                    <span class="font-semibold me-4">
                         <span class="status-dot me-2 status-unknown" th:attr="data-group-indicator='true',data-group-id=${groupShell.group.id}" aria-hidden="true" title="Group status indicator"></span>
-                        <i class="bi bi-diagram-3 me-2" aria-hidden="true"></i>
-                        <a th:href="@{/groups/{id}(id=${groupShell.group.id})}" class="group-open-link text-decoration-none">
+                        <i class="me-2" data-icon="network" aria-hidden="true"></i>
+                        <a th:href="@{/groups/{id}(id=${groupShell.group.id})}" class="group-open-link no-underline">
                             <span th:text="${groupShell.group.name}">Group Name</span>
                         </a>
-                        <a th:href="@{/groups/{id}(id=${groupShell.group.id})}" class="group-open-link text-decoration-none ms-1" aria-label="Open group dashboard">
-                            <i class="bi bi-arrow-up-right-circle" aria-hidden="true"></i>
+                        <a th:href="@{/groups/{id}(id=${groupShell.group.id})}" class="group-open-link no-underline ms-1" aria-label="Open group dashboard">
+                            <i class="" data-icon="arrow-up-right" aria-hidden="true"></i>
                         </a>
                     </span>
                     <span class="group-status-summary ms-auto">
-                        <span class="badge text-bg-success me-1" th:attr="data-group-counter='available',data-group-id=${groupShell.group.id}">0</span>
-                        <span class="badge text-bg-danger me-1" th:attr="data-group-counter='not-available',data-group-id=${groupShell.group.id}">0</span>
-                        <span class="badge text-bg-secondary" th:attr="data-group-counter='unknown',data-group-id=${groupShell.group.id}">0</span>
+                        <span class="ui-badge tone-success me-1" th:attr="data-group-counter='available',data-group-id=${groupShell.group.id}">0</span>
+                        <span class="ui-badge tone-danger me-1" th:attr="data-group-counter='not-available',data-group-id=${groupShell.group.id}">0</span>
+                        <span class="ui-badge tone-secondary" th:attr="data-group-counter='unknown',data-group-id=${groupShell.group.id}">0</span>
                     </span>
                 </span>
             </div>
         </div>
     </div>
 
-    <div class="landing-footer-meta mt-auto pt-3">
-        <div class="dashboard-embed-tools landing-embed-tools small mb-1">
+    <div class="landing-footer-meta mt-auto pt-4">
+        <div class="dashboard-embed-tools landing-embed-tools text-sm mb-1">
             <div class="dashboard-embed-container">
                 <iframe class="dashboard-embed-preview"
                         data-embed-base-src="/embed/status?refresh=30&amp;fontSize=9"
@@ -455,20 +442,20 @@
                         style="border:0;overflow:hidden;background:transparent;"
                         loading="lazy"></iframe>
             </div>
-            <button type="button" class="btn btn-sm btn-outline-secondary dashboard-embed-info"
-                    data-bs-toggle="popover"
-                    data-bs-trigger="hover focus"
-                    data-bs-placement="bottom"
-                    data-bs-html="true"
-                    data-bs-content="This embed widget is a small status component you can place on another page. For cross-origin usage, CORS/embed access must be configured by an admin in Settings -> Admin -> Embed Widget. See <a href='https://kairos.wenisch.tech/docs/embed/' target='_blank' rel='noopener noreferrer'>embed docs</a>."
+            <button type="button" class="ui-btn ui-btn-sm ui-btn-outline-secondary dashboard-embed-info"
+                    data-ui-toggle="popover"
+                    data-ui-trigger="hover focus"
+                    data-ui-placement="bottom"
+                    data-ui-html="true"
+                    data-ui-content="This embed widget is a small status component you can place on another page. For cross-origin usage, CORS/embed access must be configured by an admin in Settings -> Admin -> Embed Widget. See <a href='https://kairos.wenisch.tech/docs/embed/' target='_blank' rel='noopener noreferrer'>embed docs</a>."
                     aria-label="Embed information">
-                <i class="bi bi-info-circle"></i>
+                <i class="" data-icon="info" aria-hidden="true"></i>
             </button>
-            <button type="button" class="btn btn-sm btn-outline-secondary dashboard-embed-copy"
+            <button type="button" class="ui-btn ui-btn-sm ui-btn-outline-secondary dashboard-embed-copy"
                     data-copy-dashboard-embed="true"
                     data-embed-base-src="/embed/status?refresh=30&amp;fontSize=10"
-                    data-embed-src="/embed/status?refresh=30&amp;fontSize=10">
-                <i class="bi bi-clipboard"></i>
+                    data-embed-src="/embed/status?refresh=30&amp;fontSize=10" aria-label="Copy">
+                <i class="" data-icon="clipboard" aria-hidden="true"></i>
             </button>
         </div>
         <p class="landing-license-note mb-1">
@@ -480,27 +467,27 @@
                th:text="'Version ' + ${appVersion}">Version 0.0.0</a>
         </p>
     </div>
-</div>
+</main>
 
-<div class="modal fade" id="instantCheckResultModal" tabindex="-1" aria-labelledby="instantCheckResultModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content instant-check-result-modal">
-            <div class="modal-header">
-                <h5 class="modal-title" id="instantCheckResultModalLabel">Instant Check Result</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<div class="ui-modal" id="instantCheckResultModal" tabindex="-1" aria-labelledby="instantCheckResultModalLabel" role="dialog" aria-modal="true" x-data="dialog" x-show="open" x-cloak x-trap.inert.noscroll="open" @keydown.escape.window="hide()" @click.self="hide()" @kairos-dialog.window="if ($event.detail.id === $el.id) open = $event.detail.open">
+    <div class="ui-modal-dialog ui-modal-dialog-centered">
+        <div class="ui-modal-content instant-check-result-modal">
+            <div class="ui-modal-header">
+                <h5 class="ui-modal-title" id="instantCheckResultModalLabel">Instant Check Result</h5>
+                <button type="button" class="ui-btn-close" data-ui-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
+            <div class="ui-modal-body">
                 <div class="instant-check-result-head">
                     <div id="instant-check-result-icon" class="instant-check-result-icon status-unknown">
-                        <i class="bi bi-question-circle"></i>
+                        <i class="" data-icon="circle-help" aria-hidden="true"></i>
                     </div>
-                    <div id="instant-check-result-status" class="fw-semibold mt-2">UNKNOWN</div>
+                    <div id="instant-check-result-status" class="font-semibold mt-2">UNKNOWN</div>
                     <small id="instant-check-result-summary" class="text-muted">Check finished.</small>
                 </div>
-                <div class="instant-check-result-message-wrap mt-3">
+                <div class="instant-check-result-message-wrap mt-4">
                     <p id="instant-check-result-message" class="mb-0"></p>
                 </div>
-                <div class="instant-check-result-meta mt-3">
+                <div class="instant-check-result-meta mt-4">
                     <div class="instant-check-result-meta-item">
                         <span class="label">Latency</span>
                         <span id="instant-check-result-latency" class="value">-</span>
@@ -515,82 +502,61 @@
                     </div>
                 </div>
             </div>
-            <div class="modal-footer" th:if="${allowResourceSubmit}">
-                <button type="button" class="btn btn-primary" id="instant-check-track-button">
-                    <i class="bi bi-plus-circle me-1"></i>Track As Resource
+            <div class="ui-modal-footer" th:if="${allowResourceSubmit}">
+                <button type="button" class="ui-btn ui-btn-primary" id="instant-check-track-button">
+                    <i class="me-1" data-icon="circle-plus" aria-hidden="true"></i>Track As Resource
                 </button>
             </div>
         </div>
     </div>
 </div>
 
-<div class="modal fade" id="publicResourceModal" tabindex="-1" aria-labelledby="publicResourceModalLabel" aria-hidden="true"
-     th:if="${allowResourceSubmit}">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="publicResourceModalLabel">Submit New Resource</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<div class="ui-modal" id="publicResourceModal" tabindex="-1" aria-labelledby="publicResourceModalLabel"
+     th:if="${allowResourceSubmit}" role="dialog" aria-modal="true" x-data="dialog" x-show="open" x-cloak x-trap.inert.noscroll="open" @keydown.escape.window="hide()" @click.self="hide()" @kairos-dialog.window="if ($event.detail.id === $el.id) open = $event.detail.open">
+    <div class="ui-modal-dialog">
+        <div class="ui-modal-content">
+            <div class="ui-modal-header">
+                <h5 class="ui-modal-title" id="publicResourceModalLabel">Submit New Resource</h5>
+                <button type="button" class="ui-btn-close" data-ui-dismiss="modal" aria-label="Close"></button>
             </div>
             <form method="post" th:action="@{/resources/submit}">
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="resource-name" class="form-label">Name</label>
-                        <input id="resource-name" name="name" class="form-control" type="text" maxlength="255" required>
+                <div class="ui-modal-body">
+                    <div class="mb-4">
+                        <label for="resource-name" class="ui-form-label">Name</label>
+                        <input id="resource-name" name="name" class="ui-form-control" type="text" maxlength="255" required>
                     </div>
-                    <div class="mb-3">
-                        <label for="resource-type" class="form-label">Type</label>
-                        <select id="resource-type" name="resourceType" class="form-select" required>
+                    <div class="mb-4">
+                        <label for="resource-type" class="ui-form-label">Type</label>
+                        <select id="resource-type" name="resourceType" class="ui-form-select" required>
                             <option th:each="resourceType : ${resourceTypes}" th:value="${resourceType}" th:text="${resourceType}">HTTP</option>
                         </select>
                     </div>
                     <div>
-                        <label for="resource-target" class="form-label">Target</label>
-                        <input id="resource-target" name="target" class="form-control" type="text" maxlength="1000" required
+                        <label for="resource-target" class="ui-form-label">Target</label>
+                        <input id="resource-target" name="target" class="ui-form-control" type="text" maxlength="1000" required
                                placeholder="https://example.com/health, image:tag, or ghcr.io/jfwenisch">
                     </div>
-                    <div class="form-check mt-3">
-                        <input id="resource-skip-tls" name="skipTLS" class="form-check-input" type="checkbox" value="true">
-                        <label for="resource-skip-tls" class="form-check-label">Ignore TLS certificate and hostname errors</label>
-                        <div class="form-text">Applies to HTTPS checks, including Docker registry checks.</div>
+                    <div class="ui-form-check mt-4">
+                        <input id="resource-skip-tls" name="skipTLS" class="ui-form-check-input" type="checkbox" value="true">
+                        <label for="resource-skip-tls" class="ui-form-check-label">Ignore TLS certificate and hostname errors</label>
+                        <div class="ui-form-text">Applies to HTTPS checks, including Docker registry checks.</div>
                     </div>
-                    <div class="form-check mt-3">
-                        <input id="resource-recursive" name="recursive" class="form-check-input" type="checkbox" value="true">
-                        <label for="resource-recursive" class="form-check-label">Recursive (Dockerrepository only)</label>
-                        <div class="form-text">Includes nested repositories below the configured prefix.</div>
+                    <div class="ui-form-check mt-4">
+                        <input id="resource-recursive" name="recursive" class="ui-form-check-input" type="checkbox" value="true">
+                        <label for="resource-recursive" class="ui-form-check-label">Recursive (Dockerrepository only)</label>
+                        <div class="ui-form-text">Includes nested repositories below the configured prefix.</div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Submit</button>
+                <div class="ui-modal-footer">
+                    <button type="button" class="ui-btn ui-btn-outline-secondary" data-ui-dismiss="modal">Cancel</button>
+                    <button type="submit" class="ui-btn ui-btn-primary">Submit</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-<script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
 <script th:src="@{/js/kairos.js}"></script>
-<script>
-(function () {
-    function hideSplash() {
-        var el = document.getElementById('splash-screen');
-        if (!el) return;
-        el.classList.add('splash-hidden');
-        el.addEventListener('transitionend', function () { el.remove(); }, { once: true });
-    }
-    var elapsed = Date.now() - (window._splashStart || Date.now());
-    var delay = Math.max(0, 3000 - elapsed);
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function () {
-            var e2 = Date.now() - (window._splashStart || Date.now());
-            setTimeout(hideSplash, Math.max(0, 3000 - e2));
-        });
-    } else {
-        setTimeout(hideSplash, delay);
-    }
-}());
-</script>
 </body>
 </html>
