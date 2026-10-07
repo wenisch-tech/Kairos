@@ -206,10 +206,12 @@
 .instant-check-result-head { display:flex; gap:1rem; align-items:center; }
 .instant-check-result-icon { display:grid; place-items:center; width:3rem; height:3rem; border-radius:1rem; background:var(--subtle); }
 .instant-check-result-icon.status-available { color:var(--success); background:var(--success-soft); } .instant-check-result-icon.status-not-available { color:var(--danger); background:var(--danger-soft); }
-.instant-check-result-meta,.detail-summary { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:1rem; margin-top:1rem; }
+.instant-check-result-meta { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:1rem; margin-top:1rem; }
 .instant-check-result-meta-item,.detail-stat-card { background:var(--surface); border:1px solid var(--line); border-radius:.65rem; padding:1rem; min-width:0; }
 .instant-check-result-meta-item .label,.detail-stat-card small { display:block; font-size:.7rem; color:var(--muted); }
 .instant-check-result-meta-item .value { overflow-wrap:anywhere; font-weight:550; }
+.detail-hero > div,.detail-summary { width:100%; min-width:0; }
+.detail-summary { margin-top:1rem; }
 .detail-title { overflow-wrap:anywhere; } .detail-subline { display:flex; gap:.5rem; align-items:center; }
 .detail-stat-card strong { font-size:1.5rem; } .detail-card { border:1px solid var(--line); border-radius:.75rem; background:var(--surface); }
 .detail-card-header { border-bottom:1px solid var(--line); padding:1rem 1.25rem; }
@@ -276,7 +278,7 @@
   .admin-content { padding:1.5rem 1rem; } .admin-content .flex.justify-between { flex-wrap:wrap; gap:.75rem; }
   .admin-content .flex.gap-2 { flex-wrap:wrap; }
   .status-snapshot { grid-template-columns:repeat(2,minmax(0,1fr)); gap:.65rem; } .snapshot-item { padding:1rem; }
-  .detail-summary,.instant-check-result-meta,.filter-grid,.error-meta-grid { grid-template-columns:1fr; }
+  .instant-check-result-meta,.filter-grid,.error-meta-grid { grid-template-columns:1fr; }
   .instant-check-form { flex-wrap:wrap; } .instant-check-form .ui-form-control { flex-basis:100%; } .instant-check-form .ui-form-select { width:100%; }
   .instant-check-disclosure summary .text-muted { display:none; } .detail-hero { flex-wrap:wrap; }
   .landing-footer-meta { display:flex; flex-direction:column; align-items:center; } .landing-license-note,.landing-credit { text-align:center; }

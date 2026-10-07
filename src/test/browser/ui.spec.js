@@ -206,6 +206,14 @@ test('group disclosure, resource details and embed previews remain usable', asyn
   await expect(toggle).toHaveAttribute('aria-expanded','true');
   await page.locator('.resource-row a[href^="/resources/"]').first().click();
   await expect(page.locator('.resource-detail')).toBeVisible();
+  const summary = page.locator('.detail-summary');
+  if (await summary.count()) {
+    const [summaryBox, paragraphBox] = await Promise.all([
+      summary.boundingBox(),
+      summary.locator('p').boundingBox()
+    ]);
+    expect(paragraphBox.width).toBeGreaterThan(summaryBox.width * 0.9);
+  }
   await page.screenshot({ path:testInfo.outputPath('resource-detail.png'), fullPage:true });
   await page.setViewportSize({ width:390, height:900 });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
