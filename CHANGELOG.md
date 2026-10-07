@@ -1,5 +1,25 @@
 # Changelog
 
+## v2.23.0 - 2026-10-07
+
+## [2.23.0](https://github.com/wenisch-tech/Kairos/compare/v2.22.7...v2.23.0) (2026-10-07)
+
+
+### Features
+
+* UI Overhaul ([2e2d57f](https://github.com/wenisch-tech/Kairos/commit/2e2d57f71c8aaeb32028f144340ae6bcb98ff337))
+
+
+### Bug Fixes
+
+* ensure recursive option is only shown on applicable options when creating resources ([7769204](https://github.com/wenisch-tech/Kairos/commit/776920413d7b9f56bf18956bccf59f5082596e72))
+* fixed header text not being properly styled on resource page ([4a8e18a](https://github.com/wenisch-tech/Kairos/commit/4a8e18aaed6bab513025b9201a24731e00951583))
+
+
+
+Docker image: ghcr.io/wenisch-tech/kairos:2.23.0
+
+
 ## v2.22.7 - 2026-10-07
 
 ### [2.22.7](https://github.com/wenisch-tech/Kairos/compare/v2.22.6...v2.22.7) (2026-10-07)
