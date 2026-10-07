@@ -20,6 +20,8 @@ maintainers:
   - name: Wenisch Technologies
     url: https://wenisch.tech
 annotations:
+  # Makes the GHCR OCI package display wenisch-tech/Kairos as its source repository.
+  org.opencontainers.image.source: https://github.com/wenisch-tech/Kairos
   artifacthub.io/category: monitoring-logging
   artifacthub.io/license: AGPL-3.0
   artifacthub.io/prerelease: "false"
