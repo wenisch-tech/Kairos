@@ -23,6 +23,7 @@ import tech.wenisch.kairos.dto.TimelineBlockDTO;
 import tech.wenisch.kairos.entity.Announcement;
 import tech.wenisch.kairos.entity.AnnouncementKind;
 import tech.wenisch.kairos.entity.ApiKey;
+import tech.wenisch.kairos.entity.ApiKeyPermission;
 import tech.wenisch.kairos.entity.AppUser;
 import tech.wenisch.kairos.entity.AuthProvider;
 import tech.wenisch.kairos.entity.AuthType;
@@ -87,6 +88,7 @@ public class NativeRuntimeHintsConfig {
                 Announcement.class,
                 AnnouncementKind.class,
                 ApiKey.class,
+                ApiKeyPermission.class,
                 AppUser.class,
                 AuthProvider.class,
                 AuthType.class,

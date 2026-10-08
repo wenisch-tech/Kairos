@@ -44,7 +44,7 @@
 
 
 - **Admin panel** - manage resources, tune check intervals and parallelism per resource type, manage users, configure authentication credentials
-- **API keys** - generate and revoke named API keys for machine-to-machine access to the REST API
+- **Scoped API keys** - grant, edit, rotate, and revoke least-privilege access for REST and MCP clients
 - **YAML import / export** - export resources from the admin panel and import them again via a versioned, forward-compatible YAML exchange format
 - **Announcement system** - publish rich-text announcements with three severity kinds (`INFORMATION`, `WARNING`, `PROBLEM`), active/inactive state, optional auto-expiry (`active until`), creator and creation timestamp
 
@@ -184,13 +184,13 @@ The raw OpenAPI JSON spec is at `/v3/api-docs`.
 | `PUT` | `/api/announcements/{id}` | Admin | Update an announcement |
 | `DELETE` | `/api/announcements/{id}` | Admin | Delete an announcement |
 
-See [docs/api.md](docs/api.md) for full request/response examples.
+See [docs/api.md](docs/api.md) for full request/response examples and [docs/api-keys.md](docs/api-keys.md) for permission and rotation guidance.
 
 ---
 
 ## AI Assistant Integration (MCP)
 
-Kairos ships a built-in [Model Context Protocol](https://modelcontextprotocol.io) server so AI assistants can query and manage it in natural language. The MCP server is secured with your existing API keys.
+Kairos ships a built-in [Model Context Protocol](https://modelcontextprotocol.io) server so AI assistants can query and manage it in natural language. MCP keys require `MCP_ACCESS` plus the permissions for the tools they call.
 
 ### Connect Claude Code
 
@@ -198,7 +198,7 @@ Kairos ships a built-in [Model Context Protocol](https://modelcontextprotocol.io
 claude mcp add kairos \
   --transport sse \
   --url http://localhost:8080/sse \
-  --header "X-API-KEY: your-api-key"
+  --header "Authorization: Bearer your-api-key"
 ```
 
 ### Connect GitHub Copilot (VS Code)
@@ -213,7 +213,7 @@ Add the following to your VS Code `settings.json`:
         "type": "sse",
         "url": "http://localhost:8080/sse",
         "headers": {
-          "X-API-KEY": "your-api-key"
+          "Authorization": "Bearer your-api-key"
         }
       }
     }

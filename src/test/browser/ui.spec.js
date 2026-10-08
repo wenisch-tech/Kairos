@@ -180,6 +180,20 @@ test('every admin page renders without browser errors', async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
+test('API key permissions default to read only and can select full access', async ({ page }) => {
+  await login(page);
+  await navigate(page, '/admin/api-keys');
+  const form = page.getByRole('heading', { name: 'Create API key' }).locator('..');
+  const permissions = form.locator('input[name="permissions"]');
+  await expect(permissions).toHaveCount(5);
+  await expect(form.getByLabel('Read status')).toBeChecked();
+  await expect(form.getByLabel('Run checks')).not.toBeChecked();
+  await form.getByRole('button', { name: 'Select full access' }).click();
+  for (const checkbox of await permissions.all()) {
+    await expect(checkbox).toBeChecked();
+  }
+});
+
 test('announcement editor preserves rich content', async ({ page }) => {
   await login(page);
   await navigate(page, '/admin/announcements/new');

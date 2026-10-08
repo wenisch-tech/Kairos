@@ -1,6 +1,7 @@
 package tech.wenisch.kairos.controller;
 
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -46,5 +47,15 @@ class UiRenderingIntegrationTest {
     @ValueSource(strings = {"/css/kairos.css", "/js/kairos.js", "/js/theme.js", "/js/editor.js", "/css/editor.css"})
     void builtAssetsArePublic(String path) throws Exception {
         mvc.perform(get(path)).andExpect(status().isOk());
+    }
+
+    @Test
+    void apiKeyPageExplainsAndDefaultsScopedPermissions() throws Exception {
+        mvc.perform(get("/admin/api-keys").with(user("admin@example.com").roles("ADMIN")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Read status")))
+                .andExpect(content().string(containsString("Connect through MCP")))
+                .andExpect(content().string(containsString("selected: ['STATUS_READ']")))
+                .andExpect(content().string(containsString("Select full access")));
     }
 }

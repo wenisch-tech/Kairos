@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.ArrayList;
 import java.util.Optional;
 
 @Component
@@ -58,10 +58,16 @@ public class ApiKeyAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
+        var authorities = new ArrayList<SimpleGrantedAuthority>();
+        authorities.add(new SimpleGrantedAuthority("ROLE_API_KEY"));
+        apiKey.get().getPermissions().stream()
+                .map(permission -> new SimpleGrantedAuthority(permission.authority()))
+                .forEach(authorities::add);
+
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                 "api-key:" + apiKey.get().getName(),
                 null,
-                List.of(new SimpleGrantedAuthority("ROLE_ADMIN"), new SimpleGrantedAuthority("ROLE_API_KEY"))
+                authorities
         );
         SecurityContextHolder.getContext().setAuthentication(auth);
         filterChain.doFilter(request, response);

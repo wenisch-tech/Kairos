@@ -9,6 +9,9 @@ import java.util.Optional;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import tech.wenisch.kairos.entity.Announcement;
 import tech.wenisch.kairos.entity.AnnouncementKind;
+import tech.wenisch.kairos.entity.ApiKeyPermission;
 import tech.wenisch.kairos.entity.CheckResult;
 import tech.wenisch.kairos.entity.CheckStatus;
 import tech.wenisch.kairos.entity.MonitoredResource;
@@ -52,6 +56,7 @@ public class KairosMcpTools {
             + "Returns id, name, type (HTTP or DOCKER), target URL/image, and current check status "
             + "(AVAILABLE, NOT_AVAILABLE, or UNKNOWN) along with the last checked timestamp.")
     public List<Map<String, Object>> listResources() {
+        requirePermission(ApiKeyPermission.STATUS_READ);
         return resourceService.findAllActive().stream()
                 .map(r -> {
                     Map<String, Object> m = new LinkedHashMap<>();
@@ -75,6 +80,7 @@ public class KairosMcpTools {
             + "last check message, error code, and latency in milliseconds.")
     public Map<String, Object> getResource(
             @ToolParam(description = "The numeric ID of the resource") Long id) {
+        requirePermission(ApiKeyPermission.STATUS_READ);
         Optional<MonitoredResource> opt = resourceService.findById(id);
         if (opt.isEmpty()) {
             return Map.of("error", "Resource not found with id: " + id);
@@ -103,6 +109,7 @@ public class KairosMcpTools {
     @Transactional
     public Map<String, Object> triggerCheck(
             @ToolParam(description = "The numeric ID of the resource to check immediately") Long resourceId) {
+        requirePermission(ApiKeyPermission.CHECK_EXECUTE);
         boolean submitted = checkExecutorService.runImmediateCheck(resourceId, "MCP");
         if (submitted) {
             return Map.of(
@@ -125,6 +132,7 @@ public class KairosMcpTools {
             @ToolParam(description = "0-based page number (default 0)", required = false) Integer page,
             @ToolParam(description = "Number of entries per page, max 200 (default 50)", required = false) Integer pageSize,
             @ToolParam(description = "Optional status filter: AVAILABLE, NOT_AVAILABLE, or UNKNOWN", required = false) String status) {
+        requirePermission(ApiKeyPermission.STATUS_READ);
         Optional<MonitoredResource> opt = resourceService.findById(resourceId);
         if (opt.isEmpty()) {
             return Map.of("error", "Resource not found with id: " + resourceId);
@@ -166,6 +174,7 @@ public class KairosMcpTools {
             + "Returns id, kind (INFORMATION/WARNING/PROBLEM), HTML content, active flag, "
             + "and optional expiry timestamp.")
     public List<Map<String, Object>> listAnnouncements() {
+        requirePermission(ApiKeyPermission.STATUS_READ);
         return announcementService.findAllActiveForPublicView().stream()
                 .map(a -> {
                     Map<String, Object> m = new LinkedHashMap<>();
@@ -185,6 +194,7 @@ public class KairosMcpTools {
             + "Each entry includes id, resourceId, resourceName, startDate, endDate, and active flag.")
     public List<Map<String, Object>> listOutages(
             @ToolParam(description = "If true, return only currently active (ongoing) outages; if false, return all") boolean activeOnly) {
+        requirePermission(ApiKeyPermission.STATUS_READ);
         return outageService.findAllForApi().stream()
                 .filter(o -> !activeOnly || o.isActive())
                 .map(o -> {
@@ -206,6 +216,7 @@ public class KairosMcpTools {
             + "Each entry includes timestamp, kind (Scheduled / Check Now / Instant Check), "
             + "resource name, target, who triggered it, and the result (AVAILABLE/NOT_AVAILABLE/UNKNOWN).")
     public List<Map<String, Object>> getCheckAuditLog() {
+        requirePermission(ApiKeyPermission.STATUS_READ);
         return checkAuditService.getEntries().stream()
                 .map(e -> {
                     Map<String, Object> m = new LinkedHashMap<>();
@@ -226,6 +237,7 @@ public class KairosMcpTools {
     public Map<String, Object> runInstantCheck(
             @ToolParam(description = "The URL (for HTTP), Docker image reference (for DOCKER), or host:port (for TCP) to check") String target,
             @ToolParam(description = "Resource type to use: HTTP, DOCKER, or TCP") String resourceType) {
+        requirePermission(ApiKeyPermission.CHECK_EXECUTE);
         ResourceType type;
         try {
             type = ResourceType.valueOf(resourceType.toUpperCase());
@@ -259,6 +271,7 @@ public class KairosMcpTools {
             @ToolParam(description = "Resource type: HTTP, DOCKER, or TCP") String resourceType,
             @ToolParam(description = "Target URL (HTTP), Docker image reference (DOCKER), or host:port (TCP)") String target,
             @ToolParam(description = "Skip TLS certificate verification: true or false") boolean skipTls) {
+        requirePermission(ApiKeyPermission.RESOURCE_MANAGE);
         ResourceType type;
         try {
             type = ResourceType.valueOf(resourceType.toUpperCase());
@@ -291,6 +304,7 @@ public class KairosMcpTools {
     @Transactional
     public Map<String, Object> deleteResource(
             @ToolParam(description = "The numeric ID of the resource to delete") Long id) {
+        requirePermission(ApiKeyPermission.RESOURCE_MANAGE);
         if (resourceService.findById(id).isEmpty()) {
             return Map.of("error", "Resource not found with id: " + id);
         }
@@ -307,6 +321,7 @@ public class KairosMcpTools {
             @ToolParam(description = "Announcement kind: INFORMATION, WARNING, or PROBLEM") String kind,
             @ToolParam(description = "HTML content of the announcement") String content,
             @ToolParam(description = "Optional ISO-8601 expiry datetime, or null for no expiry") String activeUntil) {
+        requirePermission(ApiKeyPermission.ANNOUNCEMENT_MANAGE);
         AnnouncementKind announcementKind;
         try {
             announcementKind = AnnouncementKind.valueOf(kind.toUpperCase());
@@ -343,6 +358,7 @@ public class KairosMcpTools {
     @Transactional
     public Map<String, Object> deleteAnnouncement(
             @ToolParam(description = "The numeric ID of the announcement to delete") Long id) {
+        requirePermission(ApiKeyPermission.ANNOUNCEMENT_MANAGE);
         if (announcementService.findById(id).isEmpty()) {
             return Map.of("error", "Announcement not found with id: " + id);
         }
@@ -352,5 +368,18 @@ public class KairosMcpTools {
 
     private String isoUtc(LocalDateTime timestamp) {
         return timestamp == null ? null : applicationTimeService.formatIsoUtc(timestamp);
+    }
+
+    private void requirePermission(ApiKeyPermission permission) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || authentication.getAuthorities().stream()
+                .noneMatch(authority -> "ROLE_API_KEY".equals(authority.getAuthority()))) {
+            return;
+        }
+        boolean allowed = authentication.getAuthorities().stream()
+                .anyMatch(authority -> permission.authority().equals(authority.getAuthority()));
+        if (!allowed) {
+            throw new AccessDeniedException("API key requires permission " + permission.name());
+        }
     }
 }

@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.Optional;
+import java.util.EnumSet;
 
 import jakarta.servlet.ServletException;
 import org.junit.jupiter.api.AfterEach;
@@ -23,6 +24,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.util.ReflectionTestUtils;
 import tech.wenisch.kairos.entity.ApiKey;
+import tech.wenisch.kairos.entity.ApiKeyPermission;
 import tech.wenisch.kairos.repository.ApiKeyRepository;
 import tech.wenisch.kairos.service.ApplicationTimeService;
 import tech.wenisch.kairos.service.ApiKeyService;
@@ -68,7 +70,8 @@ class ApiKeyAuthenticationFilterTest {
         MockFilterChain filterChain = new MockFilterChain();
         when(apiKeyRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
-        ApiKeyService.CreatedApiKey created = apiKeyService.create("mcp", "tester@example.com");
+        ApiKeyService.CreatedApiKey created = apiKeyService.create("mcp", "tester@example.com",
+                EnumSet.of(ApiKeyPermission.MCP_ACCESS, ApiKeyPermission.STATUS_READ));
         request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + created.token());
 
         when(apiKeyRepository.findByKeyId(created.apiKey().getKeyId()))
@@ -80,6 +83,9 @@ class ApiKeyAuthenticationFilterTest {
         assertThat(response.getStatus()).isEqualTo(MockHttpServletResponse.SC_OK);
         assertThat(authentication).isNotNull();
         assertThat(authentication.getName()).isEqualTo("api-key:mcp");
+        assertThat(authentication.getAuthorities()).extracting("authority")
+                .containsExactlyInAnyOrder("ROLE_API_KEY", "API_KEY_MCP_ACCESS", "API_KEY_STATUS_READ")
+                .doesNotContain("ROLE_ADMIN");
         verify(apiKeyRepository).findByKeyId(created.apiKey().getKeyId());
     }
 

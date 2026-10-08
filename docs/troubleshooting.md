@@ -137,12 +137,14 @@ Checks:
 1. Verify endpoint access requirements in [api.md](api.md).
 2. If using API key JWT, ensure header is correct:
    - `Authorization: Bearer <token>`
+   - Confirm that the key has the permission required by the endpoint or MCP tool.
 3. For session auth, include CSRF token for write operations.
 
 Typical fixes:
 
-- Regenerate API key in Admin -> API Keys.
-- Use an admin account/key for admin-only endpoints.
+- Rotate the API key in Admin -> API Keys if the stored token is invalid.
+- Edit the key to grant the required scoped permission. See [API keys and permissions](api-keys.md).
+- Use an administrator session for admin-only browser pages.
 - Include CSRF token for `POST`, `PUT`, and `DELETE` with session auth.
 
 ---

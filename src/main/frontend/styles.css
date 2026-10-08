@@ -64,6 +64,7 @@
   .ui-form-text { color:var(--muted); font-size:.75rem; margin-top:.4rem; line-height:1.6; }
   .ui-form-check { position:relative; padding-left:1.65rem; }
   .ui-form-check-input { position:absolute; left:0; top:.3rem; width:1rem; height:1rem; accent-color:var(--accent); }
+  .permission-option .ui-form-check-input { position:static; flex:0 0 auto; margin-top:.2rem; }
   .ui-form-check-inline { display:inline-block; } .ui-form-check-label { cursor:pointer; }
   .ui-input-group { display:flex; align-items:stretch; min-width:0; } .ui-input-group .ui-form-control { flex:1; width:0; }
   .ui-input-group-text { display:flex; align-items:center; padding:.5rem .75rem; border:1px solid var(--line); border-right:0; border-radius:.45rem 0 0 .45rem; background:var(--surface); color:var(--muted); }

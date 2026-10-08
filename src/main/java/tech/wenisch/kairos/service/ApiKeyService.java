@@ -8,6 +8,7 @@ import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import tech.wenisch.kairos.entity.ApiKey;
+import tech.wenisch.kairos.entity.ApiKeyPermission;
 import tech.wenisch.kairos.repository.ApiKeyRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,10 +19,12 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.time.Instant;
 import java.util.Base64;
+import java.util.EnumSet;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -43,6 +46,13 @@ public class ApiKeyService {
     }
 
     public CreatedApiKey create(String name, String createdBy) {
+        return create(name, createdBy, EnumSet.of(ApiKeyPermission.STATUS_READ));
+    }
+
+    public CreatedApiKey create(String name, String createdBy, Set<ApiKeyPermission> permissions) {
+        if (permissions == null || permissions.isEmpty()) {
+            throw new IllegalArgumentException("Select at least one API key permission.");
+        }
         String keyId = UUID.randomUUID().toString();
         String token = createSignedToken(keyId, name, createdBy);
 
@@ -52,6 +62,7 @@ public class ApiKeyService {
                 .createdBy(createdBy)
                 .tokenHash(sha256(token))
                 .createdAt(applicationTimeService.now())
+                .permissions(EnumSet.copyOf(permissions))
                 .build();
 
         ApiKey saved = apiKeyRepository.save(apiKey);
@@ -60,6 +71,16 @@ public class ApiKeyService {
 
     public void delete(Long id) {
         apiKeyRepository.deleteById(id);
+    }
+
+    public Optional<ApiKey> updatePermissions(Long id, Set<ApiKeyPermission> permissions) {
+        if (permissions == null || permissions.isEmpty()) {
+            throw new IllegalArgumentException("Select at least one API key permission.");
+        }
+        return apiKeyRepository.findById(id).map(apiKey -> {
+            apiKey.setPermissions(EnumSet.copyOf(permissions));
+            return apiKeyRepository.save(apiKey);
+        });
     }
 
     public Optional<ApiKey> validateToken(String token) {

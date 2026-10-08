@@ -7,9 +7,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import tech.wenisch.kairos.entity.ApiKey;
+import tech.wenisch.kairos.entity.ApiKeyPermission;
 import tech.wenisch.kairos.repository.ApiKeyRepository;
 
 import java.util.List;
+import java.util.EnumSet;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,6 +51,26 @@ class ApiKeyServiceTest {
         assertThat(result.apiKey().getCreatedBy()).isEqualTo("admin@example.com");
         assertThat(result.apiKey().getKeyId()).isNotBlank();
         assertThat(result.apiKey().getTokenHash()).isNotBlank();
+        assertThat(result.apiKey().getPermissions()).containsExactly(ApiKeyPermission.STATUS_READ);
+    }
+
+    @Test
+    void createStoresExplicitPermissions() {
+        when(apiKeyRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        ApiKeyService.CreatedApiKey result = apiKeyService.create("MCP", "user",
+                EnumSet.of(ApiKeyPermission.MCP_ACCESS, ApiKeyPermission.CHECK_EXECUTE));
+
+        assertThat(result.apiKey().getPermissions())
+                .containsExactlyInAnyOrder(ApiKeyPermission.MCP_ACCESS, ApiKeyPermission.CHECK_EXECUTE);
+    }
+
+    @Test
+    void createRejectsEmptyPermissions() {
+        assertThat(org.assertj.core.api.Assertions.catchThrowable(() ->
+                apiKeyService.create("Empty", "user", EnumSet.noneOf(ApiKeyPermission.class))))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("at least one");
     }
 
     @Test
@@ -155,6 +177,27 @@ class ApiKeyServiceTest {
         Optional<ApiKey> result = apiKeyService.findById(5L);
 
         assertThat(result).contains(key);
+    }
+
+    @Test
+    void updatePermissionsKeepsTheExistingKeyAndTokenIdentity() {
+        ApiKey key = ApiKey.builder()
+                .id(5L)
+                .keyId("stable-key-id")
+                .tokenHash("stable-hash")
+                .permissions(EnumSet.of(ApiKeyPermission.STATUS_READ))
+                .build();
+        when(apiKeyRepository.findById(5L)).thenReturn(Optional.of(key));
+        when(apiKeyRepository.save(key)).thenReturn(key);
+
+        Optional<ApiKey> result = apiKeyService.updatePermissions(5L,
+                EnumSet.of(ApiKeyPermission.MCP_ACCESS, ApiKeyPermission.STATUS_READ));
+
+        assertThat(result).isPresent();
+        assertThat(result.orElseThrow().getKeyId()).isEqualTo("stable-key-id");
+        assertThat(result.orElseThrow().getTokenHash()).isEqualTo("stable-hash");
+        assertThat(result.orElseThrow().getPermissions())
+                .containsExactlyInAnyOrder(ApiKeyPermission.MCP_ACCESS, ApiKeyPermission.STATUS_READ);
     }
 
     // ── delete ─────────────────────────────────────────────────────────────

@@ -1,6 +1,7 @@
 package tech.wenisch.kairos.config;
 
 import tech.wenisch.kairos.entity.AppUser;
+import tech.wenisch.kairos.entity.ApiKeyPermission;
 import tech.wenisch.kairos.entity.CorsAllowedOrigin;
 import tech.wenisch.kairos.entity.EmbedPolicy;
 import tech.wenisch.kairos.entity.ResourceTypeConfig;
@@ -54,6 +55,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.XorCsrfTokenRequestAttributeHandler;
@@ -146,34 +148,65 @@ public class SecurityConfig {
             .access((authentication, context) -> new org.springframework.security.authorization.AuthorizationDecision(
                 isPublicAccessAllowed(resourceTypeConfigRepository) || isAuthenticated(authentication.get())
             ))
-            .requestMatchers("/api/resources")
+            .requestMatchers(HttpMethod.GET, "/api/resources")
             .access((authentication, context) -> new org.springframework.security.authorization.AuthorizationDecision(
-                isPublicAccessAllowed(resourceTypeConfigRepository) || isAuthenticated(authentication.get())
+                isPublicAccessAllowed(resourceTypeConfigRepository)
+                    || hasSessionOrPermission(authentication.get(), ApiKeyPermission.STATUS_READ)
             ))
             .requestMatchers(HttpMethod.GET, "/api/resources/*")
             .access((authentication, context) -> new org.springframework.security.authorization.AuthorizationDecision(
-                isPublicAccessAllowed(resourceTypeConfigRepository) || isAuthenticated(authentication.get())
+                isPublicAccessAllowed(resourceTypeConfigRepository)
+                    || hasSessionOrPermission(authentication.get(), ApiKeyPermission.STATUS_READ)
             ))
             .requestMatchers(HttpMethod.GET, "/api/resources/*/status-update")
             .access((authentication, context) -> new org.springframework.security.authorization.AuthorizationDecision(
-                isPublicAccessAllowed(resourceTypeConfigRepository) || isAuthenticated(authentication.get())
+                isPublicAccessAllowed(resourceTypeConfigRepository)
+                    || hasSessionOrPermission(authentication.get(), ApiKeyPermission.STATUS_READ)
             ))
             .requestMatchers(HttpMethod.GET, "/api/resources/*/latency-samples")
             .access((authentication, context) -> new org.springframework.security.authorization.AuthorizationDecision(
-                isPublicAccessAllowed(resourceTypeConfigRepository) || isAuthenticated(authentication.get())
+                isPublicAccessAllowed(resourceTypeConfigRepository)
+                    || hasSessionOrPermission(authentication.get(), ApiKeyPermission.STATUS_READ)
             ))
             .requestMatchers(HttpMethod.GET, "/api/outages", "/api/resources/*/outages")
             .access((authentication, context) -> new org.springframework.security.authorization.AuthorizationDecision(
-                isPublicAccessAllowed(resourceTypeConfigRepository) || isAuthenticated(authentication.get())
+                isPublicAccessAllowed(resourceTypeConfigRepository)
+                    || hasSessionOrPermission(authentication.get(), ApiKeyPermission.STATUS_READ)
             ))
             .requestMatchers(HttpMethod.GET, "/api/announcements", "/api/announcements/*")
             .access((authentication, context) -> new org.springframework.security.authorization.AuthorizationDecision(
-                isPublicAccessAllowed(resourceTypeConfigRepository) || isAuthenticated(authentication.get())
+                isPublicAccessAllowed(resourceTypeConfigRepository)
+                    || hasSessionOrPermission(authentication.get(), ApiKeyPermission.STATUS_READ)
             ))
+                .requestMatchers("/sse", "/mcp/**")
+                .access((authentication, context) -> new AuthorizationDecision(
+                    hasSessionOrPermission(authentication.get(), ApiKeyPermission.MCP_ACCESS)
+                ))
                 .requestMatchers("/admin/**").hasRole("ADMIN")
-                .requestMatchers("/api/resources/*/history").authenticated()
-                .requestMatchers("/api/resources/**").hasRole("ADMIN")
-                .requestMatchers("/api/announcements/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/resources/*/history")
+                .access((authentication, context) -> new AuthorizationDecision(
+                    hasSessionOrPermission(authentication.get(), ApiKeyPermission.STATUS_READ)
+                ))
+                .requestMatchers(HttpMethod.POST, "/api/resources", "/api/resources/templates")
+                .access((authentication, context) -> new AuthorizationDecision(
+                    hasAdminOrPermission(authentication.get(), ApiKeyPermission.RESOURCE_MANAGE)
+                ))
+                .requestMatchers(HttpMethod.DELETE, "/api/resources/*")
+                .access((authentication, context) -> new AuthorizationDecision(
+                    hasAdminOrPermission(authentication.get(), ApiKeyPermission.RESOURCE_MANAGE)
+                ))
+                .requestMatchers(HttpMethod.POST, "/api/announcements")
+                .access((authentication, context) -> new AuthorizationDecision(
+                    hasAdminOrPermission(authentication.get(), ApiKeyPermission.ANNOUNCEMENT_MANAGE)
+                ))
+                .requestMatchers(HttpMethod.PUT, "/api/announcements/*")
+                .access((authentication, context) -> new AuthorizationDecision(
+                    hasAdminOrPermission(authentication.get(), ApiKeyPermission.ANNOUNCEMENT_MANAGE)
+                ))
+                .requestMatchers(HttpMethod.DELETE, "/api/announcements/*")
+                .access((authentication, context) -> new AuthorizationDecision(
+                    hasAdminOrPermission(authentication.get(), ApiKeyPermission.ANNOUNCEMENT_MANAGE)
+                ))
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
@@ -292,6 +325,23 @@ public class SecurityConfig {
         return http.build();
     }
 
+    private static boolean hasSessionOrPermission(Authentication authentication, ApiKeyPermission permission) {
+        return isAuthenticated(authentication)
+                && (!hasAuthority(authentication, "ROLE_API_KEY")
+                    || hasAuthority(authentication, permission.authority()));
+    }
+
+    private static boolean hasAdminOrPermission(Authentication authentication, ApiKeyPermission permission) {
+        return isAuthenticated(authentication)
+                && (hasAuthority(authentication, "ROLE_ADMIN")
+                    || hasAuthority(authentication, permission.authority()));
+    }
+
+    private static boolean hasAuthority(Authentication authentication, String authority) {
+        return authentication != null && authentication.getAuthorities().stream()
+                .anyMatch(granted -> authority.equals(granted.getAuthority()));
+    }
+
     private void configureOidcTls() {
         if (oidcIgnoreTls) {
             log.warn("OIDC_IGNORE_TLS is enabled: OIDC TLS certificate and hostname verification are disabled. Use only for temporary troubleshooting.");
@@ -389,7 +439,7 @@ public class SecurityConfig {
         return configs.stream().allMatch(ResourceTypeConfig::isAllowPublicAccess);
     }
 
-    private boolean isAuthenticated(org.springframework.security.core.Authentication authentication) {
+    private static boolean isAuthenticated(org.springframework.security.core.Authentication authentication) {
         return authentication != null
                 && authentication.isAuthenticated()
                 && !(authentication instanceof AnonymousAuthenticationToken);

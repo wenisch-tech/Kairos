@@ -8,6 +8,7 @@ import tech.wenisch.kairos.dto.ResourceDTO;
 import tech.wenisch.kairos.dto.ResourceDetailsDTO;
 import tech.wenisch.kairos.dto.ResourceStatusUpdateDTO;
 import tech.wenisch.kairos.entity.Announcement;
+import tech.wenisch.kairos.entity.ApiKeyPermission;
 import tech.wenisch.kairos.entity.CheckResult;
 import tech.wenisch.kairos.entity.MonitoredResource;
 import tech.wenisch.kairos.entity.Outage;
@@ -44,9 +45,9 @@ import java.util.Optional;
 /**
  * REST controller exposing the Kairos public and management API under the {@code /api} base path.
  *
- * <p>Endpoints that perform mutations (create, delete) require the caller to hold the
- * {@code ADMIN} role. Read-only resource endpoints are publicly accessible without
- * authentication.
+ * <p>Endpoints that perform mutations require an administrator session or the matching
+ * scoped API-key permission. Read-only endpoints are publicly accessible when public
+ * access is enabled.
  */
 @RestController
 @RequestMapping("/api")
@@ -256,9 +257,16 @@ public class ApiController {
     }
 
     private boolean isAuthenticated(Authentication authentication) {
-        return authentication != null
+        boolean authenticated = authentication != null
                 && authentication.isAuthenticated()
                 && !(authentication instanceof AnonymousAuthenticationToken);
+        if (!authenticated) {
+            return false;
+        }
+        boolean apiKey = authentication.getAuthorities().stream()
+                .anyMatch(authority -> "ROLE_API_KEY".equals(authority.getAuthority()));
+        return !apiKey || authentication.getAuthorities().stream()
+                .anyMatch(authority -> ApiKeyPermission.STATUS_READ.authority().equals(authority.getAuthority()));
     }
 
     private boolean isVisibleByGroupPolicy(MonitoredResource resource, boolean authenticated) {
@@ -298,19 +306,19 @@ public class ApiController {
      * Creates a new monitored resource.
      *
      * <p>The resource is immediately activated. Health checks will start on the next
-     * scheduler cycle. Requires {@code ADMIN} role.
+     * scheduler cycle. Requires an administrator session or {@code RESOURCE_MANAGE} API-key permission.
      *
      * @param dto the resource definition containing name, type and target URL/host
      * @return the persisted {@link MonitoredResource} including its generated id
      */
     @Operation(summary = "Create a resource",
-               description = "Adds a new monitored resource and activates it immediately. Requires ADMIN role.",
+               description = "Adds a new monitored resource and activates it immediately. Requires an administrator session or RESOURCE_MANAGE API-key permission.",
                tags = "Resources",
                security = {@SecurityRequirement(name = "cookieAuth"), @SecurityRequirement(name = "apiKeyAuth")})
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Resource created successfully",
                      content = @Content(schema = @Schema(implementation = MonitoredResource.class))),
-        @ApiResponse(responseCode = "403", description = "Caller does not hold the ADMIN role", content = @Content)
+        @ApiResponse(responseCode = "403", description = "Caller lacks resource-management permission", content = @Content)
     })
     @PostMapping("/resources")
     public ResponseEntity<MonitoredResource> addResource(@RequestBody ResourceDTO dto) {
@@ -340,17 +348,17 @@ public class ApiController {
      *
      * <p>Creates a set of diverse sample resources (HTTP endpoints, Docker images)
      * organized into groups to demonstrate Kairos functionality. Useful for testing
-     * and demos. Requires {@code ADMIN} role.
+     * and demos. Requires an administrator session or {@code RESOURCE_MANAGE} API-key permission.
      *
      * @return a JSON map with status and count of created resources
      */
     @Operation(summary = "Create template resources",
-               description = "Creates a set of sample resources for testing (HTTP services, Docker images, groups). Requires ADMIN role.",
+               description = "Creates sample resources for testing. Requires an administrator session or RESOURCE_MANAGE API-key permission.",
                tags = "Resources",
                security = {@SecurityRequirement(name = "cookieAuth"), @SecurityRequirement(name = "apiKeyAuth")})
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Template resources created successfully"),
-        @ApiResponse(responseCode = "403", description = "Caller does not hold the ADMIN role", content = @Content)
+        @ApiResponse(responseCode = "403", description = "Caller lacks resource-management permission", content = @Content)
     })
     @PostMapping("/resources/templates")
     public ResponseEntity<Map<String, Object>> createTemplateResources() {
@@ -446,18 +454,18 @@ public class ApiController {
     /**
      * Permanently deletes a monitored resource and all associated check history.
      *
-     * <p>Requires {@code ADMIN} role.
+     * <p>Requires an administrator session or {@code RESOURCE_MANAGE} API-key permission.
      *
      * @param id the unique identifier of the resource to remove
      * @return a JSON object {@code {"status":"deleted"}}
      */
     @Operation(summary = "Delete a resource",
-               description = "Permanently removes a monitored resource and its entire check history. Requires ADMIN role.",
+               description = "Permanently removes a monitored resource and its history. Requires an administrator session or RESOURCE_MANAGE API-key permission.",
                tags = "Resources",
                security = {@SecurityRequirement(name = "cookieAuth"), @SecurityRequirement(name = "apiKeyAuth")})
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Resource deleted"),
-        @ApiResponse(responseCode = "403", description = "Caller does not hold the ADMIN role", content = @Content)
+        @ApiResponse(responseCode = "403", description = "Caller lacks resource-management permission", content = @Content)
     })
     @DeleteMapping("/resources/{id}")
     public ResponseEntity<Map<String, String>> deleteResource(
@@ -546,20 +554,20 @@ public class ApiController {
      * Creates a new announcement.
      *
      * <p>The {@code createdBy} field is automatically set to the authenticated user's name.
-     * Requires {@code ADMIN} role.
+     * Requires an administrator session or {@code ANNOUNCEMENT_MANAGE} API-key permission.
      *
      * @param dto            the announcement payload
      * @param authentication the current security principal
      * @return the persisted {@link Announcement} including its generated id
      */
     @Operation(summary = "Create an announcement",
-               description = "Creates a new announcement. createdBy is set from the authenticated user. Requires ADMIN role.",
+               description = "Creates an announcement. Requires an administrator session or ANNOUNCEMENT_MANAGE API-key permission.",
                tags = "Announcements",
                security = {@SecurityRequirement(name = "cookieAuth"), @SecurityRequirement(name = "apiKeyAuth")})
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Announcement created",
                      content = @Content(schema = @Schema(implementation = Announcement.class))),
-        @ApiResponse(responseCode = "403", description = "Caller does not hold the ADMIN role", content = @Content)
+        @ApiResponse(responseCode = "403", description = "Caller lacks announcement-management permission", content = @Content)
     })
     @PostMapping("/announcements")
     public ResponseEntity<Announcement> createAnnouncement(
@@ -580,20 +588,20 @@ public class ApiController {
      *
      * <p>All fields supplied in the request body overwrite the stored values.
      * {@code createdBy} and {@code createdAt} are preserved from the original record.
-     * Requires {@code ADMIN} role.
+     * Requires an administrator session or {@code ANNOUNCEMENT_MANAGE} API-key permission.
      *
      * @param id  the unique identifier of the announcement to update
      * @param dto the updated announcement payload
      * @return the updated {@link Announcement}, or {@code 404} if not found
      */
     @Operation(summary = "Update an announcement",
-               description = "Fully replaces a stored announcement's fields. createdBy and createdAt are preserved. Requires ADMIN role.",
+               description = "Replaces an announcement's fields. Requires an administrator session or ANNOUNCEMENT_MANAGE API-key permission.",
                tags = "Announcements",
                security = {@SecurityRequirement(name = "cookieAuth"), @SecurityRequirement(name = "apiKeyAuth")})
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Announcement updated",
                      content = @Content(schema = @Schema(implementation = Announcement.class))),
-        @ApiResponse(responseCode = "403", description = "Caller does not hold the ADMIN role", content = @Content),
+        @ApiResponse(responseCode = "403", description = "Caller lacks announcement-management permission", content = @Content),
         @ApiResponse(responseCode = "404", description = "No announcement with the given ID exists", content = @Content)
     })
     @PutMapping("/announcements/{id}")
@@ -615,18 +623,18 @@ public class ApiController {
     /**
      * Permanently deletes an announcement.
      *
-     * <p>Requires {@code ADMIN} role.
+     * <p>Requires an administrator session or {@code ANNOUNCEMENT_MANAGE} API-key permission.
      *
      * @param id the unique identifier of the announcement to delete
      * @return a JSON object {@code {"status":"deleted"}}
      */
     @Operation(summary = "Delete an announcement",
-               description = "Permanently removes an announcement. Requires ADMIN role.",
+               description = "Permanently removes an announcement. Requires an administrator session or ANNOUNCEMENT_MANAGE API-key permission.",
                tags = "Announcements",
                security = {@SecurityRequirement(name = "cookieAuth"), @SecurityRequirement(name = "apiKeyAuth")})
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Announcement deleted"),
-        @ApiResponse(responseCode = "403", description = "Caller does not hold the ADMIN role", content = @Content)
+        @ApiResponse(responseCode = "403", description = "Caller lacks announcement-management permission", content = @Content)
     })
     @DeleteMapping("/announcements/{id}")
     public ResponseEntity<Map<String, String>> deleteAnnouncement(

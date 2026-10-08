@@ -9,7 +9,7 @@ The MCP server is powered by [Spring AI](https://spring.io/projects/spring-ai) a
 ## Prerequisites
 
 - Kairos 2.2.5 or later
-- An **API key** created in **Admin → API Keys** (the MCP server requires authentication)
+- An **API key** with `MCP_ACCESS` plus the permissions needed by its tools
 - An MCP-compatible client (Claude Desktop, VS Code with Copilot, Cursor, etc.)
 
 ---
@@ -25,10 +25,12 @@ Authorization: Bearer <your-api-key-jwt>
 To create an API key:
 
 1. Open **Admin → API Keys**
-2. Enter a name (e.g. `claude-desktop`) and click **Create**
-3. Copy the token — it is shown only once
+2. Enter a name (e.g. `claude-desktop`) and select `MCP_ACCESS`.
+3. Add `STATUS_READ` and any management or check permissions the client needs.
+4. Click **Create API key** and copy the token — it is shown only once.
 
 There is no separate MCP-specific credential. The same API keys used for the REST API work for MCP.
+See [API keys and permissions](api-keys.md) for the complete permission matrix and rotation guidance.
 
 ---
 
@@ -40,6 +42,8 @@ There is no separate MCP-specific credential. The same API keys used for the RES
 | Message endpoint | `http://<your-kairos-host>/mcp/message` |
 | Transport | SSE (HTTP) |
 | Authentication | `Authorization: Bearer <api-key-jwt>` |
+
+The tool catalog remains visible after connection. If a key lacks a tool's operational permission, the call fails before performing any action and reports the required permission.
 
 ---
 

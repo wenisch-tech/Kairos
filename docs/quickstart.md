@@ -88,7 +88,7 @@ Then open `http://localhost:8080`.
 2. Add your first resource in **Admin -> Manage Resources**.
 3. Create or edit a resource group and set its visibility (`PUBLIC`, `AUTHENTICATED`, `HIDDEN`) as needed. A resource can belong to **multiple groups** — hold Ctrl/⌘ in the group selector to assign more than one.
 4. Trigger a manual check on the resource detail page.
-5. Optionally create an API key in **Admin -> API Keys** for automation.
+5. Optionally create a least-privilege API key in **Admin -> API Keys** for automation. See [API keys and permissions](api-keys.md).
 
 ---
 
@@ -98,6 +98,7 @@ Then open `http://localhost:8080`.
 - Instant check configuration and behavior: [instant-check.md](instant-check.md)
 - Resource auth patterns: [authentication.md](authentication.md)
 - API usage and payloads: [api.md](api.md)
+- API key permissions and rotation: [api-keys.md](api-keys.md)
 - Import/export resources: [importexport.md](importexport.md)
 - Docker registry pullability behavior: [docker-pullability.md](docker-pullability.md)
 - Common failures and fixes: [troubleshooting.md](troubleshooting.md)

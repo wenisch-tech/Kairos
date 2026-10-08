@@ -38,6 +38,7 @@ import lombok.RequiredArgsConstructor;
 import tech.wenisch.kairos.dto.AdminResourceGroupViewModel;
 import tech.wenisch.kairos.entity.Announcement;
 import tech.wenisch.kairos.entity.AnnouncementKind;
+import tech.wenisch.kairos.entity.ApiKeyPermission;
 import tech.wenisch.kairos.entity.AppUser;
 import tech.wenisch.kairos.entity.AuthType;
 import tech.wenisch.kairos.entity.CorsAllowedOrigin;
@@ -918,17 +919,42 @@ public class AdminController {
     @GetMapping("/api-keys")
     public String apiKeys(Model model) {
         model.addAttribute("apiKeys", apiKeyService.findAllOrderedByCreatedAtDesc());
+        model.addAttribute("apiKeyPermissions", ApiKeyPermission.values());
         return "admin/api-keys";
     }
 
     @PostMapping("/api-keys/add")
     public String addApiKey(@RequestParam String name,
+                            @RequestParam(required = false) Set<ApiKeyPermission> permissions,
                             Authentication authentication,
                             RedirectAttributes redirectAttributes) {
+        if (name == null || name.isBlank()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Enter a name for the API key.");
+            return "redirect:/admin/api-keys";
+        }
+        if (permissions == null || permissions.isEmpty()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Select at least one API key permission.");
+            return "redirect:/admin/api-keys";
+        }
         String creator = authentication != null ? authentication.getName() : "system";
-        ApiKeyService.CreatedApiKey createdApiKey = apiKeyService.create(name, creator);
+        ApiKeyService.CreatedApiKey createdApiKey = apiKeyService.create(name.trim(), creator, permissions);
         redirectAttributes.addFlashAttribute("successMessage", "API key created: " + createdApiKey.apiKey().getName());
         redirectAttributes.addFlashAttribute("newApiKeyToken", createdApiKey.token());
+        return "redirect:/admin/api-keys";
+    }
+
+    @PostMapping("/api-keys/update/{id}")
+    public String updateApiKeyPermissions(@PathVariable Long id,
+                                          @RequestParam(required = false) Set<ApiKeyPermission> permissions,
+                                          RedirectAttributes redirectAttributes) {
+        if (permissions == null || permissions.isEmpty()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Select at least one API key permission.");
+            return "redirect:/admin/api-keys";
+        }
+        apiKeyService.updatePermissions(id, permissions).ifPresentOrElse(
+                apiKey -> redirectAttributes.addFlashAttribute("successMessage",
+                        "Permissions updated: " + apiKey.getName()),
+                () -> redirectAttributes.addFlashAttribute("errorMessage", "API key not found."));
         return "redirect:/admin/api-keys";
     }
 

@@ -47,6 +47,7 @@ nav:
           - Notification Providers: notifications/providers.md
           - Notification Policies: notifications/policies.md
   - Operations:
+      - API Keys and Permissions: api-keys.md
       - REST API: api.md
       - MCP Server: mcp-server.md
       - GraalVM Native Image Evaluation: native-image-evaluation.md

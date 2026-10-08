@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.EnumSet;
+import java.util.Set;
 
 @Entity
 @Data
@@ -30,5 +32,12 @@ public class ApiKey {
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "api_key_permission", joinColumns = @JoinColumn(name = "api_key_id"))
+    @Enumerated(EnumType.STRING)
+    @Column(name = "permission", nullable = false, length = 64)
+    @Builder.Default
+    private Set<ApiKeyPermission> permissions = EnumSet.noneOf(ApiKeyPermission.class);
 
 }

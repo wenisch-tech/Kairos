@@ -18,6 +18,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import tech.wenisch.kairos.service.ApiKeyService;
+import tech.wenisch.kairos.entity.ApiKeyPermission;
+
+import java.util.EnumSet;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -34,7 +37,8 @@ class McpSecurityIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        validToken = apiKeyService.create("mcp-test", "integration-test").token();
+        validToken = apiKeyService.create("mcp-test", "integration-test",
+                EnumSet.of(ApiKeyPermission.MCP_ACCESS)).token();
     }
 
     @Test
@@ -63,5 +67,16 @@ class McpSecurityIntegrationTest {
                         .header(HttpHeaders.AUTHORIZATION, "Bearer invalid-token"))
                 .andExpect(status().isUnauthorized())
                 .andExpect(unauthenticated());
+    }
+
+    @Test
+    void sseWithValidKeyWithoutMcpAccessIsForbidden() throws Exception {
+        String statusOnlyToken = apiKeyService.create("status-only", "integration-test",
+                EnumSet.of(ApiKeyPermission.STATUS_READ)).token();
+
+        mockMvc.perform(get("/sse")
+                        .accept(MediaType.TEXT_EVENT_STREAM)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + statusOnlyToken))
+                .andExpect(status().isForbidden());
     }
 }

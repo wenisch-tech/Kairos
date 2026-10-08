@@ -43,8 +43,8 @@ public class OpenApiConfig {
                                 REST API for the **Kairos** uptime-monitoring platform.
 
                                 ### Authentication
-                                Most write endpoints require an authenticated session or API key JWT with `ADMIN` permissions.  \s
-                                Read-only endpoints (`GET /api/resources`, `GET /api/resources/{id}`, `GET /api/announcements`, `GET /api/announcements/{id}`) are public.
+                                Protected endpoints require an authenticated session or an API key with the matching scoped permission.  \s
+                                API keys use `STATUS_READ`, `RESOURCE_MANAGE`, or `ANNOUNCEMENT_MANAGE` depending on the operation. Read-only endpoints are public while public access is enabled.
 
                                 Obtain a session by `POST`-ing credentials to `/login`,
                                 or use an API key JWT created in **Admin -> API Keys** as `Authorization: Bearer <token>`.
@@ -71,7 +71,7 @@ public class OpenApiConfig {
                                 .type(SecurityScheme.Type.HTTP)
                                 .scheme("bearer")
                                 .bearerFormat("JWT")
-                                .description("Bearer JWT API key token created in Admin -> API Keys")))
+                                .description("Scoped bearer JWT created in Admin -> API Keys. See the API key guide for permission requirements.")))
                 .externalDocs(new ExternalDocumentation()
                         .description("Documentation")
                         .url("https://kairos.wenisch.tech/docs"))

@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
@@ -20,6 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import tech.wenisch.kairos.dto.InstantCheckExecutionResult;
 import tech.wenisch.kairos.entity.Announcement;
 import tech.wenisch.kairos.entity.AnnouncementKind;
+import tech.wenisch.kairos.entity.ApiKeyPermission;
 import tech.wenisch.kairos.entity.CheckResult;
 import tech.wenisch.kairos.entity.CheckStatus;
 import tech.wenisch.kairos.entity.MonitoredResource;
@@ -34,6 +36,10 @@ import tech.wenisch.kairos.service.CheckExecutorService;
 import tech.wenisch.kairos.service.InstantCheckService;
 import tech.wenisch.kairos.service.OutageService;
 import tech.wenisch.kairos.service.ResourceService;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.access.AccessDeniedException;
 
 @ExtendWith(MockitoExtension.class)
 class KairosMcpToolsTest {
@@ -56,6 +62,25 @@ class KairosMcpToolsTest {
                 .thenAnswer(invocation -> invocation.getArgument(0).toString() + "Z");
         tools = new KairosMcpTools(resourceService, checkResultRepository, announcementService,
                 outageService, checkAuditService, checkExecutorService, instantCheckService, applicationTimeService);
+    }
+
+    @AfterEach
+    void clearSecurityContext() {
+        SecurityContextHolder.clearContext();
+    }
+
+    @Test
+    void apiKeyToolCallIsRejectedBeforeSideEffectsWhenPermissionIsMissing() {
+        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(
+                "api-key:read-only", null,
+                List.of(new SimpleGrantedAuthority("ROLE_API_KEY"),
+                        new SimpleGrantedAuthority(ApiKeyPermission.STATUS_READ.authority()),
+                        new SimpleGrantedAuthority(ApiKeyPermission.MCP_ACCESS.authority()))));
+
+        assertThat(org.assertj.core.api.Assertions.catchThrowable(() -> tools.triggerCheck(1L)))
+                .isInstanceOf(AccessDeniedException.class)
+                .hasMessageContaining("CHECK_EXECUTE");
+        org.mockito.Mockito.verifyNoInteractions(checkExecutorService);
     }
 
     // ── listResources ──────────────────────────────────────────────────────────

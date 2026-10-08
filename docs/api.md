@@ -21,7 +21,9 @@ The raw OpenAPI JSON spec is available at `/v3/api-docs`.
 Protected endpoints support two authentication methods:
 
 1. **Session cookie** (`JSESSIONID`) from `/login`
-2. **API key JWT** (`Authorization: Bearer <token>`) created in **Admin → API Keys**
+2. **Scoped API key JWT** (`Authorization: Bearer <token>`) created in **Admin → API Keys**
+
+See [API keys and permissions](api-keys.md) for creation, rotation, migration behavior, and least-privilege examples.
 
 ### Authentication Decision Flow
 
@@ -52,9 +54,9 @@ curl -c cookies.txt -X POST http://localhost:8080/login \
 
 Admins can create API keys in the Admin panel:
 
-1. Open `Admin → API Keys`
-2. Enter a key name and create it
-3. Copy the token immediately (**shown only once**)
+1. Open `Admin → API Keys`.
+2. Enter a key name and select at least one permission.
+3. Create the key and copy the token immediately (**shown only once**).
 
 Use the token in the `Authorization` header:
 
@@ -70,18 +72,21 @@ Authorization: ApiKey <api-key-jwt>
 
 ### Endpoint access summary
 
-| Endpoint | Required role |
+| Endpoint | API-key permission |
 |----------|---------------|
 | `GET /api/resources` | Public |
 | `GET /api/resources/{id}` | Public |
-| `POST /api/resources` | `ADMIN` |
-| `DELETE /api/resources/{id}` | `ADMIN` |
-| `GET /api/resources/{id}/history` | Any authenticated user (session or API key) |
+| `POST /api/resources` | `RESOURCE_MANAGE` |
+| `POST /api/resources/templates` | `RESOURCE_MANAGE` |
+| `DELETE /api/resources/{id}` | `RESOURCE_MANAGE` |
+| `GET /api/resources/{id}/history` | `STATUS_READ` |
 | `GET /api/announcements` | Public |
 | `GET /api/announcements/{id}` | Public |
-| `POST /api/announcements` | `ADMIN` (session or API key) |
-| `PUT /api/announcements/{id}` | `ADMIN` (session or API key) |
-| `DELETE /api/announcements/{id}` | `ADMIN` (session or API key) |
+| `POST /api/announcements` | `ANNOUNCEMENT_MANAGE` |
+| `PUT /api/announcements/{id}` | `ANNOUNCEMENT_MANAGE` |
+| `DELETE /api/announcements/{id}` | `ANNOUNCEMENT_MANAGE` |
+
+Public entries remain public only while public access is enabled. If it is disabled, API keys need `STATUS_READ`. Administrator sessions retain management access.
 
 Resource visibility note:
 
