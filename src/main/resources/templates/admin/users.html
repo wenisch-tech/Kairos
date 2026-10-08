@@ -38,7 +38,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr th:each="user : ${users}">
+                            <tr th:each="user : ${users}" x-data="{ passwordOpen: false }">
                                 <td th:text="${user.email}">email</td>
                                 <td>
                                     <div class="flex flex-col gap-2">
@@ -65,12 +65,48 @@
                                 <td th:text="${user.lastLoginAt != null} ? ${@kairosTime.format(user.lastLoginAt, 'yyyy-MM-dd HH:mm')} : 'Never'">date</td>
                                 <td th:text="${user.createdAt != null} ? ${@kairosTime.format(user.createdAt, 'yyyy-MM-dd')} : '-'">date</td>
                                 <td>
-                                    <form th:action="@{/admin/users/delete/{id}(id=${user.id})}" method="post" class="inline"
-                                          onsubmit="return confirm('Delete this user?')">
-                                        <button type="submit" class="ui-btn ui-btn-danger ui-btn-sm" aria-label="Delete">
-                                            <i class="" data-icon="trash-2" aria-hidden="true"></i>
+                                    <div class="flex flex-col items-start gap-2">
+                                        <button th:if="${user.provider.name() == 'LOCAL'}" type="button"
+                                                class="ui-btn ui-btn-secondary ui-btn-sm"
+                                                @click="passwordOpen = !passwordOpen" :aria-expanded="passwordOpen">
+                                            <i data-icon="key-round" aria-hidden="true"></i>Change password
                                         </button>
-                                    </form>
+                                        <span th:if="${user.provider.name() == 'OIDC'}" class="text-muted text-sm">
+                                            Password managed by identity provider
+                                        </span>
+                                        <form th:if="${user.provider.name() == 'LOCAL'}"
+                                              th:action="@{/admin/users/update-password/{id}(id=${user.id})}" method="post"
+                                              class="w-full mt-2" x-show="passwordOpen" x-cloak
+                                              x-data="{ password: '', confirmation: '' }">
+                                            <div class="mb-2">
+                                                <label class="ui-form-label" th:for="'password-' + ${user.id}">New password</label>
+                                                <input class="ui-form-control" type="password" name="password"
+                                                       th:id="'password-' + ${user.id}" minlength="8" maxlength="200"
+                                                       autocomplete="new-password" required x-model="password">
+                                            </div>
+                                            <div class="mb-2">
+                                                <label class="ui-form-label" th:for="'password-confirmation-' + ${user.id}">Confirm password</label>
+                                                <input class="ui-form-control" type="password" name="passwordConfirmation"
+                                                       th:id="'password-confirmation-' + ${user.id}" minlength="8" maxlength="200"
+                                                       autocomplete="new-password" required x-model="confirmation">
+                                            </div>
+                                            <p class="text-danger text-sm mb-2" x-show="confirmation && password !== confirmation" x-cloak>
+                                                The passwords do not match.
+                                            </p>
+                                            <div class="flex gap-2">
+                                                <button type="submit" class="ui-btn ui-btn-primary ui-btn-sm"
+                                                        :disabled="password.length < 8 || password !== confirmation">Save password</button>
+                                                <button type="button" class="ui-btn ui-btn-secondary ui-btn-sm"
+                                                        @click="passwordOpen = false; password = ''; confirmation = ''">Cancel</button>
+                                            </div>
+                                        </form>
+                                        <form th:action="@{/admin/users/delete/{id}(id=${user.id})}" method="post" class="inline"
+                                              onsubmit="return confirm('Delete this user?')">
+                                            <button type="submit" class="ui-btn ui-btn-danger ui-btn-sm" aria-label="Delete">
+                                                <i class="" data-icon="trash-2" aria-hidden="true"></i>
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                         </tbody>
@@ -82,11 +118,11 @@
 </div>
 
 <!-- Add User Modal -->
-<div class="ui-modal" id="addUserModal" tabindex="-1" role="dialog" aria-modal="true" x-data="dialog" x-show="open" x-cloak x-trap.inert.noscroll="open" @keydown.escape.window="hide()" @click.self="hide()" @kairos-dialog.window="if ($event.detail.id === $el.id) open = $event.detail.open">
+<div class="ui-modal" id="addUserModal" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="addUserModalTitle" x-data="dialog" x-show="open" x-cloak x-trap.inert.noscroll="open" @keydown.escape.window="hide()" @click.self="hide()" @kairos-dialog.window="if ($event.detail.id === $el.id) open = $event.detail.open">
     <div class="ui-modal-dialog">
         <div class="ui-modal-content">
             <div class="ui-modal-header">
-                <h5 class="ui-modal-title"><i class="me-2" data-icon="user-plus" aria-hidden="true"></i>Add Local User</h5>
+                <h5 class="ui-modal-title" id="addUserModalTitle"><i class="me-2" data-icon="user-plus" aria-hidden="true"></i>Add Local User</h5>
                 <button type="button" class="ui-btn-close" data-ui-dismiss="modal" aria-label="Close"></button>
             </div>
             <form th:action="@{/admin/users/add}" method="post">
@@ -97,7 +133,8 @@
                     </div>
                     <div class="mb-4">
                         <label class="ui-form-label">Password</label>
-                        <input type="password" class="ui-form-control" name="password" required>
+                        <input type="password" class="ui-form-control" name="password" minlength="8" maxlength="200"
+                               autocomplete="new-password" required>
                     </div>
                     <div class="mb-4">
                         <label class="ui-form-label">Role</label>

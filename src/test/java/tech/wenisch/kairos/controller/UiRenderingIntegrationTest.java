@@ -6,6 +6,11 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import tech.wenisch.kairos.entity.AppUser;
+import tech.wenisch.kairos.repository.AppUserRepository;
+
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -13,13 +18,17 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 class UiRenderingIntegrationTest {
     @Autowired private MockMvc mvc;
+    @Autowired private AppUserRepository userRepository;
+    @Autowired private PasswordEncoder passwordEncoder;
 
     @ParameterizedTest
     @ValueSource(strings = {"/", "/login", "/announcements", "/outages"})
@@ -57,5 +66,45 @@ class UiRenderingIntegrationTest {
                 .andExpect(content().string(containsString("Connect through MCP")))
                 .andExpect(content().string(containsString("selected: ['STATUS_READ']")))
                 .andExpect(content().string(containsString("Select full access")));
+    }
+
+    @Test
+    void usersPageOffersValidatedPasswordChangesForLocalUsers() throws Exception {
+        mvc.perform(get("/admin/users").with(user("admin@example.com").roles("ADMIN")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Change password")))
+                .andExpect(content().string(containsString("/admin/users/update-password/")))
+                .andExpect(content().string(containsString("name=\"passwordConfirmation\"")))
+                .andExpect(content().string(containsString("minlength=\"8\"")));
+    }
+
+    @Test
+    void localPasswordUpdateRequiresConfirmationAndReplacesTheStoredHash() throws Exception {
+        AppUser localAdmin = userRepository.findByEmail("admin@kairos.local").orElseThrow();
+        String originalHash = localAdmin.getPasswordHash();
+
+        mvc.perform(post("/admin/users/update-password/{id}", localAdmin.getId())
+                        .with(user("admin@example.com").roles("ADMIN"))
+                        .with(csrf())
+                        .param("password", "replacement-password")
+                        .param("passwordConfirmation", "different-password"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/admin/users"))
+                .andExpect(flash().attribute("errorMessage", "The passwords do not match."));
+        assertThat(userRepository.findById(localAdmin.getId()).orElseThrow().getPasswordHash())
+                .isEqualTo(originalHash);
+
+        mvc.perform(post("/admin/users/update-password/{id}", localAdmin.getId())
+                        .with(user("admin@example.com").roles("ADMIN"))
+                        .with(csrf())
+                        .param("password", "replacement-password")
+                        .param("passwordConfirmation", "replacement-password"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/admin/users"))
+                .andExpect(flash().attribute("successMessage", "Password updated: admin@kairos.local"));
+
+        String updatedHash = userRepository.findById(localAdmin.getId()).orElseThrow().getPasswordHash();
+        assertThat(updatedHash).isNotEqualTo(originalHash);
+        assertThat(passwordEncoder.matches("replacement-password", updatedHash)).isTrue();
     }
 }

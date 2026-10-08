@@ -31,6 +31,7 @@ nav:
       - Additional Parameters: additional-parameters.md
   - Configuration:
       - Overview: configuration.md
+      - User Management: user-management.md
       - Scheduling and Retention: configuration-scheduling.md
       - Runtime and Database:
           - Runtime (Tomcat): configuration-runtime.md

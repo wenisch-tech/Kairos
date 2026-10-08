@@ -70,3 +70,5 @@ https://<your-kairos-host>/login/oauth2/code/oidc
 - OIDC users are auto-provisioned with `USER` role by default.
 - Set `OIDC_CREATEUSERS=false` when you want OIDC login to be limited to users that already exist in Kairos.
 - Promote users to `ADMIN` in **Admin -> Users** when needed.
+
+See [User Management](user-management.md) for the administrator workflow for local users, password changes, and OIDC accounts. OIDC passwords are managed by the identity provider and cannot be changed in Kairos.

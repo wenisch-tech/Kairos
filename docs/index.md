@@ -13,6 +13,7 @@ This site is built automatically from the Markdown files in this folder and publ
 
 - [Configuration](configuration.md)
 - [Authentication](authentication.md)
+- [User Management](user-management.md)
 - [REST API](api.md)
 - [Import / Export](importexport.md)
 - [Docker Pullability](docker-pullability.md)

@@ -100,6 +100,20 @@ public class UserService implements UserDetailsService {
         });
     }
 
+    @Transactional
+    public Optional<AppUser> updatePassword(Long id, String password) {
+        if (password == null || password.length() < 8) {
+            throw new IllegalArgumentException("Password must contain at least 8 characters.");
+        }
+        return userRepository.findById(id).map(user -> {
+            if (user.getProvider() != AuthProvider.LOCAL) {
+                throw new IllegalStateException("Passwords can only be changed for local users.");
+            }
+            user.setPasswordHash(passwordEncoder.encode(password));
+            return userRepository.save(user);
+        });
+    }
+
     public List<AppUser> findAll() {
         return userRepository.findAll();
     }

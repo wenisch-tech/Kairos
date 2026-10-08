@@ -916,6 +916,29 @@ public class AdminController {
         return "redirect:/admin/users";
     }
 
+    @PostMapping("/users/update-password/{id}")
+    public String updateUserPassword(@PathVariable Long id,
+                                     @RequestParam String password,
+                                     @RequestParam String passwordConfirmation,
+                                     RedirectAttributes redirectAttributes) {
+        if (!Objects.equals(password, passwordConfirmation)) {
+            redirectAttributes.addFlashAttribute("errorMessage", "The passwords do not match.");
+            return "redirect:/admin/users";
+        }
+        try {
+            AppUser updatedUser = userService.updatePassword(id, password).orElse(null);
+            if (updatedUser == null) {
+                redirectAttributes.addFlashAttribute("errorMessage", "User not found.");
+            } else {
+                redirectAttributes.addFlashAttribute("successMessage",
+                        "Password updated: " + updatedUser.getEmail());
+            }
+        } catch (IllegalArgumentException | IllegalStateException exception) {
+            redirectAttributes.addFlashAttribute("errorMessage", exception.getMessage());
+        }
+        return "redirect:/admin/users";
+    }
+
     @GetMapping("/api-keys")
     public String apiKeys(Model model) {
         model.addAttribute("apiKeys", apiKeyService.findAllOrderedByCreatedAtDesc());

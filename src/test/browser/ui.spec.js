@@ -6,10 +6,10 @@ async function navigate(page, url) {
   return response;
 }
 
-async function login(page) {
+async function login(page, email = 'admin@kairos.local', password = 'admin') {
   await navigate(page, '/login');
-  await page.getByLabel('Email', { exact:true }).fill('admin@kairos.local');
-  await page.getByLabel('Password', { exact:true }).fill('admin');
+  await page.getByLabel('Email', { exact:true }).fill(email);
+  await page.getByLabel('Password', { exact:true }).fill(password);
   await Promise.all([
     page.waitForURL(url => !url.pathname.endsWith('/login'), { waitUntil:'domcontentloaded' }),
     page.getByRole('button', { name:'Sign In', exact:true }).click()
@@ -192,6 +192,45 @@ test('API key permissions default to read only and can select full access', asyn
   for (const checkbox of await permissions.all()) {
     await expect(checkbox).toBeChecked();
   }
+});
+
+test('local user password can be changed and used to sign in', async ({ page }) => {
+  const email = 'password-test@kairos.local';
+  const initialPassword = 'InitialPass123';
+  const updatedPassword = 'UpdatedPass456';
+
+  await login(page);
+  await navigate(page, '/admin/users');
+  await page.getByRole('button', { name:'Add User', exact:true }).click();
+  const addDialog = page.getByRole('dialog', { name:'Add Local User', exact:true });
+  await addDialog.getByLabel('Email', { exact:true }).fill(email);
+  await addDialog.getByLabel('Password', { exact:true }).fill(initialPassword);
+  await addDialog.getByLabel('Role', { exact:true }).selectOption('ADMIN');
+  await addDialog.getByRole('button', { name:'Add User', exact:true }).click();
+
+  const row = page.getByRole('row').filter({ hasText:email });
+  await expect(row).toBeVisible();
+  await row.getByRole('button', { name:'Change password', exact:true }).click();
+  await row.getByLabel('New password').fill(updatedPassword);
+  await row.getByLabel('Confirm password').fill('does-not-match');
+  await expect(row.getByText('The passwords do not match.')).toBeVisible();
+  await expect(row.getByRole('button', { name:'Save password', exact:true })).toBeDisabled();
+  await row.getByLabel('Confirm password').fill(updatedPassword);
+  await row.getByRole('button', { name:'Save password', exact:true }).click();
+  await expect(page.locator('.ui-alert-success')).toContainText(`Password updated: ${email}`);
+
+  await page.getByRole('button', { name:'Sign out' }).click();
+  await login(page, email, updatedPassword);
+  await expect(page).toHaveURL(/\/$/);
+  await navigate(page, '/admin/users');
+  await expect(page.getByRole('heading', { name:'User Management' })).toBeVisible();
+
+  await page.getByRole('button', { name:'Sign out' }).click();
+  await login(page);
+  await navigate(page, '/admin/users');
+  page.once('dialog', dialog => dialog.accept());
+  await page.getByRole('row').filter({ hasText:email }).getByRole('button', { name:'Delete' }).click();
+  await expect(page.getByRole('row').filter({ hasText:email })).toHaveCount(0);
 });
 
 test('announcement editor preserves rich content', async ({ page }) => {

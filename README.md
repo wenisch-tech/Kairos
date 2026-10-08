@@ -80,7 +80,7 @@ Open **http://localhost:8080** in your browser.
 |-------|----------|
 | `admin@kairos.local` | `admin` |
 
-> Warning: Change the default password immediately after first login via **Admin -> Users**.
+> Warning: Change the default password immediately after first login via **Admin → Users → Change password**. Local passwords must contain at least eight characters.
 
 
 

@@ -223,6 +223,64 @@ class UserServiceTest {
     }
 
     @Test
+    void updatePasswordEncodesReplacementForLocalUser() {
+        AppUser existing = AppUser.builder()
+                .id(5L)
+                .email("user@example.com")
+                .passwordHash(passwordEncoder.encode("old-password"))
+                .role(UserRole.ADMIN)
+                .provider(AuthProvider.LOCAL)
+                .build();
+        when(userRepository.findById(5L)).thenReturn(Optional.of(existing));
+        when(userRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        Optional<AppUser> result = userService.updatePassword(5L, "new-password");
+
+        assertThat(result).contains(existing);
+        assertThat(passwordEncoder.matches("new-password", existing.getPasswordHash())).isTrue();
+        assertThat(existing.getPasswordHash()).doesNotContain("new-password");
+        assertThat(existing.getEmail()).isEqualTo("user@example.com");
+        assertThat(existing.getRole()).isEqualTo(UserRole.ADMIN);
+        verify(userRepository).save(existing);
+    }
+
+    @Test
+    void updatePasswordRejectsOidcUser() {
+        AppUser existing = AppUser.builder()
+                .id(6L)
+                .email("oidc@example.com")
+                .passwordHash("")
+                .role(UserRole.USER)
+                .provider(AuthProvider.OIDC)
+                .build();
+        when(userRepository.findById(6L)).thenReturn(Optional.of(existing));
+
+        assertThatThrownBy(() -> userService.updatePassword(6L, "new-password"))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("Passwords can only be changed for local users.");
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void updatePasswordRejectsShortPasswordBeforeLookingUpUser() {
+        assertThatThrownBy(() -> userService.updatePassword(5L, "short"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Password must contain at least 8 characters.");
+        verify(userRepository, never()).findById(any());
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void updatePasswordReturnsEmptyForUnknownUser() {
+        when(userRepository.findById(404L)).thenReturn(Optional.empty());
+
+        Optional<AppUser> result = userService.updatePassword(404L, "new-password");
+
+        assertThat(result).isEmpty();
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
     void findAllDelegatesToRepository() {
         AppUser user = AppUser.builder().email("a@b.com").build();
         when(userRepository.findAll()).thenReturn(List.of(user));

@@ -95,7 +95,15 @@ First startup creates:
 
 - `admin@kairos.local` / `admin`
 
-Change this password immediately after first login.
+Change this password immediately after first login:
+
+1. Open **Admin → Users**.
+2. Select **Change password** beside the local administrator account.
+3. Enter and confirm a password containing at least eight characters, then select **Save password**.
+
+Administrators can change passwords for any `LOCAL` user. OIDC passwords remain managed by the configured identity provider. Changing a password does not alter the user's role or email address.
+
+For the complete account lifecycle, including local account creation, role selection, password changes, and OIDC provisioning, see [User Management](user-management.md).
 
 ## Credential Storage Note
 

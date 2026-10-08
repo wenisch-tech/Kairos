@@ -38,7 +38,9 @@ Default credentials on first startup:
 |-------|----------|
 | `admin@kairos.local` | `admin` |
 
-Change the default password immediately after first login in **Admin -> Users**.
+Change the default password immediately after first login in **Admin → Users → Change password**. Local passwords must contain at least eight characters; OIDC passwords are managed by the identity provider.
+
+See the [User Management guide](user-management.md) for creating local accounts, assigning roles, changing passwords, and handling OIDC users.
 
 ---
 
