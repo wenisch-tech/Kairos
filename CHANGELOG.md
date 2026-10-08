@@ -1,5 +1,20 @@
 # Changelog
 
+## v2.24.0 - 2026-10-08
+
+## [2.24.0](https://github.com/wenisch-tech/Kairos/compare/v2.23.0...v2.24.0) (2026-10-08)
+
+
+### Features
+
+* allow update of passwords for local users ([ee19e94](https://github.com/wenisch-tech/Kairos/commit/ee19e9419029cb988f32c3fe2aff89cd4cde8147))
+* fine-granular settings for api keys ([58627f7](https://github.com/wenisch-tech/Kairos/commit/58627f77e88fe18ee00ce3e2da308ae39a341f90))
+
+
+
+Docker image: ghcr.io/wenisch-tech/kairos:2.24.0
+
+
 ## v2.23.0 - 2026-10-07
 
 ## [2.23.0](https://github.com/wenisch-tech/Kairos/compare/v2.22.7...v2.23.0) (2026-10-07)
