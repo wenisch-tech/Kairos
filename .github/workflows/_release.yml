@@ -91,7 +91,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          helm plugin install https://github.com/karuppiah7890/helm-schema-gen.git
+          helm plugin install --verify=false https://github.com/karuppiah7890/helm-schema-gen.git
           helm schema-gen charts/kairos/values.yaml > charts/kairos/values.schema.json
 
       - name: Commit release files
