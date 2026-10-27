@@ -26,10 +26,10 @@
         <jackson-bom.version>3.1.8</jackson-bom.version>
         <log4j2.version>2.25.5</log4j2.version>
         <postgresql.version>42.7.14</postgresql.version>
-        <spring-ai.version>2.0.1</spring-ai.version>
+        <spring-ai.version>2.0.2</spring-ai.version>
         <mcp-sdk.version>2.1.0</mcp-sdk.version>
         <springdoc-openapi.version>3.1.1</springdoc-openapi.version>
-        <native-build-tools.version>1.1.14</native-build-tools.version>
+        <native-build-tools.version>1.1.17</native-build-tools.version>
         <nimbus-jose-jwt.version>10.10</nimbus-jose-jwt.version>
     </properties>
 
@@ -209,7 +209,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.15</version>
+                <version>0.8.16</version>
                 <executions>
                     <execution>
                         <id>prepare-agent</id>
