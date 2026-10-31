@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.24.7 - 2026-10-31
+
+### [2.24.7](https://github.com/wenisch-tech/Kairos/compare/v2.24.6...v2.24.7) (2026-10-31)
+
+
+### Bug Fixes
+
+* **deps:** update maven minor updates ([c12266f](https://github.com/wenisch-tech/Kairos/commit/c12266f419818977cd20ce0968d231bc7c4fc749))
+
+
+
+Docker image: ghcr.io/wenisch-tech/kairos:2.24.7
+
+
 ## v2.24.6 - 2026-10-23
 
 ### [2.24.6](https://github.com/wenisch-tech/Kairos/compare/v2.24.5...v2.24.6) (2026-10-23)
