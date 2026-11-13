@@ -446,7 +446,7 @@ public class AdminController {
         model.addAttribute("resourceGroups", resourceGroupService.findAllOrdered());
         model.addAttribute("groupVisibilityOptions", ResourceGroupVisibility.values());
         model.addAttribute("adminResourceGroups", buildAdminResourceGroups(resources, groups));
-        model.addAttribute("resourceTypes", ResourceType.values());
+        model.addAttribute("resourceTypes", ResourceType.manuallyCreatable());
         return "admin/resources";
     }
 
@@ -636,7 +636,7 @@ public class AdminController {
                 .map(resource -> {
                     model.addAttribute("resource", resource);
                     model.addAttribute("resourceGroups", resourceGroupService.findAllOrdered());
-                    model.addAttribute("resourceTypes", ResourceType.values());
+                    model.addAttribute("resourceTypes", ResourceType.manuallyCreatable());
                     return "admin/resource-edit";
                 })
                 .orElseGet(() -> {

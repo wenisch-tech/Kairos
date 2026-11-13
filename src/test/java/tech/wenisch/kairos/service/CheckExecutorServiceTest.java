@@ -60,6 +60,9 @@ class CheckExecutorServiceTest {
     private DiscoveryServiceConfigRepository discoveryConfigRepository;
 
     @Mock
+    private LiteLlmSyncService liteLlmSyncService;
+
+    @Mock
     private CheckAuditService checkAuditService;
 
     private CheckExecutorService checkExecutorService;
@@ -72,6 +75,7 @@ class CheckExecutorServiceTest {
                 tcpCheckService,
                 dockerRepositorySyncService,
                 openshiftRouteSyncService,
+                liteLlmSyncService,
                 resourceStatusStreamService,
                 resourceRepository,
                 configRepository,

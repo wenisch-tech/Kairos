@@ -41,7 +41,7 @@
                         <div class="mb-4">
                             <label class="ui-form-label">Target</label>
                             <input type="text" class="ui-form-control" name="target" required maxlength="1000" th:value="${discovery.target}">
-                            <div class="ui-form-text">Registry namespace, for example ghcr.io/owner or registry.example.com/team.</div>
+                            <div class="ui-form-text">Docker: registry namespace, for example ghcr.io/owner. OpenShift: API URL. LiteLLM: proxy base URL, for example https://litellm.example.com (models come from <code>/health</code>; the token is a bearer credential matching this URL).</div>
                         </div>
                         <div class="ui-form-check mb-4">
                             <input class="ui-form-check-input" type="checkbox" id="skipTLS" name="skipTLS" value="true"

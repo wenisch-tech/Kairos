@@ -38,6 +38,7 @@ public class CheckExecutorService {
     private final TcpCheckService tcpCheckService;
     private final DockerRepositorySyncService dockerRepositorySyncService;
     private final OpenshiftRouteSyncService openshiftRouteSyncService;
+    private final LiteLlmSyncService liteLlmSyncService;
     private final ResourceStatusStreamService resourceStatusStreamService;
     private final MonitoredResourceRepository resourceRepository;
     private final ResourceTypeConfigRepository configRepository;
@@ -55,6 +56,7 @@ public class CheckExecutorService {
             TcpCheckService tcpCheckService,
             DockerRepositorySyncService dockerRepositorySyncService,
             OpenshiftRouteSyncService openshiftRouteSyncService,
+            LiteLlmSyncService liteLlmSyncService,
             ResourceStatusStreamService resourceStatusStreamService,
             MonitoredResourceRepository resourceRepository,
             ResourceTypeConfigRepository configRepository,
@@ -66,6 +68,7 @@ public class CheckExecutorService {
         this.tcpCheckService = tcpCheckService;
         this.dockerRepositorySyncService = dockerRepositorySyncService;
         this.openshiftRouteSyncService = openshiftRouteSyncService;
+        this.liteLlmSyncService = liteLlmSyncService;
         this.resourceStatusStreamService = resourceStatusStreamService;
         this.resourceRepository = resourceRepository;
         this.configRepository = configRepository;
@@ -79,6 +82,8 @@ public class CheckExecutorService {
         long now = System.currentTimeMillis();
 
         for (ResourceType type : ResourceType.values()) {
+            // LiteLLM model resources are checked by their discovery sync (via the /health endpoint), not individually.
+            if (type == ResourceType.LITELLM_MODEL) continue;
             String typeName = type.name();
             ResourceTypeConfig config = configRepository.findByTypeName(typeName).orElse(null);
             if (config == null) continue;
@@ -138,7 +143,7 @@ public class CheckExecutorService {
             return false;
         }
         ResourceType type = resource.getResourceType();
-        if (type == null) {
+        if (type == null || type == ResourceType.LITELLM_MODEL) {
             return false;
         }
         int parallelism = configRepository.findByTypeName(type.name())
@@ -155,7 +160,7 @@ public class CheckExecutorService {
         }
 
         ResourceType type = resource.getResourceType();
-        if (type == null) {
+        if (type == null || type == ResourceType.LITELLM_MODEL) {
             return false;
         }
 
@@ -294,6 +299,8 @@ public class CheckExecutorService {
                 dockerRepositorySyncService.sync(discovery);
             } else if (discovery.getType() == DiscoveryServiceType.OPENSHIFT_ROUTE) {
                 openshiftRouteSyncService.sync(discovery);
+            } else if (discovery.getType() == DiscoveryServiceType.LITELLM) {
+                liteLlmSyncService.sync(discovery);
             }
         } catch (Exception e) {
             log.error("Error syncing discovery service {}: {}", discovery.getName(), e.getMessage(), e);

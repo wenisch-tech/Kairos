@@ -77,7 +77,8 @@
                             </div>
                             <div class="md:col-span-6">
                                 <label class="ui-form-label">Target</label>
-                                <input type="text" class="ui-form-control" name="target" placeholder="ghcr.io/owner" required>
+                                <input type="text" class="ui-form-control" name="target" placeholder="ghcr.io/owner, https://openshift-api:6443 or https://litellm.example.com" required>
+                                <div class="ui-form-text">Docker: registry namespace. OpenShift: API URL. LiteLLM: proxy base URL &ndash; every model reported by <code>/health</code> becomes a resource; add the token as a bearer credential for the URL below.</div>
                             </div>
                             <div class="md:col-span-12 flex flex-wrap gap-4 discovery-options">
                                 <div class="ui-form-check">

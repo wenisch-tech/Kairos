@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import tech.wenisch.kairos.entity.DiscoveryServiceAuth;
 import tech.wenisch.kairos.entity.DiscoveryServiceConfig;
+import tech.wenisch.kairos.entity.DiscoveryServiceType;
 import tech.wenisch.kairos.entity.ResourceDiscovery;
 import tech.wenisch.kairos.entity.ResourceGroup;
 import tech.wenisch.kairos.entity.ResourceType;
@@ -160,7 +161,7 @@ public class ResourceDiscoveryManagementService {
                     return;
                 }
                 var managedResources = resourceRepository
-                        .findByGroups_IdAndResourceType(group.getId(), ResourceType.DOCKER);
+                        .findByGroups_IdAndResourceType(group.getId(), managedResourceType(discovery));
                 for (var resource : managedResources) {
                     var outages = outageRepository.findByResourceOrderByStartDateDesc(resource);
                     outageRepository.deleteAll(outages);
@@ -173,6 +174,10 @@ public class ResourceDiscoveryManagementService {
                 }
             });
         }
+    }
+
+    private ResourceType managedResourceType(ResourceDiscovery discovery) {
+        return discovery.getType() == DiscoveryServiceType.LITELLM ? ResourceType.LITELLM_MODEL : ResourceType.DOCKER;
     }
 
     // ── Auth lookup ─────────────────────────────────────────────────────────

@@ -16,7 +16,8 @@ public interface MonitoredResourceRepository extends JpaRepository<MonitoredReso
             where r.active = true
                 and r.resourceType in (
                     tech.wenisch.kairos.entity.ResourceType.HTTP,
-                    tech.wenisch.kairos.entity.ResourceType.DOCKER
+                    tech.wenisch.kairos.entity.ResourceType.DOCKER,
+                    tech.wenisch.kairos.entity.ResourceType.LITELLM_MODEL
                 )
             order by r.displayOrder asc
             """)

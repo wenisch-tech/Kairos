@@ -109,6 +109,22 @@ public class DataInitializer implements ApplicationRunner {
             log.info("Created default ResourceTypeConfig for TCP");
         }
 
+        if (resourceTypeConfigRepository.findByTypeName("LITELLM_MODEL").isEmpty()) {
+            resourceTypeConfigRepository.save(ResourceTypeConfig.builder()
+                    .typeName("LITELLM_MODEL")
+                    .checkIntervalMinutes(5)
+                    .parallelism(1)
+                    .allowPublicAdd(false)
+                    .checkHistoryRetentionEnabled(true)
+                    .checkHistoryRetentionIntervalMinutes(60)
+                    .checkHistoryRetentionDays(31)
+                    .outageRetentionEnabled(true)
+                    .outageRetentionIntervalHours(12)
+                    .outageRetentionDays(31)
+                    .build());
+            log.info("Created default ResourceTypeConfig for LITELLM_MODEL");
+        }
+
         resourceTypeConfigRepository.findByTypeName("DOCKERREPOSITORY").ifPresent(resourceTypeConfigRepository::delete);
 
         if (discoveryServiceConfigRepository.findByTypeName("DOCKER_REPOSITORY").isEmpty()) {
@@ -118,6 +134,15 @@ public class DataInitializer implements ApplicationRunner {
                     .parallelism(1)
                     .build());
             log.info("Created default DiscoveryServiceConfig for DOCKER_REPOSITORY");
+        }
+
+        if (discoveryServiceConfigRepository.findByTypeName("LITELLM").isEmpty()) {
+            discoveryServiceConfigRepository.save(DiscoveryServiceConfig.builder()
+                    .typeName("LITELLM")
+                    .syncIntervalMinutes(5)
+                    .parallelism(1)
+                    .build());
+            log.info("Created default DiscoveryServiceConfig for LITELLM");
         }
     }
 }

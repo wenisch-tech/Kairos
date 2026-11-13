@@ -129,7 +129,7 @@ public class HomeController {
         model.addAttribute("allowPublicAdd", allowPublicAdd);
         model.addAttribute("allowResourceSubmit", allowResourceSubmit);
         model.addAttribute("showResourceUrl", shouldShowResourceUrl(authentication));
-        model.addAttribute("resourceTypes", ResourceType.values());
+        model.addAttribute("resourceTypes", ResourceType.manuallyCreatable());
         InstantCheckService.InstantCheckSettings instantCheckSettings = instantCheckService.getSettings();
         model.addAttribute("instantCheckEnabled", instantCheckSettings.enabled());
         model.addAttribute("instantCheckAvailableForCurrentUser",

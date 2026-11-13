@@ -18,6 +18,7 @@ Settings are managed in **Admin -> Resource Types**.
 |------------------------|-----------------------|---------------------|
 | DOCKER_REPOSITORY | 60 minutes | 1 thread |
 | OPENSHIFT_ROUTE | 60 minutes | 1 thread |
+| LITELLM | 5 minutes | 1 thread |
 
 Settings are managed in **Admin -> Resource Discovery**.
 
@@ -128,3 +129,19 @@ oc annotate route <route-name> -n <namespace> kairos.wenisch.tech/scrape-
 |--------|---------|----------|
 | Only scrape tagged resources | disabled | All routes are imported |
 | Only scrape tagged resources | enabled | Only routes with `kairos.wenisch.tech/scrape: "true"` are imported |
+
+## LITELLM Discovery Behavior
+
+`LITELLM` discovery turns a [LiteLLM](https://docs.litellm.ai/) proxy into a group of monitored models.
+
+1. Add a discovery service of type `LITELLM` under **Admin -> Resource Discovery**. The target is the proxy base URL, for example `https://litellm.example.com`.
+2. Add a **Bearer** credential in the same page whose URL pattern matches the target (for example `https://litellm.example.com*`). The token goes into the password field.
+3. On every sync Kairos calls `GET {url}/health` and creates one `LITELLM_MODEL` resource per model listed in `healthy_endpoints` and `unhealthy_endpoints`, grouped under the discovery service name.
+
+Each sync also records a check result per model (`healthy_endpoints` -> available, `unhealthy_endpoints` -> not available, with LiteLLM's error as message), so history, uptime, outages and notifications work like for any other resource. If the proxy itself cannot be reached or rejects the token, all of its models are recorded as not available. Models that disappear from the health report are removed.
+
+Notes:
+
+- `/health` makes a live request to every configured model, so keep the sync interval reasonable (default 5 minutes; the request timeout is 120 seconds).
+- Models served by several deployments with the same name are listed as `model (api_base)`.
+- `LITELLM_MODEL` resources are managed by discovery only and cannot be added manually.
