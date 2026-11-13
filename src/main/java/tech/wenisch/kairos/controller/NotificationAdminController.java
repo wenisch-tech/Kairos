@@ -77,6 +77,9 @@ public class NotificationAdminController {
             @RequestParam(required = false) String webhookUrl,
             @RequestParam(required = false) String webhookBodyTemplate,
             @RequestParam(required = false) String discordWebhookUrl,
+            @RequestParam(required = false) String gitlabBaseUrl,
+            @RequestParam(required = false) String gitlabProjectId,
+            @RequestParam(required = false) String gitlabToken,
             RedirectAttributes redirectAttributes) {
         NotificationProvider provider = NotificationProvider.builder()
                 .name(name)
@@ -91,6 +94,9 @@ public class NotificationAdminController {
                 .webhookUrl(nullIfBlank(webhookUrl))
                 .webhookBodyTemplate(nullIfBlank(webhookBodyTemplate))
                 .discordWebhookUrl(nullIfBlank(discordWebhookUrl))
+                .gitlabBaseUrl(nullIfBlank(gitlabBaseUrl))
+                .gitlabProjectId(nullIfBlank(gitlabProjectId))
+                .gitlabToken(nullIfBlank(gitlabToken))
                 .build();
         notificationProviderService.save(provider);
         redirectAttributes.addFlashAttribute("successMessage", "Notification provider '" + name + "' created.");
@@ -125,6 +131,9 @@ public class NotificationAdminController {
             @RequestParam(required = false) String webhookUrl,
             @RequestParam(required = false) String webhookBodyTemplate,
             @RequestParam(required = false) String discordWebhookUrl,
+            @RequestParam(required = false) String gitlabBaseUrl,
+            @RequestParam(required = false) String gitlabProjectId,
+            @RequestParam(required = false) String gitlabToken,
             RedirectAttributes redirectAttributes) {
         notificationProviderService.findById(id).ifPresent(provider -> {
             provider.setName(name);
@@ -139,6 +148,9 @@ public class NotificationAdminController {
             provider.setWebhookUrl(nullIfBlank(webhookUrl));
             provider.setWebhookBodyTemplate(nullIfBlank(webhookBodyTemplate));
             provider.setDiscordWebhookUrl(nullIfBlank(discordWebhookUrl));
+            provider.setGitlabBaseUrl(nullIfBlank(gitlabBaseUrl));
+            provider.setGitlabProjectId(nullIfBlank(gitlabProjectId));
+            provider.setGitlabToken(nullIfBlank(gitlabToken));
             notificationProviderService.save(provider);
         });
         redirectAttributes.addFlashAttribute("successMessage", "Notification provider updated.");
