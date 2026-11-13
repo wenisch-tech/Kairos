@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.25.2 - 2026-11-13
+
+### [2.25.2](https://github.com/wenisch-tech/Kairos/compare/v2.25.1...v2.25.2) (2026-11-13)
+
+
+### Bug Fixes
+
+* resolved prolem with dependencies leading to inconsistent responive behaviour ([02adabc](https://github.com/wenisch-tech/Kairos/commit/02adabc47a5627c9cbab54de2ce7a4eb18cd3028))
+
+
+
+Docker image: ghcr.io/wenisch-tech/kairos:2.25.2
+
+
 ## v2.24.7 - 2026-10-31
 
 ### [2.24.7](https://github.com/wenisch-tech/Kairos/compare/v2.24.6...v2.24.7) (2026-10-31)
