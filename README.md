@@ -289,6 +289,7 @@ Licensed under
 [AGPL v3.0](LICENSE.md) by  [Jean-Fabian Wenisch](https://github.com/jfwenisch) / wenisch.tech [wenisch.tech](https://wenisch.tech) 
 
 
+
 ### Frontend development
 
 Kairos uses server-rendered Thymeleaf pages styled with Tailwind CSS. Alpine.js
