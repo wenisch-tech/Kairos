@@ -52,4 +52,24 @@ class LiteLlmSyncServiceTest {
         assertEquals("http://llm:4000", LiteLlmSyncService.normalizeBaseUrl("http://llm:4000/health"));
         assertThrows(IllegalArgumentException.class, () -> LiteLlmSyncService.normalizeBaseUrl(" "));
     }
+
+    @Test
+    void addsAliasesFromModelInfoWithHealthOfTheirTarget() throws Exception {
+        String health = """
+                {"healthy_endpoints":[{"model":"openai/gpt-4o","api_base":"https://a"}],
+                 "unhealthy_endpoints":[{"model":"anthropic/claude","error":"boom"}]}
+                """;
+        String info = """
+                {"data":[
+                 {"model_name":"fast","litellm_params":{"model":"openai/gpt-4o","api_base":"https://a"}},
+                 {"model_name":"smart","litellm_params":{"model":"anthropic/claude"}}]}
+                """;
+        List<LiteLlmSyncService.ModelHealth> models = service.parseHealth(health, service.parseModelInfo(info));
+        assertEquals(4, models.size());
+        var byName = new java.util.HashMap<String, LiteLlmSyncService.ModelHealth>();
+        models.forEach(m -> byName.put(m.name(), m));
+        assertTrue(byName.get("fast").healthy());
+        assertFalse(byName.get("smart").healthy());
+        assertEquals("boom", byName.get("smart").message());
+    }
 }

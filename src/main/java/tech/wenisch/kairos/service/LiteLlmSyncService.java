@@ -77,7 +77,14 @@ public class LiteLlmSyncService {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     /** One model as reported by the health endpoint. */
-    record ModelHealth(String name, String apiBase, boolean healthy, String message) {}
+    record ModelHealth(String name, String apiBase, boolean healthy, String message, String model) {
+        ModelHealth(String name, String apiBase, boolean healthy, String message) {
+            this(name, apiBase, healthy, message, null);
+        }
+    }
+
+    /** A configured deployment from {@code /model/info}: the public (alias) name and what it routes to. */
+    record Deployment(String name, String model, String apiBase) {}
 
     public void sync(ResourceDiscovery discovery) {
         String baseUrl = normalizeBaseUrl(discovery.getTarget());
@@ -94,7 +101,7 @@ public class LiteLlmSyncService {
             if (response.statusCode() != 200) {
                 throw new IllegalStateException("LiteLLM health endpoint returned HTTP " + response.statusCode());
             }
-            models = parseHealth(response.body());
+            models = parseHealth(response.body(), fetchDeployments(baseUrl, discovery));
         } catch (Exception ex) {
             log.warn("LiteLLM health request to {} failed: {}", baseUrl, ex.getMessage());
             String reason = ex.getMessage() == null ? ex.getClass().getSimpleName() : ex.getMessage();
@@ -198,6 +205,16 @@ public class LiteLlmSyncService {
      * deployments behind the same model) are disambiguated with their api base.
      */
     List<ModelHealth> parseHealth(String body) throws Exception {
+        return parseHealth(body, List.of());
+    }
+
+    /**
+     * Like {@link #parseHealth(String)}, but additionally exposes every configured model name /
+     * alias from {@code /model/info}. {@code /health} only reports the underlying provider model
+     * (e.g. {@code openai/gpt-4o}), so an alias such as {@code my-fast-model} would otherwise be
+     * missing. An alias inherits the health of the deployment it routes to.
+     */
+    List<ModelHealth> parseHealth(String body, List<Deployment> deployments) throws Exception {
         JsonNode root = objectMapper.readTree(body);
         JsonNode healthy = root.path("healthy_endpoints");
         JsonNode unhealthy = root.path("unhealthy_endpoints");
@@ -220,6 +237,8 @@ public class LiteLlmSyncService {
             }
         }
 
+        raw.addAll(aliasesFor(raw, deployments));
+
         Map<String, Integer> nameCounts = new HashMap<>();
         raw.forEach(m -> nameCounts.merge(m.name().toLowerCase(Locale.ROOT), 1, Integer::sum));
 
@@ -228,11 +247,76 @@ public class LiteLlmSyncService {
             boolean ambiguous = nameCounts.get(m.name().toLowerCase(Locale.ROOT)) > 1
                     && m.apiBase() != null && !m.apiBase().isBlank();
             result.add(ambiguous
-                    ? new ModelHealth(m.name() + " (" + m.apiBase() + ")", m.apiBase(), m.healthy(), m.message())
+                    ? new ModelHealth(m.name() + " (" + m.apiBase() + ")", m.apiBase(), m.healthy(), m.message(), m.model())
                     : m);
         }
         result.sort(Comparator.comparing(m -> m.name().toLowerCase(Locale.ROOT)));
         return result;
+    }
+
+    /** Entries for deployment names that /health did not report under that name. */
+    private static List<ModelHealth> aliasesFor(List<ModelHealth> health, List<Deployment> deployments) {
+        Set<String> known = new HashSet<>();
+        health.forEach(h -> known.add(h.name().toLowerCase(Locale.ROOT)));
+        List<ModelHealth> extra = new ArrayList<>();
+        Set<String> seen = new HashSet<>();
+        for (Deployment d : deployments) {
+            if (d.model() == null) continue;
+            if (!seen.add((d.name() + "|" + d.model() + "|" + d.apiBase()).toLowerCase(Locale.ROOT))) continue;
+            if (known.contains(d.name().toLowerCase(Locale.ROOT)) && !isAliasOf(d, health)) continue;
+            List<ModelHealth> matches = new ArrayList<>();
+            for (ModelHealth h : health) {
+                if (h.model() != null && h.model().equalsIgnoreCase(d.model())
+                        && (blank(d.apiBase()) || blank(h.apiBase()) || d.apiBase().equalsIgnoreCase(h.apiBase()))) {
+                    matches.add(h);
+                }
+            }
+            if (matches.isEmpty()) continue; // not covered by /health -> status unknown
+            ModelHealth bad = matches.stream().filter(h -> !h.healthy()).findFirst().orElse(null);
+            extra.add(new ModelHealth(d.name(), d.apiBase() != null ? d.apiBase() : matches.get(0).apiBase(),
+                    bad == null, bad == null ? "Healthy" : bad.message(), d.model()));
+        }
+        return extra;
+    }
+
+    private static boolean isAliasOf(Deployment d, List<ModelHealth> health) {
+        // A health entry that already carries the alias name (model_name) needs no extra entry.
+        return health.stream().noneMatch(h -> h.name().equalsIgnoreCase(d.name())
+                && (blank(h.apiBase()) || blank(d.apiBase()) || h.apiBase().equalsIgnoreCase(d.apiBase())));
+    }
+
+    private static boolean blank(String s) {
+        return s == null || s.isBlank();
+    }
+
+    /** Parses {@code /model/info}. */
+    List<Deployment> parseModelInfo(String body) throws Exception {
+        List<Deployment> result = new ArrayList<>();
+        JsonNode data = objectMapper.readTree(body).path("data");
+        if (!data.isArray()) return result;
+        for (JsonNode node : data) {
+            String name = text(node, "model_name");
+            JsonNode params = node.path("litellm_params");
+            String model = text(params, "model");
+            if (name != null && model != null) {
+                result.add(new Deployment(name, model, text(params, "api_base")));
+            }
+        }
+        return result;
+    }
+
+    /** Best effort: without access to /model/info only the models from /health are shown. */
+    private List<Deployment> fetchDeployments(String baseUrl, ResourceDiscovery discovery) {
+        try {
+            HttpResponse<String> response = send(baseUrl, "/model/info", discovery);
+            if (response.statusCode() == 200) {
+                return parseModelInfo(response.body());
+            }
+            log.debug("LiteLLM /model/info returned HTTP {}; aliases will not be listed", response.statusCode());
+        } catch (Exception ex) {
+            log.debug("LiteLLM /model/info unavailable ({}); aliases will not be listed", ex.getMessage());
+        }
+        return List.of();
     }
 
     private ModelHealth toModel(JsonNode node, boolean healthy) {
@@ -241,7 +325,7 @@ public class LiteLlmSyncService {
         if (name == null) return null;
         String apiBase = text(node, "api_base");
         String message = healthy ? "Healthy" : firstNonBlank(text(node, "error"), "Reported unhealthy by LiteLLM");
-        return new ModelHealth(name, apiBase, healthy, message);
+        return new ModelHealth(name, apiBase, healthy, message, text(node, "model"));
     }
 
     private static String text(JsonNode node, String field) {
@@ -284,8 +368,12 @@ public class LiteLlmSyncService {
     // ── HTTP ────────────────────────────────────────────────────────────────
 
     private HttpResponse<String> fetchHealth(String baseUrl, ResourceDiscovery discovery) throws Exception {
+        return send(baseUrl, "/health", discovery);
+    }
+
+    private HttpResponse<String> send(String baseUrl, String path, ResourceDiscovery discovery) throws Exception {
         HttpRequest.Builder request = HttpRequest.newBuilder()
-                .uri(URI.create(baseUrl + "/health"))
+                .uri(URI.create(baseUrl + path))
                 .timeout(HEALTH_TIMEOUT)
                 .header("Accept", "application/json")
                 .header("User-Agent", USER_AGENT)

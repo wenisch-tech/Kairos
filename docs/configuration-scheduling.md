@@ -143,5 +143,6 @@ Each sync also records a check result per model (`healthy_endpoints` -> availabl
 Notes:
 
 - `/health` makes a live request to every configured model, so keep the sync interval reasonable (default 5 minutes; the request timeout is 120 seconds).
+- `/health` only reports the underlying provider models, so Kairos also reads `GET {url}/model/info` (best effort) and lists every configured model name/alias, using the health of the deployment it routes to. If the token cannot access `/model/info`, only the `/health` models are shown.
 - Models served by several deployments with the same name are listed as `model (api_base)`.
 - `LITELLM_MODEL` resources are managed by discovery only and cannot be added manually.
