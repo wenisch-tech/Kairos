@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.25.4 - 2026-11-23
+
+### [2.25.4](https://github.com/wenisch-tech/Kairos/compare/v2.25.3...v2.25.4) (2026-11-23)
+
+
+### Bug Fixes
+
+* ensure all alias models are fetched in litellm discovery ([05459c4](https://github.com/wenisch-tech/Kairos/commit/05459c4b92e3ba2041bc053a5b6c9c0b05c8008c))
+
+
+
+Docker image: ghcr.io/wenisch-tech/kairos:2.25.4
+
+
 ## v2.25.3 - 2026-11-18
 
 ### [2.25.3](https://github.com/wenisch-tech/Kairos/compare/v2.25.2...v2.25.3) (2026-11-18)
