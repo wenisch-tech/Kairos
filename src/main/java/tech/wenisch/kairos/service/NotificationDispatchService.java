@@ -27,6 +27,7 @@ public class NotificationDispatchService {
     private final WebhookNotificationService webhookNotificationService;
     private final DiscordNotificationService discordNotificationService;
     private final GitLabNotificationService gitLabNotificationService;
+    private final MattermostNotificationService mattermostNotificationService;
 
     @Transactional(readOnly = true)
     public void dispatch(NotificationEvent event, Outage outage, MonitoredResource resource) {
@@ -46,6 +47,7 @@ public class NotificationDispatchService {
                     case WEBHOOK -> webhookNotificationService.sendOutageNotification(provider, event, outage, resource);
                     case DISCORD -> discordNotificationService.sendOutageNotification(provider, event, outage, resource);
                     case GITLAB  -> gitLabNotificationService.sendOutageNotification(provider, event, outage, resource);
+                    case MATTERMOST -> mattermostNotificationService.sendOutageNotification(provider, event, outage, resource);
                 }
             } catch (Exception e) {
                 log.error("Notification dispatch failed for policy '{}' (provider '{}', event {}): {}",
@@ -59,6 +61,7 @@ public class NotificationDispatchService {
             case EMAIL   -> emailNotificationService.sendTestNotification(provider);
             case WEBHOOK -> webhookNotificationService.sendTestNotification(provider);
             case DISCORD -> discordNotificationService.sendTestNotification(provider);
+            case MATTERMOST -> mattermostNotificationService.sendTestNotification(provider);
             case GITLAB  -> { try { gitLabNotificationService.sendTestNotification(provider); } catch (Exception e) { throw new RuntimeException(e); } }
         }
     }

@@ -58,6 +58,32 @@ Posts a rich embed (colored card) to a Discord channel via a webhook URL created
 
 ---
 
+## Mattermost
+
+Posts a colored message attachment to a Mattermost channel via an [incoming webhook](https://developers.mattermost.com/integrate/webhooks/incoming/).
+
+| Field | Description |
+|---|---|
+| **Mattermost Incoming Webhook URL** | e.g. `https://mattermost.example.com/hooks/xxxxxxxxxxxxxxxxxxxxxxxxxx` |
+| **Channel override** | Optional. Channel name, or `@username` for a direct message. Requires the webhook to allow overrides |
+| **Username override** | Optional display name for the posting bot |
+
+- Each message has a markdown headline (so push notifications and email digests show content) plus a colored attachment: **red** for outage start, **green** for resolved.
+- The attachment includes the resource name, type, target, start time, and on recovery the resolution time and **duration**. HTTP(S) targets are linked from the title, and the attachment carries a Kairos footer and timestamp.
+
+**How to get the webhook URL:** in Mattermost open **Integrations → Incoming Webhooks → Add Incoming Webhook**, pick a channel and copy the URL.
+
+---
+
+## Ignoring TLS errors
+
+Webhook, Discord, Mattermost and GitLab providers have an **Ignore TLS certificate and hostname errors** option for self-signed or internal endpoints. It is enabled by default for new providers. Independently of that option, TLS errors are also ignored when the resource that triggered the notification has **Ignore TLS** (`skipTLS`) enabled.
+
+!!! warning
+    Ignoring TLS errors disables certificate and hostname verification, so the connection can be intercepted. Use it only for trusted networks.
+
+---
+
 ## Webhook
 
 Sends an HTTP `POST` request to any URL you specify. You control the exact JSON body via a template with placeholder substitution.
@@ -134,6 +160,7 @@ Each provider has a **Send Test** button on the providers list page. The test:
 
 - **Email** — sends a test email to the configured recipient
 - **Discord** — posts a test message embed to the channel
+- **Mattermost** — posts a test attachment to the channel
 - **Webhook** — fires a `POST` with a sample payload
 - **GitLab** — performs a `GET` on the configured project to verify connectivity and token validity (no incident is created)
 

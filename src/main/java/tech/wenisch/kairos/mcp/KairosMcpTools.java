@@ -236,8 +236,10 @@ public class KairosMcpTools {
             + "Instant checks must be enabled in Admin → General Settings.")
     public Map<String, Object> runInstantCheck(
             @ToolParam(description = "The URL (for HTTP), Docker image reference (for DOCKER), or host:port (for TCP) to check") String target,
-            @ToolParam(description = "Resource type to use: HTTP, DOCKER, or TCP") String resourceType) {
+            @ToolParam(description = "Resource type to use: HTTP, DOCKER, or TCP") String resourceType,
+            @ToolParam(description = "Skip TLS certificate and hostname verification (default true)", required = false) Boolean skipTls) {
         requirePermission(ApiKeyPermission.CHECK_EXECUTE);
+        boolean skip = skipTls == null || skipTls;
         ResourceType type;
         try {
             type = ResourceType.valueOf(resourceType.toUpperCase());
@@ -246,11 +248,12 @@ public class KairosMcpTools {
         }
         try {
             tech.wenisch.kairos.dto.InstantCheckExecutionResult result =
-                    instantCheckService.runInstantCheck(type, target, false, false);
+                    instantCheckService.runInstantCheck(type, target, skip, false);
             String statusName = result.status() != null ? result.status().name() : "UNKNOWN";
             checkAuditService.record("Instant Check", null, target, "MCP", statusName);
             Map<String, Object> m = new LinkedHashMap<>();
             m.put("target", target);
+            m.put("skipTls", skip);
             m.put("status", statusName);
             m.put("message", result.message());
             m.put("errorCode", result.errorCode());
@@ -270,7 +273,7 @@ public class KairosMcpTools {
             @ToolParam(description = "Display name for the resource") String name,
             @ToolParam(description = "Resource type: HTTP, DOCKER, or TCP") String resourceType,
             @ToolParam(description = "Target URL (HTTP), Docker image reference (DOCKER), or host:port (TCP)") String target,
-            @ToolParam(description = "Skip TLS certificate verification: true or false") boolean skipTls) {
+            @ToolParam(description = "Skip TLS certificate verification (default true)", required = false) Boolean skipTls) {
         requirePermission(ApiKeyPermission.RESOURCE_MANAGE);
         ResourceType type;
         try {
@@ -282,7 +285,7 @@ public class KairosMcpTools {
                 .name(name)
                 .resourceType(type)
                 .target(target)
-                .skipTls(skipTls)
+                .skipTls(skipTls == null || skipTls)
                 .active(true)
                 .createdAt(applicationTimeService.now())
                 .build();

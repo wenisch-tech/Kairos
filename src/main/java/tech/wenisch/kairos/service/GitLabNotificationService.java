@@ -30,6 +30,7 @@ public class GitLabNotificationService {
     private final OutageNotificationRefRepository outageNotificationRefRepository;
     private final ObjectMapper objectMapper;
     private final ApplicationTimeService applicationTimeService;
+    private final NotificationHttpClientFactory httpClientFactory;
 
     @Transactional
     public void sendOutageNotification(NotificationProvider provider, NotificationEvent event,
@@ -46,7 +47,7 @@ public class GitLabNotificationService {
         String projectId = provider.getGitlabProjectId();
         String token = provider.getGitlabToken();
 
-        RestTemplate rest = new RestTemplate();
+        RestTemplate rest = httpClientFactory.forProvider(provider);
         HttpHeaders headers = buildHeaders(token);
 
         // Verify connectivity: GET the project
@@ -75,7 +76,7 @@ public class GitLabNotificationService {
         body.put("description", description);
         body.put("issue_type", "incident");
 
-        RestTemplate rest = new RestTemplate();
+        RestTemplate rest = httpClientFactory.forProvider(provider, resource);
         HttpHeaders headers = buildHeaders(token);
         headers.setContentType(MediaType.APPLICATION_JSON);
 
@@ -120,7 +121,7 @@ public class GitLabNotificationService {
         body.put("state_event", "close");
         body.put("description", description);
 
-        RestTemplate rest = new RestTemplate();
+        RestTemplate rest = httpClientFactory.forProvider(provider, resource);
         HttpHeaders headers = buildHeaders(token);
         headers.setContentType(MediaType.APPLICATION_JSON);
 

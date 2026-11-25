@@ -135,9 +135,10 @@ Runs an ad-hoc check against a URL or Docker image reference without adding it t
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `target` | string | URL or Docker image reference |
-| `resourceType` | string | `HTTP` or `DOCKER` |
+| `resourceType` | string | `HTTP`, `DOCKER` or `TCP` |
+| `skipTls` | boolean | Optional. Ignore TLS certificate and hostname errors. Defaults to `true` |
 
-**Returns:** status, message, errorCode, latencyMs.
+**Returns:** status, message, errorCode, latencyMs, skipTls.
 
 > Instant checks must be enabled in **Admin → General Settings → Instant Check**.
 
@@ -154,7 +155,7 @@ Adds a new monitored resource and immediately triggers an initial check.
 | `name` | string | Display name |
 | `resourceType` | string | `HTTP` or `DOCKER` |
 | `target` | string | URL (HTTP) or Docker image reference (DOCKER) |
-| `skipTls` | boolean | Skip TLS certificate verification |
+| `skipTls` | boolean | Optional. Skip TLS certificate verification. Defaults to `true` |
 
 **Returns:** the created resource object including its assigned `id`.
 

@@ -57,7 +57,7 @@ public class NotificationAdminController {
 
     @GetMapping("/notification-providers/new")
     public String newProviderForm(Model model) {
-        model.addAttribute("provider", NotificationProvider.builder().smtpUseTls(true).build());
+        model.addAttribute("provider", NotificationProvider.builder().smtpUseTls(true).ignoreTls(true).build());
         model.addAttribute("providerTypes", Arrays.asList(NotificationProviderType.values()));
         model.addAttribute("editMode", false);
         return "admin/notification-provider-form";
@@ -80,6 +80,10 @@ public class NotificationAdminController {
             @RequestParam(required = false) String gitlabBaseUrl,
             @RequestParam(required = false) String gitlabProjectId,
             @RequestParam(required = false) String gitlabToken,
+            @RequestParam(required = false) String mattermostWebhookUrl,
+            @RequestParam(required = false) String mattermostChannel,
+            @RequestParam(required = false) String mattermostUsername,
+            @RequestParam(defaultValue = "false") boolean ignoreTls,
             RedirectAttributes redirectAttributes) {
         NotificationProvider provider = NotificationProvider.builder()
                 .name(name)
@@ -97,6 +101,10 @@ public class NotificationAdminController {
                 .gitlabBaseUrl(nullIfBlank(gitlabBaseUrl))
                 .gitlabProjectId(nullIfBlank(gitlabProjectId))
                 .gitlabToken(nullIfBlank(gitlabToken))
+                .mattermostWebhookUrl(nullIfBlank(mattermostWebhookUrl))
+                .mattermostChannel(nullIfBlank(mattermostChannel))
+                .mattermostUsername(nullIfBlank(mattermostUsername))
+                .ignoreTls(ignoreTls)
                 .build();
         notificationProviderService.save(provider);
         redirectAttributes.addFlashAttribute("successMessage", "Notification provider '" + name + "' created.");
@@ -134,6 +142,10 @@ public class NotificationAdminController {
             @RequestParam(required = false) String gitlabBaseUrl,
             @RequestParam(required = false) String gitlabProjectId,
             @RequestParam(required = false) String gitlabToken,
+            @RequestParam(required = false) String mattermostWebhookUrl,
+            @RequestParam(required = false) String mattermostChannel,
+            @RequestParam(required = false) String mattermostUsername,
+            @RequestParam(defaultValue = "false") boolean ignoreTls,
             RedirectAttributes redirectAttributes) {
         notificationProviderService.findById(id).ifPresent(provider -> {
             provider.setName(name);
@@ -151,6 +163,10 @@ public class NotificationAdminController {
             provider.setGitlabBaseUrl(nullIfBlank(gitlabBaseUrl));
             provider.setGitlabProjectId(nullIfBlank(gitlabProjectId));
             provider.setGitlabToken(nullIfBlank(gitlabToken));
+            provider.setMattermostWebhookUrl(nullIfBlank(mattermostWebhookUrl));
+            provider.setMattermostChannel(nullIfBlank(mattermostChannel));
+            provider.setMattermostUsername(nullIfBlank(mattermostUsername));
+            provider.setIgnoreTls(ignoreTls);
             notificationProviderService.save(provider);
         });
         redirectAttributes.addFlashAttribute("successMessage", "Notification provider updated.");

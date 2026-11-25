@@ -302,7 +302,7 @@ class KairosMcpToolsTest {
 
     @Test
     void runInstantCheckReturnsErrorForInvalidType() {
-        Map<String, Object> result = tools.runInstantCheck("https://example.com", "INVALID");
+        Map<String, Object> result = tools.runInstantCheck("https://example.com", "INVALID", null);
         assertThat(result).containsKey("error");
     }
 
@@ -310,20 +310,32 @@ class KairosMcpToolsTest {
     void runInstantCheckReturnsResultForHttp() {
         InstantCheckExecutionResult execResult = InstantCheckExecutionResult.builder()
                 .status(CheckStatus.AVAILABLE).message("HTTP 200").errorCode("200").latencyMs(100L).build();
-        when(instantCheckService.runInstantCheck(eq(ResourceType.HTTP), eq("https://example.com"), eq(false), eq(false)))
+        when(instantCheckService.runInstantCheck(eq(ResourceType.HTTP), eq("https://example.com"), eq(true), eq(false)))
                 .thenReturn(execResult);
 
-        Map<String, Object> result = tools.runInstantCheck("https://example.com", "HTTP");
-        assertThat(result).containsEntry("status", "AVAILABLE").containsEntry("latencyMs", 100L);
+        Map<String, Object> result = tools.runInstantCheck("https://example.com", "HTTP", null);
+        assertThat(result).containsEntry("status", "AVAILABLE").containsEntry("latencyMs", 100L)
+                .containsEntry("skipTls", true);
         verify(checkAuditService).record("Instant Check", null, "https://example.com", "MCP", "AVAILABLE");
     }
 
     @Test
+    void runInstantCheckHonoursExplicitSkipTlsFalse() {
+        InstantCheckExecutionResult execResult = InstantCheckExecutionResult.builder()
+                .status(CheckStatus.NOT_AVAILABLE).message("PKIX").errorCode("TLS").latencyMs(5L).build();
+        when(instantCheckService.runInstantCheck(eq(ResourceType.HTTP), eq("https://self-signed.example"), eq(false), eq(false)))
+                .thenReturn(execResult);
+
+        Map<String, Object> result = tools.runInstantCheck("https://self-signed.example", "HTTP", false);
+        assertThat(result).containsEntry("skipTls", false).containsEntry("status", "NOT_AVAILABLE");
+    }
+
+    @Test
     void runInstantCheckHandlesException() {
-        when(instantCheckService.runInstantCheck(any(), anyString(), eq(false), eq(false)))
+        when(instantCheckService.runInstantCheck(any(), anyString(), eq(true), eq(false)))
                 .thenThrow(new RuntimeException("Connection refused"));
 
-        Map<String, Object> result = tools.runInstantCheck("https://broken.example.com", "HTTP");
+        Map<String, Object> result = tools.runInstantCheck("https://broken.example.com", "HTTP", null);
         assertThat(result).containsEntry("status", "ERROR").containsKey("error");
     }
 

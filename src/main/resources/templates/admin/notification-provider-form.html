@@ -150,6 +150,43 @@
                             </div>
                         </div>
 
+                        <!-- MATTERMOST fields -->
+                        <div id="mattermostFields" class="border rounded p-4 mb-6" style="display:none;">
+                            <h6 class="font-semibold mb-4"><i class="me-2" data-icon="messages-square" aria-hidden="true"></i>Mattermost Settings</h6>
+                            <div class="mb-4">
+                                <label class="ui-form-label">Mattermost Incoming Webhook URL</label>
+                                <input type="url" class="ui-form-control" name="mattermostWebhookUrl" maxlength="2048"
+                                       th:value="${provider.mattermostWebhookUrl}"
+                                       placeholder="https://mattermost.example.com/hooks/xxxxxxxxxxxxxxxxxxxxxxxxxx">
+                                <div class="ui-form-text">Notifications are sent as colored message attachments.</div>
+                            </div>
+                            <div class="ui-grid gap-4">
+                                <div class="md:col-span-6">
+                                    <label class="ui-form-label">Channel override (optional)</label>
+                                    <input type="text" class="ui-form-control" name="mattermostChannel" maxlength="255"
+                                           th:value="${provider.mattermostChannel}" placeholder="town-square or @username">
+                                </div>
+                                <div class="md:col-span-6">
+                                    <label class="ui-form-label">Username override (optional)</label>
+                                    <input type="text" class="ui-form-control" name="mattermostUsername" maxlength="255"
+                                           th:value="${provider.mattermostUsername}" placeholder="Kairos">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Common HTTP options -->
+                        <div id="ignoreTlsFields" class="mb-6" style="display:none;">
+                            <div class="ui-form-check">
+                                <input class="ui-form-check-input" type="checkbox" id="ignoreTls" name="ignoreTls"
+                                       value="true" th:checked="${provider.ignoreTls == true}">
+                                <label class="ui-form-check-label" for="ignoreTls">Ignore TLS certificate and hostname errors</label>
+                            </div>
+                            <div class="ui-form-text">
+                                Also applied automatically when the affected resource has "Ignore TLS" enabled.
+                                Use only for self-signed or internal endpoints.
+                            </div>
+                        </div>
+
                         <div class="flex gap-2">
                             <button type="submit" class="ui-btn ui-btn-primary">
                                 <i class="me-1" data-icon="save" aria-hidden="true"></i>Save
@@ -172,6 +209,8 @@
         document.getElementById('webhookFields').style.display = (type === 'WEBHOOK') ? '' : 'none';
         document.getElementById('discordFields').style.display = (type === 'DISCORD') ? '' : 'none';
         document.getElementById('gitlabFields').style.display  = (type === 'GITLAB')  ? '' : 'none';
+        document.getElementById('mattermostFields').style.display = (type === 'MATTERMOST') ? '' : 'none';
+        document.getElementById('ignoreTlsFields').style.display  = (type === 'EMAIL') ? 'none' : '';
     }
 
     document.addEventListener('DOMContentLoaded', function () {

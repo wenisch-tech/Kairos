@@ -53,6 +53,20 @@ public class NotificationProvider {
     @Column(length = 2048)
     private String discordWebhookUrl;
 
+    // Mattermost fields
+    @Column(length = 2048)
+    private String mattermostWebhookUrl;
+
+    @Column(length = 255)
+    private String mattermostChannel;
+
+    @Column(length = 255)
+    private String mattermostUsername;
+
+    // Applies to all HTTP-based providers (webhook, Discord, Mattermost, GitLab)
+    @Builder.Default
+    private Boolean ignoreTls = false;
+
     // GitLab fields
     @Column(length = 2048)
     private String gitlabBaseUrl;

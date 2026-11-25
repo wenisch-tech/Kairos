@@ -6,7 +6,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 import tech.wenisch.kairos.entity.MonitoredResource;
 import tech.wenisch.kairos.entity.NotificationEvent;
 import tech.wenisch.kairos.entity.NotificationProvider;
@@ -18,25 +17,27 @@ import tech.wenisch.kairos.entity.Outage;
 public class WebhookNotificationService {
 
     private final ApplicationTimeService applicationTimeService;
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final NotificationHttpClientFactory httpClientFactory;
 
     public void sendOutageNotification(NotificationProvider provider, NotificationEvent event,
                                        Outage outage, MonitoredResource resource) {
         String body = buildBody(provider.getWebhookBodyTemplate(), event, outage, resource);
-        post(provider.getWebhookUrl(), body, provider.getName());
+        post(provider, resource, body);
     }
 
     public void sendTestNotification(NotificationProvider provider) {
         String testBody = "{ \"event\": \"TEST\", \"message\": \"Kairos webhook test notification\" }";
-        post(provider.getWebhookUrl(), testBody, provider.getName());
+        post(provider, null, testBody);
     }
 
-    private void post(String url, String body, String providerName) {
+    private void post(NotificationProvider provider, MonitoredResource resource, String body) {
+        String url = provider.getWebhookUrl();
+        String providerName = provider.getName();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> request = new HttpEntity<>(body, headers);
         try {
-            restTemplate.postForEntity(url, request, String.class);
+            httpClientFactory.forProvider(provider, resource).postForEntity(url, request, String.class);
             log.info("Webhook notification sent to {} via provider '{}'", url, providerName);
         } catch (Exception e) {
             log.error("Failed to send webhook notification via provider '{}': {}", providerName, e.getMessage(), e);

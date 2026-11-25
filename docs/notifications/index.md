@@ -2,7 +2,7 @@
 
 Kairos can notify you when a resource goes down or comes back up. The notification system is built around two concepts that work together:
 
-- **Providers** — define *how* a notification is delivered (Email, Discord, Webhook, GitLab)
+- **Providers** — define *how* a notification is delivered (Email, Discord, Mattermost, Webhook, GitLab)
 - **Policies** — define *when* and *for which resources* a provider is triggered
 
 ## How It Works
@@ -17,7 +17,7 @@ NotificationDispatchService
 NotificationPolicy  (scope check)
      │  passes? → delegate to provider
      ▼
-NotificationProvider  (EMAIL / DISCORD / WEBHOOK / GITLAB)
+NotificationProvider  (EMAIL / DISCORD / MATTERMOST / WEBHOOK / GITLAB)
      │
      ▼
 Notification sent
@@ -36,6 +36,7 @@ Failures in one provider never block notifications from other policies.
 | Email (SMTP) | `EMAIL` | Sends plain-text outage emails via any SMTP server |
 | Webhook | `WEBHOOK` | HTTP POST with a configurable JSON template |
 | Discord | `DISCORD` | Rich embed message via a Discord webhook URL |
+| Mattermost | `MATTERMOST` | Colored message attachment via a Mattermost incoming webhook |
 | GitLab | `GITLAB` | Creates and closes GitLab incidents via the Issues API |
 
 ## Sections
