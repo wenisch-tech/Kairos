@@ -118,7 +118,7 @@ jobs:
             -DoutputDirectory=./release
 
       - name: Install Cosign
-        uses: sigstore/cosign-installer@v4.1.2
+        uses: sigstore/cosign-installer@v4.1.4
 
       - name: Sign Helm chart
         shell: bash
