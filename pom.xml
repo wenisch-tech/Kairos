@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.1.2</version>
+        <version>4.2.0</version>
         <relativePath/>
     </parent>
 
@@ -21,15 +21,15 @@
     <properties>
         <java.version>25</java.version>
         <tomcat.version>11.0.29</tomcat.version>
-        <flyway.version>12.11.0</flyway.version>
-        <jackson-2-bom.version>2.21.8</jackson-2-bom.version>
-        <jackson-bom.version>3.1.8</jackson-bom.version>
+        <flyway.version>13.13.0</flyway.version>
+        <jackson-2-bom.version>2.23.0</jackson-2-bom.version>
+        <jackson-bom.version>3.3.0</jackson-bom.version>
         <log4j2.version>2.26.1</log4j2.version>
-        <postgresql.version>42.7.14</postgresql.version>
-        <spring-ai.version>2.0.2</spring-ai.version>
-        <mcp-sdk.version>2.1.0</mcp-sdk.version>
-        <springdoc-openapi.version>3.2.0</springdoc-openapi.version>
-        <native-build-tools.version>1.1.18</native-build-tools.version>
+        <postgresql.version>42.7.15</postgresql.version>
+        <spring-ai.version>2.1.0</spring-ai.version>
+        <mcp-sdk.version>2.2.0</mcp-sdk.version>
+        <springdoc-openapi.version>3.2.1</springdoc-openapi.version>
+        <native-build-tools.version>1.1.19</native-build-tools.version>
         <nimbus-jose-jwt.version>10.10</nimbus-jose-jwt.version>
         <thymeleaf.version>3.1.7.RELEASE</thymeleaf.version>
         <thymeleaf-extras-springsecurity.version>3.1.7.RELEASE</thymeleaf-extras-springsecurity.version>
@@ -185,7 +185,7 @@
             <plugin>
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
-                <version>1.15.4</version>
+                <version>2.0.2</version>
                 <configuration>
                     <nodeVersion>v22.22.0</nodeVersion>
                     <npmVersion>10.9.4</npmVersion>
